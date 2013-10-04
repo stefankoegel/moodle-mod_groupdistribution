@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/groupdistribution/db" VERSION="20130930" COMMENT="XMLDB file for Moodle mod/groupdistribution"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="groupdistribution" COMMENT="Data about the groupdistribution activity associated with a course.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course groupdistribution activity belongs to"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="name field for moodle instances"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="General introduction of the groupdistribution activity"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="begindate" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Date from which on users can give ratings for courses."/>
+        <FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Users can only give ratings until this date."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseindex" UNIQUE="true" FIELDS="courseid" COMMENT="Index over courseid."/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="groupdistribution_data" COMMENT="Associates addtional data with a group.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="groupsid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The group to which the additional data belongs."/>
+        <FIELD NAME="maxsize" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="20" SEQUENCE="false" COMMENT="Maximum number of users that fit into the group."/>
+        <FIELD NAME="israteable" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Users can only see and rate the group if this field is different from zero."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="groupsindex" UNIQUE="true" FIELDS="groupsid" COMMENT="Index over groupsid."/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="groupdistribution_ratings" COMMENT="The users' ratings for their groups.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="groupsid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The group to which the rating belongs."/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The course to which the rating belongs."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The user to which the rating belongs."/>
+        <FIELD NAME="rating" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="3" SEQUENCE="false" COMMENT="The value of the rating. Higher means: the user prefers this group more."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="groupindex" UNIQUE="false" FIELDS="groupsid, courseid" COMMENT="Combination of groups and course id. Zero or one per user."/>
+        <INDEX NAME="userindex" UNIQUE="false" FIELDS="userid" COMMENT="Index over user ids."/>
+        <INDEX NAME="ratingindex" UNIQUE="true" FIELDS="userid, groupsid, courseid" COMMENT="User, groups and course id should be unique."/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

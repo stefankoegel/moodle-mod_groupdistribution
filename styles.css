@@ -1,0 +1,29 @@
+div.groupdistribution_description_box {
+	border: solid #ddd 1px;
+}
+td.cell.groupdistribution_rating_impossible {
+	background-color: gray;
+}
+td.cell.groupdistribution_rating_worst {
+	background-color: red;
+}
+td.cell.groupdistribution_rating_bad {
+	background-color: orange;
+}
+td.cell.groupdistribution_rating_ok {
+	background-color: yellow;
+}
+td.cell.groupdistribution_rating_good {
+	background-color: cyan;
+}
+td.cell.groupdistribution_rating_best {
+	background-color: green;
+}
+.box.groupdistribution_ratings_box {
+	overflow: scroll;
+	height: 500px;
+}
+td.cell.groupdistribution_member {
+	color: white;
+	border: solid black 3px;
+}
