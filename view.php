@@ -85,12 +85,17 @@ if($groupdistribution->intro) {
 }
 
 if(has_capability('mod/groupdistribution:start_distribution', $context)) {
-	echo $renderer->show_groupdistribution();
+	echo $renderer->show_controls();
 } else if(is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
 	echo $renderer->display_user_rating_form();
 } else {
 	echo $renderer->box(get_string('not_enrolled'));
 }
+if($action == SHOW_TABLE) {
+	require_capability('mod/groupdistribution:start_distribution', $context);
+	echo $renderer->show_groupdistribution();
+}
+
 
 // Finish the page
 echo $renderer->footer();

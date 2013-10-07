@@ -68,23 +68,25 @@ function groupdistribution_add_instance(stdClass $groupdistribution, mod_groupdi
 
     $groupdistribution->timecreated = time();
 
-    foreach($groupdistribution->data as $id => $data) {
-        // Create a new entry in groupdistribution_data
-        // so we need a groupsid but no id.
-        $groupdata = new stdClass();
-        $groupdata->groupsid   = $data['groupsid'];
-        $groupdata->maxsize    = $data['maxsize'];
-        $groupdata->israteable = $data['rateable'];
+		if(property_exists($groupdistribution, 'data')) {
+			foreach($groupdistribution->data as $id => $data) {
+				// Create a new entry in groupdistribution_data
+				// so we need a groupsid but no id.
+				$groupdata = new stdClass();
+				$groupdata->groupsid   = $data['groupsid'];
+				$groupdata->maxsize    = $data['maxsize'];
+				$groupdata->israteable = $data['rateable'];
 
-        $DB->insert_record('groupdistribution_data', $groupdata);
+				$DB->insert_record('groupdistribution_data', $groupdata);
 
-        // Update the description of the group
-        $groupdescription = new stdClass();
-        $groupdescription->id          = $data['groupsid'];
-        $groupdescription->description = $data['description']['text'];
+				// Update the description of the group
+				$groupdescription = new stdClass();
+				$groupdescription->id          = $data['groupsid'];
+				$groupdescription->description = $data['description']['text'];
 
-        $DB->update_record('groups', $groupdescription);
-    }
+				$DB->update_record('groups', $groupdescription);
+			}
+		}
 
     return $DB->insert_record('groupdistribution', $groupdistribution);
 }
@@ -106,23 +108,25 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
     $groupdistribution->timemodified = time();
     $groupdistribution->id = $groupdistribution->instance;
 
-    foreach($groupdistribution->data as $id => $data) {
-        // A groupdistribution_data entry already exists
-        // so we don't need to resubmit groupsid.
-        $groupdata = new stdClass();
-        $groupdata->id         = $data['groupdataid'];
-        $groupdata->maxsize    = $data['maxsize'];
-        $groupdata->israteable = $data['rateable'];
+		if(property_exists($groupdistribution, 'data')) {
+			foreach($groupdistribution->data as $id => $data) {
+				// A groupdistribution_data entry already exists
+				// so we don't need to resubmit groupsid.
+				$groupdata = new stdClass();
+				$groupdata->id         = $data['groupdataid'];
+				$groupdata->maxsize    = $data['maxsize'];
+				$groupdata->israteable = $data['rateable'];
 
-        $DB->update_record('groupdistribution_data', $groupdata);
+				$DB->update_record('groupdistribution_data', $groupdata);
 
-        // Update the description of the group
-        $groupdescription = new stdClass();
-        $groupdescription->id          = $data['groupsid'];
-        $groupdescription->description = $data['description']['text'];
+				// Update the description of the group
+				$groupdescription = new stdClass();
+				$groupdescription->id          = $data['groupsid'];
+				$groupdescription->description = $data['description']['text'];
 
-        $DB->update_record('groups', $groupdescription);
-    }
+				$DB->update_record('groups', $groupdescription);
+			}
+		}
 
     return $DB->update_record('groupdistribution', $groupdistribution);
 }

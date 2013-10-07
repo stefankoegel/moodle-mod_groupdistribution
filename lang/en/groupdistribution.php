@@ -54,3 +54,7 @@ $string['too_early_to_rate_1'] = 'You can not yet give your ratings. Come back b
 $string['too_early_to_rate_2'] = ' and ';
 $string['too_early_to_rate_3'] = '.';
 $string['invalid_dates'] = 'The begin date must be before the end date!';
+$string['start_distribution_explanation'] = 'Start the distribution process. This might take some time. Contatct your admin if php runs out of time (sry).';
+$string['clear_groups_explanation'] = 'Remove all users from groups for which they gave a rating. If a user is in a group of the same course for which he didn\'t supply a rating (because it was not rateable) he will stay in that group.';
+$string['view_distribution_table'] = 'Show the anonymized ratings of all users in a table.';
+$string['show_table'] = 'Show table';

@@ -35,8 +35,7 @@ define('FROM', 2);
 define('ACTION_RATE', 'rate');
 define('ACTION_START', 'start_distribution');
 define('ACTION_CLEAR', 'clear_groups');
-
-// TODO getrecordset!!!!!
+define('SHOW_TABLE', 'show_table');
 
 require_once($CFG->dirroot . '/mod/groupdistribution/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
@@ -60,10 +59,7 @@ function test_shortest_path($courseid) {
 
 	$groupCount = count($groupData); //$DB->count_records('groupdistribution_data', array('courseid' => $courseid));
 
-	$countUsersSQL = 'SELECT COUNT(DISTINCT gd.userid)
-	                    FROM {groupdistribution_ratings} AS gd
-	                   WHERE gd.courseid = :courseid';
-	$userCount = $DB->count_records_sql($countUsersSQL, array('courseid' => $courseid));
+	$userCount = count_users_with_ratings($courseid);
 
 	$ratings = $DB->get_records('groupdistribution_ratings', array('courseid' => $courseid));
 
@@ -111,8 +107,10 @@ function test_shortest_path($courseid) {
 	}
 	$graph2[$sink] = array();
 
+	
+
 	for($i = 1; $i <= $userCount; $i++) {
-		print($i . ': ' . (time() - $time) . '<br>');
+		// print($i . ': ' . (time() - $time) . '<br>');
 		$path = find_shortest_path($source, $sink, $graph2);
 		if(is_null($path)) {
 			continue;
@@ -127,6 +125,15 @@ function test_shortest_path($courseid) {
 			groups_add_member($groupsid, $userid);
 		}
 	}
+}
+
+function count_users_with_ratings($courseid) {
+	global $DB;
+
+	$countUsersSQL = 'SELECT COUNT(DISTINCT gd.userid)
+	                    FROM {groupdistribution_ratings} AS gd
+	                   WHERE gd.courseid = :courseid';
+	return $DB->count_records_sql($countUsersSQL, array('courseid' => $courseid));
 }
 
 function memberships_per_course($courseid) {
@@ -257,7 +264,7 @@ function find_shortest_path($from, $to, &$graph) {
 			}	
 		}
 	}
-	print('counter: ' . $counter . '<br>');
+	// print('counter: ' . $counter . '<br>');
 
 	if($counter == $limit) {
 		print_error('Negative cycle detected!');
