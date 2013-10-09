@@ -27,6 +27,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="groupsid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The group to which the additional data belongs."/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The course to which the additional data belongs."/>
         <FIELD NAME="maxsize" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="20" SEQUENCE="false" COMMENT="Maximum number of users that fit into the group."/>
         <FIELD NAME="israteable" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Users can only see and rate the group if this field is different from zero."/>
       </FIELDS>
@@ -35,6 +36,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="groupsindex" UNIQUE="true" FIELDS="groupsid" COMMENT="Index over groupsid."/>
+        <INDEX NAME="courseindex" UNIQUE="false" FIELDS="courseid" COMMENT="Index over courseid."/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="groupdistribution_ratings" COMMENT="The users' ratings for their groups.">

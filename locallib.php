@@ -43,25 +43,25 @@ require_once($CFG->dirroot . '/group/lib.php');
 function test_shortest_path($courseid) {
 	global $DB;
 
-	$time = time();
+	clear_all_groups_in_course($courseid);
 
-	$joinGroupdata = 'SELECT *
-	                    FROM {groupdistribution_data} AS gd
-	                    JOIN {groups} AS g
-	                      ON g.id = gd.groupsid
-	                   WHERE g.courseid = :courseid';
-	$groupRecords = $DB->get_records_sql($joinGroupdata, array('courseid' => $courseid));
+	$groupRecords = get_rateable_groups_for_course($courseid);
 
 	$groupData = array();
 	foreach($groupRecords as $record) {
 		$groupData[$record->groupsid] = $record;
 	}
 
-	$groupCount = count($groupData); //$DB->count_records('groupdistribution_data', array('courseid' => $courseid));
+	$groupCount = count($groupData);
 
-	$userCount = count_users_with_ratings($courseid);
+	$userCount = count(all_enrolled_users_in_course($courseid));
 
-	$ratings = $DB->get_records('groupdistribution_ratings', array('courseid' => $courseid));
+	$ratins_for_rateable_groups = 'SELECT r.groupsid, r.userid, r.rating
+	                                 FROM {groupdistribution_ratings} AS r
+																	 JOIN {groupdistribution_data} AS d
+																	   ON r.groupsid = d.groupsid
+																	WHERE r.courseid = :courseid AND d.israteable = 1';
+	$ratings = $DB->get_records_sql($ratings_for_rateable_groups, array('courseid' => $courseid));
 
 	$graph2 = array();
 	$fromUserid = array();
@@ -110,7 +110,6 @@ function test_shortest_path($courseid) {
 	
 
 	for($i = 1; $i <= $userCount; $i++) {
-		// print($i . ': ' . (time() - $time) . '<br>');
 		$path = find_shortest_path($source, $sink, $graph2);
 		if(is_null($path)) {
 			continue;
@@ -127,13 +126,49 @@ function test_shortest_path($courseid) {
 	}
 }
 
-function count_users_with_ratings($courseid) {
+function get_rateable_groups_for_course($courseid) {
 	global $DB;
 
-	$countUsersSQL = 'SELECT COUNT(DISTINCT gd.userid)
-	                    FROM {groupdistribution_ratings} AS gd
-	                   WHERE gd.courseid = :courseid';
-	return $DB->count_records_sql($countUsersSQL, array('courseid' => $courseid));
+	$sql = 'SELECT *
+		        FROM {groupdistribution_data} AS d
+		        JOIN {groups} AS g
+		          ON g.id = d.groupsid
+		       WHERE g.courseid = :courseid AND d.israteable = 1';
+	return $DB->get_records_sql($sql, array('courseid' => $courseid));
+}
+
+function get_rating_data_for_user_in_course($courseid, $userid) {
+	global $DB;
+
+	$sql = "SELECT r.id, g.description, g.name, d.groupsid, g.courseid, r.rating, r.id AS ratingid
+		        FROM {groupdistribution_data} AS d
+		        JOIN {groups} AS g
+		          ON g.id = d.groupsid
+		   LEFT JOIN {groupdistribution_ratings} AS r
+		          ON g.id = r.groupsid
+		       WHERE g.courseid = :courseid AND d.israteable = 1 AND (r.userid = :userid OR r.userid IS NULL)";
+	return $DB->get_records_sql($sql, array('courseid' => $courseid, 'userid' => $userid));
+}
+
+function get_all_ratings_for_rateable_groups_in_course($courseid) {
+	global $DB;
+
+	$sql = 'SELECT r.*
+		        FROM {groupdistribution_data} AS d
+		        JOIN {groupdistribution_ratings} AS r
+		          ON d.groupsid = r.groupsid
+		       WHERE d.courseid = :courseid AND d.israteable';
+	return $DB->get_records_sql($sql, array('courseid' => $courseid));
+}
+
+function all_enrolled_users_in_course($courseid) {
+	global $DB;
+	
+	$context = get_context_instance(CONTEXT_COURSE, $courseid);
+	$student_role = $DB->get_record('role', array('shortname' => 'student'));
+	// Documentation: lib/acceslib.php
+	$students = get_role_users($student_role->id, $context, false, 'u.id, u.username');
+	return $students;
 }
 
 function memberships_per_course($courseid) {
@@ -264,7 +299,6 @@ function find_shortest_path($from, $to, &$graph) {
 			}	
 		}
 	}
-	// print('counter: ' . $counter . '<br>');
 
 	if($counter == $limit) {
 		print_error('Negative cycle detected!');

@@ -43,12 +43,12 @@ defined('MOODLE_INTERNAL') || die();
  * @return mixed true if the feature is supported, null if unknown
  */
 function groupdistribution_supports($feature) {
-    switch($feature) {
-        case FEATURE_MOD_INTRO:         return true;
-        case FEATURE_SHOW_DESCRIPTION:  return true;
+	switch($feature) {
+		case FEATURE_MOD_INTRO:         return true;
+		case FEATURE_SHOW_DESCRIPTION:  return true;
 
-        default:                        return null;
-    }
+		default:                        return null;
+	}
 }
 
 /**
@@ -64,16 +64,20 @@ function groupdistribution_supports($feature) {
  * @return int The id of the newly inserted groupdistribution record
  */
 function groupdistribution_add_instance(stdClass $groupdistribution, mod_groupdistribution_mod_form $mform = null) {
-    global $DB;
+	global $DB, $USER;
 
-    $groupdistribution->timecreated = time();
+	$groupdistribution->timecreated = time();
 
+	try {
+		$transaction = $DB->start_delegated_transaction();
 		if(property_exists($groupdistribution, 'data')) {
 			foreach($groupdistribution->data as $id => $data) {
+
 				// Create a new entry in groupdistribution_data
 				// so we need a groupsid but no id.
 				$groupdata = new stdClass();
 				$groupdata->groupsid   = $data['groupsid'];
+				$groupdata->courseid   = $groupdistribution->courseid;
 				$groupdata->maxsize    = $data['maxsize'];
 				$groupdata->israteable = $data['rateable'];
 
@@ -87,8 +91,17 @@ function groupdistribution_add_instance(stdClass $groupdistribution, mod_groupdi
 				$DB->update_record('groups', $groupdescription);
 			}
 		}
+		$id = $DB->insert_record('groupdistribution', $groupdistribution);
+		add_to_log($groupdistribution->courseid, 'course', 'modedit',
+			'course/modedit.php?add=groupdistribution&course=' . $groupdistribution->courseid . '&section=0',
+			'Created instance', $groupdistribution->coursemodule, $USER->id);
+	
+		$transaction->allow_commit();
 
-    return $DB->insert_record('groupdistribution', $groupdistribution);
+		return $id;
+	} catch(Exception $e) {
+		$transaction->rollback($e);
+	}
 }
 
 /**
@@ -103,21 +116,32 @@ function groupdistribution_add_instance(stdClass $groupdistribution, mod_groupdi
  * @return boolean Success/Fail
  */
 function groupdistribution_update_instance(stdClass $groupdistribution, mod_groupdistribution_mod_form $mform = null) {
-    global $DB;
+	global $DB, $USER;
 
-    $groupdistribution->timemodified = time();
-    $groupdistribution->id = $groupdistribution->instance;
+	$groupdistribution->timemodified = time();
+	$groupdistribution->id = $groupdistribution->instance;
 
+	//TODO 'if' loswerden
+	try {
+		$transaction = $DB->start_delegated_transaction();
 		if(property_exists($groupdistribution, 'data')) {
 			foreach($groupdistribution->data as $id => $data) {
-				// A groupdistribution_data entry already exists
-				// so we don't need to resubmit groupsid.
 				$groupdata = new stdClass();
-				$groupdata->id         = $data['groupdataid'];
 				$groupdata->maxsize    = $data['maxsize'];
 				$groupdata->israteable = $data['rateable'];
 
-				$DB->update_record('groupdistribution_data', $groupdata);
+				if($DB->record_exists('groupdistribution_data', array('groupsid' => $data['groupsid']))) {
+
+					// groupdata already exists, use the id from the form to updat it
+					$groupdata->id = $data['groupdataid'];
+					$DB->update_record('groupdistribution_data', $groupdata);
+				} else {
+
+					// Create new entry in groupdata and set its groupsid
+					$groupdata->groupsid   = $data['groupsid'];
+					$groupdata->courseid   = $groupdistribution->courseid;
+					$DB->insert_record('groupdistribution_data', $groupdata);
+				}
 
 				// Update the description of the group
 				$groupdescription = new stdClass();
@@ -127,8 +151,18 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
 				$DB->update_record('groups', $groupdescription);
 			}
 		}
+		$bool = $DB->update_record('groupdistribution', $groupdistribution);
+		add_to_log($groupdistribution->courseid, 'groupdistribution', 'modedit',
+			'course/modedit.php?update=' . $groupdistribution->coursemodule,
+			'Saved changes', $groupdistribution->coursemodule, $USER->id);
+		
+		$transaction->allow_commit();
 
-    return $DB->update_record('groupdistribution', $groupdistribution);
+		return $bool;
+
+	} catch(Exception $e) {
+		$transaction->rollback($e);
+	}
 }
 
 /**
@@ -142,51 +176,78 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
  * @return boolean Success/Failure
  */
 function groupdistribution_delete_instance($id) {
-    global $DB;
+	global $DB, $USER;
 
-    $groupdistribution = $DB->get_record('groupdistribution', array('id' => $id));
-    if (! $groupdistribution) {
-        return false;
-    }
+	$groupdistribution = $DB->get_record('groupdistribution', array('id' => $id));
+	if (! $groupdistribution) {
+		return false;
+	}
 
-    $DB->delete_records('groupdistribution_ratings', array('courseid' => $groupdistribution->courseid));
+	try {
+		$transaction = $DB->start_delegated_transaction();
 
-    $DB->delete_records('groupdistribution_data', array('courseid' => $groupdistribution->courseid));
-    $DB->delete_records('groupdistribution', array('id' => $groupdistribution->id));
+		$DB->delete_records('groupdistribution_ratings', array('courseid' => $groupdistribution->courseid));
+		$DB->delete_records('groupdistribution_data', array('courseid' => $groupdistribution->courseid));
+		$DB->delete_records('groupdistribution', array('id' => $id));
+		add_to_log($groupdistribution->courseid, 'course', 'mod',
+			'course/mod.php?delete=' . $groupdistribution->id,
+			'Deleted groupdistribution', $groupdistribution->id, $USER->id);
+	
+		$transaction->allow_commit();
+	} catch(Exception $e) {
+		$transaction->rollback($e);
+	}
 
-    return true;
+	return true;
 }
 
 /**
- *
- *
+ * Saves the ratings from user with $userid for the groups in the
+ * course with $courseid.
+ * $data should contain arrays with keys 'groupsid' and 'rating' which
+ * specify the ratings for the respective groups.
  */
-function save_ratings_to_db($userid, $data) {
-    global $DB;
+function save_ratings_to_db($courseid, $userid, array $data) {
+	global $DB;
 
-    foreach($data as $id => $rdata) {
-        // Make sure that users can only change their own ratings
-        $test = array('id' => $rdata['ratingid'], 'userid' => $userid);
-        if(! $DB->record_exists('groupdistribution_ratings', $test)) {
-            print_error('This user is not allowed to change that rating!');
-        }
+	try {
+		$transaction = $DB->start_delegated_transaction();
 
-        $rating = new stdClass();
-        // $rating->groupsid = $rdata->groupsid;
-        // $rating->courseid = $courseid;
-        // $rating->userid = $userid;
-        $rating->id = $rdata['ratingid'];
-        $rating->rating = $rdata['rating'];
+		foreach($data as $id => $rdata) {
+			$rating = new stdClass();
+			$rating->rating = $rdata['rating'];
 
-        $DB->update_record('groupdistribution_ratings', $rating);
+			//TODO courseid und groupsid checken, dass sie zusammenpassen...
 
-        // if($rating['ratingid']) {
-        //     $rating->id = $rating['ratingid'];
-        //     $DB->update_record('groupdistribution_ratings', $rating);
-        // } else {
-        //     $DB->insert_record('groupdistribution_ratings', $rating);
-        // }
-    }
+			// Make sure that users can only change their own ratings
+			$test = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid'], 'userid' => $userid);
+
+			if($DB->record_exists('groupdistribution_ratings', $test)) {
+				// The rating exists, we need to update its value
+				// We get the id from the database to prevent users tampering with the html form
+
+				$old_rating = $DB->get_record('groupdistribution_ratings', $test);
+				$rating->id = $old_rating->id;
+				$DB->update_record('groupdistribution_ratings', $rating);
+			} else {
+				// Create a new rating in the table
+
+				$rating->userid = $userid;
+				$rating->groupsid = $rdata['groupsid'];
+				$rating->courseid = $courseid;
+				$DB->insert_record('groupdistribution_ratings', $rating);
+			}
+		}
+		$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $courseid));
+		$course_module = $DB->get_record('course_modules', array('instance' => $groupdistribution->id));
+		add_to_log($courseid, 'groupdistribution', 'view',
+			'view.php?id=' . $course_module->id,
+			'User saved rating', $course_module->id, $userid);
+
+		$transaction->allow_commit();
+	} catch(Exception $e) {
+		$transaction->rollback($e);
+	}
 }
 
 
@@ -201,10 +262,10 @@ function save_ratings_to_db($userid, $data) {
  */
 function groupdistribution_user_outline($course, $user, $mod, $groupdistribution) {
 
-    $return = new stdClass();
-    $return->time = 0;
-    $return->info = '';
-    return $return;
+	$return = new stdClass();
+	$return->time = 0;
+	$return->info = '';
+	return $return;
 }
 
 /**
@@ -228,7 +289,7 @@ function groupdistribution_user_complete($course, $user, $mod, $groupdistributio
  * @return boolean
  */
 function groupdistribution_print_recent_activity($course, $viewfullnames, $timestart) {
-    return false;  //  True if anything was printed, otherwise false
+	return false;  //  True if anything was printed, otherwise false
 }
 
 /**
@@ -267,7 +328,7 @@ function groupdistribution_print_recent_mod_activity($activity, $courseid, $deta
  * @todo Finish documenting this function
  **/
 function groupdistribution_cron () {
-    return true;
+	return true;
 }
 
 /**
@@ -277,5 +338,5 @@ function groupdistribution_cron () {
  * @return array
  */
 function groupdistribution_get_extra_capabilities() {
-    return array();
+	return array();
 }

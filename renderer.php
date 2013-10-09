@@ -42,7 +42,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			return $this->notification($output);
 		}
 		if($groupdistribution->enddate < time()) {
-			return $this->box(get_string('rating_is_over', 'groupdistribution'));
+			return $this->notification(get_string('rating_is_over', 'groupdistribution'));
 		}
 
 		$mform = new mod_groupdistribution_view_form();
@@ -62,27 +62,34 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		$output .= $this->box_start();
 
 		if($groupdistribution->enddate < time()) {
+			// Rating period is over, show the buttons
+
 			$output .= $this->box_start();
 			$output .= get_string('start_distribution_explanation', 'groupdistribution');
+			$output .= '<br><br>';
 			$output .= $this->single_button($startURL,
 					get_string('start_distribution', 'groupdistribution'));
 			$output .= $this->box_end();
 
 			$output .= $this->box_start();
 			$output .= get_string('clear_groups_explanation', 'groupdistribution');
+			$output .= '<br><br>';
 			$output .= $this->single_button($clearURL,
 					get_string('clear_groups', 'groupdistribution'));
 			$output .= $this->box_end();
 		} else {
-			$output .= get_string('rating_period_1', 'groupdistribution');
+			// Rating period is not over, tell the teacher
+			$output .= get_string('too_early_to_distribute_1', 'groupdistribution');
 			$output .= userdate($groupdistribution->begindate);
-			$output .= get_string('rating_period_2', 'groupdistribution');
+			$output .= get_string('too_early_to_distribute_2', 'groupdistribution');
 			$output .= userdate($groupdistribution->enddate);
-			$output .= get_string('rating_period_3', 'groupdistribution');
+			$output .= get_string('too_early_to_distribute_3', 'groupdistribution');
+			$output .= '<br><br>';
 		}
 
 		$output .= $this->box_start();
 		$output .= get_string('view_distribution_table', 'groupdistribution');
+		$output .= '<br><br>';
 		$output .= $this->single_button($tableURL,
 				get_string('show_table', 'groupdistribution'));
 		$output .= $this->box_end();
@@ -91,14 +98,15 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		return $output;
 	}
 
-	function show_groupdistribution() {
+	function show_groupdistribution_tables() {
 		global $DB, $PAGE, $COURSE;
 
-		$groups = $DB->get_records('groups', array('courseid' => $COURSE->id));
+		$groups = get_rateable_groups_for_course($COURSE->id);
 		$groupNames = array();
 		foreach($groups as $group) {
 			$groupNames[$group->id] = $group->name;
 		}
+		ksort($groupNames);
 
 		$ratingNames = array(
 			'impossible',
@@ -108,13 +116,14 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			'good',
 			'best');
 
-		// I noticed no speedup with get_recordSET. Keeping the simpler version.
-		$ratings = $DB->get_records('groupdistribution_ratings', array('courseid' => $COURSE->id));
+		$ratings = get_all_ratings_for_rateable_groups_in_course($COURSE->id);
 		$memberships = memberships_per_course($COURSE->id);
 
 		$ratings_cells = array();
-		$distribution_data = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0, 0 => 0);
+		$distribution_data = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
+
 		foreach($ratings as $rating) {
+
 			// Create a cell in the table for each rating
 			if(!array_key_exists($rating->userid, $ratings_cells)) {
 				$ratings_cells[$rating->userid] = array();
@@ -126,14 +135,29 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			// Check if the user has been distributed along this rating
 			if(array_key_exists($rating->userid, $memberships)
 				and array_key_exists($rating->groupsid, $memberships[$rating->userid])) {
-				// Highlight the cell/rating
+				// Highlight the cell
 				$cell->attributes['class'] .= ' groupdistribution_member';
 
 				$distribution_data[$rating->rating]++;
 			}
-
 			$ratings_cells[$rating->userid][$rating->groupsid] = $cell;
 		}
+
+		$users_in_course = all_enrolled_users_in_course($COURSE->id);
+		foreach($users_in_course as $user) {
+			if(!array_key_exists($user->id, $ratings_cells)) {
+				$ratings_cells[$user->id] = array();
+			}
+			foreach($groupNames as $groupsid => $name) {
+				if(!array_key_exists($groupsid, $ratings_cells[$user->id])) {
+					$cell = new html_table_cell();
+					$cell->text = get_string('no_rating_given', 'groupdistribution');
+					$ratings_cells[$user->id][$groupsid] = $cell;
+				}
+			}
+			ksort($ratings_cells[$user->id]);
+		}
+
 		$ratings_table = new html_table();
 		$ratings_table->data = $ratings_cells;
 		$ratings_table->head = $groupNames;
@@ -151,7 +175,8 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			$distribution_head[$rating] = $cell;
 		}
 		$cell = new html_table_cell();
-		$cell->text = count_users_with_ratings($COURSE->id) - count($memberships);
+		//$cell->text = count_users_with_ratings($COURSE->id) - count($memberships);
+		$cell->text = count($users_in_course) - count($memberships);
 		$distribution_row[] = $cell;
 		$cell = new html_table_cell();
 		$cell->text = get_string('unassigned_users', 'groupdistribution');
@@ -165,13 +190,13 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		$output .= $this->box_start();
 		$output .= $this->box_start();
 		$output .= get_string('distribution_table', 'groupdistribution');
-		$output .= '<br>';
+		$output .= '<br><br>';
 		$output .= html_writer::table($distribution_table);
 		$output .= $this->box_end();
 
 		$output .= $this->box_start();
 		$output .= get_string('ratings_table', 'groupdistribution');
-		$output .= '<br>';
+		$output .= '<br><br>';
 		$output .= $this->box(html_writer::table($ratings_table), 'groupdistribution_ratings_box');
 		$output .= $this->box_end();
 

@@ -25,21 +25,22 @@
 
 require_once('../../config.php');
 require_once('locallib.php');
+require_once('view_form.php');
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $courseid = optional_param('courseid', 0, PARAM_INT); // course ID
 $action = optional_param('action', '', PARAM_TEXT);
 
 if ($id) {
-    $cm = get_coursemodule_from_id('groupdistribution', $id, 0, false, MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $groupdistribution = $DB->get_record('groupdistribution', array('id' => $cm->instance), '*', MUST_EXIST);
+	$cm = get_coursemodule_from_id('groupdistribution', $id, 0, false, MUST_EXIST);
+	$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+	$groupdistribution = $DB->get_record('groupdistribution', array('id' => $cm->instance), '*', MUST_EXIST);
 } elseif ($courseid) {
 	$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $courseid), '*', MUST_EXIST);
 	$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
-    $cm = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $course->id, false, MUST_EXIST);
+	$cm = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $course->id, false, MUST_EXIST);
 } else {
-    print_error('You must specify a course_module ID or an instance ID');
+	print_error('You must specify a course_module ID or an instance ID');
 }
 
 require_login($course, true, $cm);
@@ -57,13 +58,15 @@ $PAGE->set_context($context);
 if($action == ACTION_RATE and is_enrolled($context)) {
 	require_capability('mod/groupdistribution:give_rating', $context);
 
-	// $data = required_param_array('data', PARAM_RAW, true);
-	// required_param_array cannot handle arrays of arrays,
-	// so this must be done by hand.
-	$data = $_POST['data'];
+	$mform = new mod_groupdistribution_view_form();
+	if($mform->is_cancelled()) {
+		redirect($PAGE->url);
+	}
+
+	$data = $mform->get_data()->data;
 	$data = clean_param_array($data, PARAM_INT, true);
 
-	save_ratings_to_db($USER->id, $data);
+	save_ratings_to_db($COURSE->id, $USER->id, $data);
 	redirect($PAGE->url, get_string('ratings_saved', 'groupdistribution'));
 }
 if($action == ACTION_START) {
@@ -80,8 +83,8 @@ $renderer = $PAGE->get_renderer('mod_groupdistribution');
 echo $renderer->header();
 
 if($groupdistribution->intro) {
-    echo $renderer->box(format_module_intro('groupdistribution', $groupdistribution, $cm->id),
-    	'generalbox mod_introbox', 'groupdistributionintro');
+	echo $renderer->box(format_module_intro('groupdistribution', $groupdistribution, $cm->id),
+			'generalbox mod_introbox', 'groupdistributionintro');
 }
 
 if(has_capability('mod/groupdistribution:start_distribution', $context)) {
@@ -93,7 +96,7 @@ if(has_capability('mod/groupdistribution:start_distribution', $context)) {
 }
 if($action == SHOW_TABLE) {
 	require_capability('mod/groupdistribution:start_distribution', $context);
-	echo $renderer->show_groupdistribution();
+	echo $renderer->show_groupdistribution_tables();
 }
 
 
