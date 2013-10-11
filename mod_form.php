@@ -39,9 +39,25 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 	 * Defines forms elements
 	 */
 	public function definition() {
-		global $DB, $COURSE, $CFG;
+		global $DB, $COURSE, $PAGE, $CFG;
 
 		$mform = $this->_form;
+
+		// Allow only one groupdistribution per course
+		// See: https://moodle.org/mod/forum/discuss.php?d=205664
+		// And: https://github.com/SWiT/moodle-internal-course-email/blob/master/mod/email/mod_form.php
+
+		$is_update = optional_param('update', 0, PARAM_INT);
+		$already_exists = $DB->record_exists('groupdistribution', array('courseid' => $COURSE->id));
+
+		if($already_exists and $is_update == 0) {
+			$renderer = $PAGE->get_renderer('mod_groupdistribution');
+			$mform->addElement('html',
+				$renderer->error_text(get_string('only_one_per_course', 'groupdistribution')));
+
+			$this->standard_hidden_coursemodule_elements();
+			return;
+		}
 
 		//-------------------------------------------------------------------------------
 		// Adding the "general" fieldset, where all the common settings are showed
@@ -149,7 +165,8 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 	}
 
 	/**
-	 * Checks that begindate is before enddate.
+	 * Checks that begindate is before enddate and that there is
+	 * only one groupdistribution per course.
 	 */
 	public function validation($data, $files) {
 		$errors = parent::validation($data, $files);

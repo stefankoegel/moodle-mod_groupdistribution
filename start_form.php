@@ -64,7 +64,6 @@ class mod_groupdistribution_start_form extends moodleform {
 		if($data['timeout'] < 0 or $data['timeout'] > 600) {
 			$errors['timeout'] = get_string('invalid_timeout', 'groupdistribution');
 		}
-		print_object($errors);
 		return $errors;
 	}
 }

@@ -40,8 +40,16 @@ define('SHOW_TABLE', 'show_table');
 require_once($CFG->dirroot . '/mod/groupdistribution/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
-function test_shortest_path($courseid) {
+function test_shortest_path($courseid, $timeout=30) {
 	global $DB;
+
+	if($timeout < 0) {
+		$timeout = 30;
+	}
+	if($timeout > 600) {
+		$timeout = 600;
+	}
+	set_time_limit($timeout);
 
 	clear_all_groups_in_course($courseid);
 
@@ -56,12 +64,7 @@ function test_shortest_path($courseid) {
 
 	$userCount = count(all_enrolled_users_in_course($courseid));
 
-	$ratins_for_rateable_groups = 'SELECT r.groupsid, r.userid, r.rating
-	                                 FROM {groupdistribution_ratings} AS r
-																	 JOIN {groupdistribution_data} AS d
-																	   ON r.groupsid = d.groupsid
-																	WHERE r.courseid = :courseid AND d.israteable = 1';
-	$ratings = $DB->get_records_sql($ratings_for_rateable_groups, array('courseid' => $courseid));
+	$ratings = get_all_ratings_for_rateable_groups_in_course($courseid);
 
 	$graph2 = array();
 	$fromUserid = array();
@@ -107,10 +110,8 @@ function test_shortest_path($courseid) {
 	}
 	$graph2[$sink] = array();
 
-	
-
 	for($i = 1; $i <= $userCount; $i++) {
-		$path = find_shortest_path($source, $sink, $graph2);
+		$path = find_shortest_path($source, $sink, $sink + 1, $graph2);
 		if(is_null($path)) {
 			continue;
 		}
@@ -140,7 +141,7 @@ function get_rateable_groups_for_course($courseid) {
 function get_rating_data_for_user_in_course($courseid, $userid) {
 	global $DB;
 
-	$sql = "SELECT r.id, g.description, g.name, d.groupsid, g.courseid, r.rating, r.id AS ratingid
+	$sql = "SELECT d.id, g.description, g.name, d.groupsid, g.courseid, r.rating, r.id AS ratingid
 		        FROM {groupdistribution_data} AS d
 		        JOIN {groups} AS g
 		          ON g.id = d.groupsid
@@ -265,12 +266,11 @@ function reverse_path($path, &$graph) {
 	}
 }
 
-function find_shortest_path($from, $to, &$graph) {
+function find_shortest_path($from, $to, $vertices, &$graph) {
 	$dists = array();
 	$preds = array();
 	$edges = $graph[$from];
 
-	$vertices = count($graph);
 	$counter = 0;
 	$limit = $vertices * $vertices * $vertices;
 

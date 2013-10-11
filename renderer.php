@@ -23,12 +23,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/groupdistribution/view_form.php');
 require_once('locallib.php');
+require_once('view_form.php');
+require_once('start_form.php');
 
 class mod_groupdistribution_renderer extends plugin_renderer_base {
 
-	function display_user_rating_form() {
+	function display_user_rating_form($mform) {
 		global $DB, $COURSE;
 
 		$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));
@@ -45,14 +46,12 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			return $this->notification(get_string('rating_is_over', 'groupdistribution'));
 		}
 
-		$mform = new mod_groupdistribution_view_form();
 		$mform->display();
 	}
 
-	function show_controls() {
+	function show_controls(mod_groupdistribution_start_form $mform) {
 		global $PAGE, $COURSE, $DB;
 
-		$startURL = new moodle_url($PAGE->url, array('action' => ACTION_START));
 		$clearURL = new moodle_url($PAGE->url, array('action' => ACTION_CLEAR));
 		$tableURL = new moodle_url($PAGE->url, array('action' => SHOW_TABLE));
 
@@ -66,16 +65,16 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
 			$output .= $this->box_start();
 			$output .= get_string('start_distribution_explanation', 'groupdistribution');
-			$output .= '<br><br>';
-			$output .= $this->single_button($startURL,
-					get_string('start_distribution', 'groupdistribution'));
+			$mform->is_validated();
+			$output .= $mform->toHtml();
+
 			$output .= $this->box_end();
 
 			$output .= $this->box_start();
 			$output .= get_string('clear_groups_explanation', 'groupdistribution');
 			$output .= '<br><br>';
-			$output .= $this->single_button($clearURL,
-					get_string('clear_groups', 'groupdistribution'));
+			$output .= $this->single_button($clearURL->out(),
+					get_string('clear_groups', 'groupdistribution'), 'get');
 			$output .= $this->box_end();
 		} else {
 			// Rating period is not over, tell the teacher
@@ -90,8 +89,8 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		$output .= $this->box_start();
 		$output .= get_string('view_distribution_table', 'groupdistribution');
 		$output .= '<br><br>';
-		$output .= $this->single_button($tableURL,
-				get_string('show_table', 'groupdistribution'));
+		$output .= $this->single_button($tableURL->out(),
+				get_string('show_table', 'groupdistribution'), 'get');
 		$output .= $this->box_end();
 
 		$output .= $this->box_end();

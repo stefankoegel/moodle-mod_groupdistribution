@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 require_once('locallib.php');
+require_once('renderer.php');
 
 /**
  * Module instance settings form
@@ -37,7 +38,7 @@ class mod_groupdistribution_view_form extends moodleform {
 	 * Defines forms elements
 	 */
 	public function definition() {
-		global $DB, $COURSE, $USER, $CFG;
+		global $COURSE, $PAGE, $USER;
 
 		$mform = $this->_form;
 
@@ -61,9 +62,10 @@ class mod_groupdistribution_view_form extends moodleform {
 			$mform->addElement('header', $header_elem, get_string('group', 'groupdistribution') . ': ' . $data->name);
 			$mform->setExpanded($header_elem);
 
-			$description_box  = '<div class="groupdistribution_description_box">';
-			$description_box .= format_text($data->description);
-			$description_box .= '</div>';
+			$renderer = $PAGE->get_renderer('mod_groupdistribution');
+			// $description_box  = '<div class="groupdistribution_description_box">';
+			$description_box = $renderer->box(format_text($data->description));
+			// $description_box .= '</div>';
 			$mform->addElement('html', $description_box);
 
 			// the higher the rating, the greater the desire to get into this group
@@ -86,8 +88,23 @@ class mod_groupdistribution_view_form extends moodleform {
 		$this->add_action_buttons();
 	}
 
-	// http://docs.moodle.org/dev/lib/formslib.php_Validation
-	public function validation($a, $b) {
-		return array();
+	public function validation($data, $files) {
+		$errors = parent::validation($data, $files);
+
+		$possibles = 0;
+		$ratings = $data['data'];
+		foreach($ratings as $rating) {
+			if($rating['rating'] > 0) {
+				$possibles++;
+			}
+		}
+		if($possibles < 2) {
+			foreach($ratings as $gid => $rating) {
+				if($rating['rating'] == 0) {
+					$errors['data[' . $gid . '][rating]'] = get_string('at_least_two', 'groupdistribution');
+				}
+			}
+		}
+		return $errors;
 	}
 }

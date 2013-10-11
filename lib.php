@@ -92,9 +92,9 @@ function groupdistribution_add_instance(stdClass $groupdistribution, mod_groupdi
 			}
 		}
 		$id = $DB->insert_record('groupdistribution', $groupdistribution);
-		add_to_log($groupdistribution->courseid, 'course', 'modedit',
-			'course/modedit.php?add=groupdistribution&course=' . $groupdistribution->courseid . '&section=0',
-			'Created instance', $groupdistribution->coursemodule, $USER->id);
+		add_to_log($groupdistribution->courseid, 'course', 'add',
+			'modedit.php?add=groupdistribution&course=' . $groupdistribution->courseid . '&section=0',
+			'Created instance', $groupdistribution->coursemodule);
 	
 		$transaction->allow_commit();
 
@@ -152,9 +152,9 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
 			}
 		}
 		$bool = $DB->update_record('groupdistribution', $groupdistribution);
-		add_to_log($groupdistribution->courseid, 'groupdistribution', 'modedit',
-			'course/modedit.php?update=' . $groupdistribution->coursemodule,
-			'Saved changes', $groupdistribution->coursemodule, $USER->id);
+		add_to_log($groupdistribution->courseid, 'groupdistribution', 'update',
+			'modedit.php?update=' . $groupdistribution->coursemodule,
+			'Saved changes', $groupdistribution->coursemodule);
 		
 		$transaction->allow_commit();
 
@@ -189,9 +189,10 @@ function groupdistribution_delete_instance($id) {
 		$DB->delete_records('groupdistribution_ratings', array('courseid' => $groupdistribution->courseid));
 		$DB->delete_records('groupdistribution_data', array('courseid' => $groupdistribution->courseid));
 		$DB->delete_records('groupdistribution', array('id' => $id));
-		add_to_log($groupdistribution->courseid, 'course', 'mod',
-			'course/mod.php?delete=' . $groupdistribution->id,
-			'Deleted groupdistribution', $groupdistribution->id, $USER->id);
+
+		add_to_log($groupdistribution->courseid, 'course', 'delete',
+			'mod.php?delete=' . $groupdistribution->id,
+			'Deleted groupdistribution', $groupdistribution->id);
 	
 		$transaction->allow_commit();
 	} catch(Exception $e) {
@@ -239,10 +240,11 @@ function save_ratings_to_db($courseid, $userid, array $data) {
 			}
 		}
 		$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $courseid));
-		$course_module = $DB->get_record('course_modules', array('instance' => $groupdistribution->id));
-		add_to_log($courseid, 'groupdistribution', 'view',
+		$course_module = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $courseid, false, MUST_EXIST);
+
+		add_to_log($courseid, 'groupdistribution', 'update',
 			'view.php?id=' . $course_module->id,
-			'User saved rating', $course_module->id, $userid);
+			'User saved rating', $course_module->id);
 
 		$transaction->allow_commit();
 	} catch(Exception $e) {

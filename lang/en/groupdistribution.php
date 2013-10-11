@@ -67,4 +67,9 @@ $string['ratings_table'] = 'This table shows all ratings given by users.';
 $string['ratings_saved'] = 'Your ratings have been saved.';
 $string['no_rating_given'] = 'None';
 $string['rating_is_over'] = 'The rating period has ended.';
-
+$string['only_one_per_course'] = 'You can only have one groupdistribution per course!';
+$string['timeout_field'] = 'Time in seconds until the algorithm gets stopped by php.';
+$string['invalid_timeout'] = 'You need to enter a more reasonable number!';
+$string['at_least_two'] = 'Please give at least two ratings better than impossible.';
+$string['distribution_saved'] = 'Distribution saved.';
+$string['groups_cleared'] = 'All groups cleared.';

@@ -55,27 +55,40 @@ $PAGE->set_title(format_string($groupdistribution->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
-if($action == ACTION_RATE and is_enrolled($context)) {
-	require_capability('mod/groupdistribution:give_rating', $context);
+if(has_capability('mod/groupdistribution:start_distribution', $context)) {
+	$mform = new mod_groupdistribution_start_form($PAGE->url->out());
+	//$mform->set_data(...);
 
-	$mform = new mod_groupdistribution_view_form();
-	if($mform->is_cancelled()) {
-		redirect($PAGE->url);
+	if($mform->is_submitted() and $mform->is_validated() and $data = $mform->get_data()) {
+		if($action == ACTION_START) {
+			require_capability('mod/groupdistribution:start_distribution', $context);
+
+			test_shortest_path($data->courseid, $data->timeout);
+
+			redirect($PAGE->url->out(), get_string('distribution_saved', 'groupdistribution'));
+		}
 	}
+	else if($action == ACTION_CLEAR) {
+		require_capability('mod/groupdistribution:start_distribution', $context);
 
-	$data = $mform->get_data()->data;
-	$data = clean_param_array($data, PARAM_INT, true);
+		clear_all_groups_in_course($COURSE->id);
 
-	save_ratings_to_db($COURSE->id, $USER->id, $data);
-	redirect($PAGE->url, get_string('ratings_saved', 'groupdistribution'));
+		redirect($PAGE->url->out(), get_string('groups_cleared', 'groupdistribution'));
+	}
 }
-if($action == ACTION_START) {
-	require_capability('mod/groupdistribution:start_distribution', $context);
-	test_shortest_path($COURSE->id);
-}
-if($action == ACTION_CLEAR) {
-	require_capability('mod/groupdistribution:start_distribution', $context);
-	clear_all_groups_in_course($COURSE->id);
+else if(is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
+	$mform = new mod_groupdistribution_view_form($PAGE->url->out());
+	//$mform->set_data(...);	
+
+	if($mform->is_validated() and !$mform->is_cancelled() and $data = $mform->get_data()) {
+		if($action == ACTION_RATE and is_enrolled($context)) {
+			require_capability('mod/groupdistribution:give_rating', $context);
+
+			save_ratings_to_db($COURSE->id, $USER->id, $data->data);
+
+			redirect($PAGE->url->out(), get_string('ratings_saved', 'groupdistribution'));
+		}
+	}
 }
 
 // Output starts here
@@ -88,17 +101,18 @@ if($groupdistribution->intro) {
 }
 
 if(has_capability('mod/groupdistribution:start_distribution', $context)) {
-	echo $renderer->show_controls();
-} else if(is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
-	echo $renderer->display_user_rating_form();
-} else {
+	echo $renderer->show_controls($mform);
+}
+else if(is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
+	echo $renderer->display_user_rating_form($mform);
+}
+else {
 	echo $renderer->box(get_string('not_enrolled'));
 }
 if($action == SHOW_TABLE) {
 	require_capability('mod/groupdistribution:start_distribution', $context);
 	echo $renderer->show_groupdistribution_tables();
 }
-
 
 // Finish the page
 echo $renderer->footer();
