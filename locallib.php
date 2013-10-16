@@ -114,9 +114,10 @@ function test_shortest_path($courseid, $timeout=30) {
 		}
 	}
 
-	// Add source and sink to the graph
+	// Add source, sink and number of nodes to the graph
 	$graph[$source] = array();
 	$graph[$sink] = array();
+	$graph['count'] = $groupCount + $userCount + 2;
 
 	// Add users and groups to the graph and connect them to the source and sink
 	foreach($fromUserid as $id => $user) {
@@ -143,7 +144,7 @@ function test_shortest_path($courseid, $timeout=30) {
 	// (http://en.wikipedia.org/wiki/Ford%E2%80%93Fulkerson_algorithm)
 	for($i = 1; $i <= $userCount; $i++) {
 		// Look for an augmenting path (a shortest path from the source to the sink)
-		$path = find_shortest_path($source, $sink, $sink + 1, $graph);
+		$path = find_shortest_path($source, $sink, $graph);
 		// If ther is no such path, it is impossible to fit any more users into groups.
 		if(is_null($path)) {
 			// Stop the algorithm
@@ -164,6 +165,9 @@ function test_shortest_path($courseid, $timeout=30) {
 	}
 }
 
+/**
+ * Returns all groups in the course with id $courseid that are rateable.
+ */
 function get_rateable_groups_for_course($courseid) {
 	global $DB;
 
@@ -175,6 +179,10 @@ function get_rateable_groups_for_course($courseid) {
 	return $DB->get_records_sql($sql, array('courseid' => $courseid));
 }
 
+/**
+ * Returns all ratings from the user with id $userid for groups
+ * in the course with id $courseid.
+ */
 function get_rating_data_for_user_in_course($courseid, $userid) {
 	global $DB;
 
@@ -188,6 +196,9 @@ function get_rating_data_for_user_in_course($courseid, $userid) {
 	return $DB->get_records_sql($sql, array('courseid' => $courseid, 'userid' => $userid));
 }
 
+/**
+ * Returns all ratings for groups in the course with id $courseid.
+ */
 function get_all_ratings_for_rateable_groups_in_course($courseid) {
 	global $DB;
 
@@ -199,6 +210,9 @@ function get_all_ratings_for_rateable_groups_in_course($courseid) {
 	return $DB->get_records_sql($sql, array('courseid' => $courseid));
 }
 
+/**
+ * Returns all users in the course with id $courseid.
+ */
 function all_enrolled_users_in_course($courseid) {
 	global $DB;
 	
@@ -209,6 +223,13 @@ function all_enrolled_users_in_course($courseid) {
 	return $students;
 }
 
+/**
+ * Returns all group memberships for rateable groups in the course with id $courseid.
+ *
+ * @return array of the form array($userid => array($groupid => true, ...), ...)
+ *         i.e. for every user who is a member of at least one rateable group,
+ *         the array contains a set of ids representing the groups the user is a member of.
+ */
 function memberships_per_course($courseid) {
 	global $DB;
 
@@ -216,7 +237,9 @@ function memberships_per_course($courseid) {
 	            FROM {groups_members} AS gm
 	            JOIN {groups} AS g
 	              ON gm.groupid = g.id
-	           WHERE g.courseid = :courseid';
+	            JOIN {groupdistribution_data} as d
+	              ON gm.groupid = d.groupsid
+	           WHERE g.courseid = :courseid AND d.israteable = 1';
 	$records = $DB->get_records_sql($query, array('courseid' => $courseid));
 	$memberships = array();
 	foreach($records as $r) {
@@ -228,6 +251,9 @@ function memberships_per_course($courseid) {
 	return $memberships;
 }
 
+/**
+ * Removes all members from rateable groups in the curse with id $courseid.
+ */
 function clear_all_groups_in_course($courseid) {
 	$memberships = memberships_per_course($courseid);
 
@@ -238,15 +264,24 @@ function clear_all_groups_in_course($courseid) {
 	}
 }
 
+/**
+ * Extracts a distribution from a graph.
+ * 
+ * @param $graph a groupdistribution graph
+ *         on which the distribution algorithm has been run
+ * @param $toUserid a map mapping from indexes in the graph to userids
+ * @param $toGroupid a map mapping from indexes in the graph to groupids
+ * @return an array of the form array(groupid => array(userid, ...), ...)
+ */
 function extract_groupdistribution($graph, $toUserid, $toGroupid) {
 	$distribution = array();
-	foreach($toGroupid as $g => $id) {
-		$group = $graph[$g];
-		$distribution[$id] = array();
+	foreach($toGroupid as $index => $groupid) {
+		$group = $graph[$index];
+		$distribution[$groupid] = array();
 		foreach($group as $assignment) {
 			$user = $assignment[TO];
 			if(array_key_exists($user, $toUserid)) {
-				$distribution[$id][] = $toUserid[$user];
+				$distribution[$groupid][] = $toUserid[$user];
 			}
 		}
 	}
@@ -299,7 +334,7 @@ function reverse_path($path, &$graph) {
  * @param $graph the graph in which to find the path
  * @return array with the of the nodes in the path 
  */
-function find_shortest_path($from, $to, $vertices, &$graph) {
+function find_shortest_path($from, $to, &$graph) {
 	// Table of distances known so far
 	$dists = array();
 	// Table of predecessors (used to reconstruct the shortest path later)
@@ -307,15 +342,15 @@ function find_shortest_path($from, $to, $vertices, &$graph) {
 	// Stack of the edges we need to test next
 	$edges = $graph[$from];
 	// Number of nodes in the graph
-	$vertices = count($graph); //TODO stimmt das?
+	$count = $graph['count'];
 
 	// To prevent the algorithm from getting stuck in a loop with
-	// with negative weight, we stop it after $vertices ^ 3 iterations
+	// with negative weight, we stop it after $count ^ 3 iterations
 	$counter = 0;
-	$limit = $vertices * $vertices * $vertices;
+	$limit = $count * $count * $count;
 
 	// Initialize dists and preds
-	for($i = 0; $i < $vertices; $i++) {
+	for($i = 0; $i < $count; $i++) {
 		if($i == $from) {
 			$dists[$i] = 0;
 		} else {
