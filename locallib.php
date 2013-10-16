@@ -18,8 +18,6 @@
 /**
  * Internal library of functions for module groupdistribution
  *
- * All the groupdistribution specific functions, needed to implement the module
- * logic, should go here. Never include this file from your lib.php!
  *
  * @package    mod_groupdistribution
  * @copyright  2013 Stefan Koegel
@@ -40,9 +38,22 @@ define('SHOW_TABLE', 'show_table');
 require_once($CFG->dirroot . '/mod/groupdistribution/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Starts the distribution algorithm.
+ * Uses the users' ratings and a minimum-cost maximum-flow algorithm
+ * to distribute the users fairly into the groups.
+ * (see http://en.wikipedia.org/wiki/Minimum-cost_flow_problem)
+ * After the algorithm is done, users are removed from their current
+ * groups (see clear_all_groups_in_course()) and redistributed
+ * according to the computed distriution.
+ *
+ * @param $courseid id of the course in which to distribute the users
+ * @param $timeout maximum time in seconds after which the algorithm gets stopped
+ */
 function test_shortest_path($courseid, $timeout=30) {
 	global $DB;
 
+	// Set the time limit to prevent the algorithm from running forever
 	if($timeout < 0) {
 		$timeout = 30;
 	}
@@ -51,8 +62,7 @@ function test_shortest_path($courseid, $timeout=30) {
 	}
 	set_time_limit($timeout);
 
-	clear_all_groups_in_course($courseid);
-
+	// Load data from database
 	$groupRecords = get_rateable_groups_for_course($courseid);
 
 	$groupData = array();
@@ -66,16 +76,31 @@ function test_shortest_path($courseid, $timeout=30) {
 
 	$ratings = get_all_ratings_for_rateable_groups_in_course($courseid);
 
-	$graph2 = array();
-	$fromUserid = array();
-	$toUserid = array();
-	$fromGroupid = array();
-	$toGroupid = array();
-	$ui = 1;
-	$gi = $userCount + 1;
+	// Construct the datstructures for the algorithm
+
+	// A directed weighted bipartite graph.
+	// A source is connected to all users with unit cost.
+	// The users are connected to their groups with cost equal to their rating.
+	// The groups are connected to a sink with unit cost.
+	$graph = array();
+	// Index of source and sink in the graph
 	$source = 0;
 	$sink = $groupCount + $userCount + 1;
+	// These tables convert userids to their index in the graph
+	// The range is [1..$userCount]
+	$fromUserid = array();
+	$toUserid = array();
+	// These tables convert groupids to their index in the graph
+	// The range is [$userCount + 1 .. $userCount + $groupCount]
+	$fromGroupid = array();
+	$toGroupid = array();
 
+	// User counter
+	$ui = 1;
+	// Group counter
+	$gi = $userCount + 1;
+
+	// Fill the conversion tables for group and user ids
 	foreach($ratings as $id => $rating) {
 		if(!array_key_exists($rating->userid, $fromUserid)) {
 			$fromUserid[$rating->userid] = $ui;
@@ -89,36 +114,48 @@ function test_shortest_path($courseid, $timeout=30) {
 		}
 	}
 
-	$graph2[$source] = array();
+	// Add source and sink to the graph
+	$graph[$source] = array();
+	$graph[$sink] = array();
+
+	// Add users and groups to the graph and connect them to the source and sink
 	foreach($fromUserid as $id => $user) {
-		array_push($graph2[$source], array(FROM => $source, TO => $user, WEIGHT => 0));
+		$graph[$user] = array();
+		array_push($graph[$source], array(FROM => $source, TO => $user, WEIGHT => 0));
 	}
+	foreach($fromGroupid as $id => $group) {
+		$graph[$group] = array();
+		array_push($graph[$group], array(FROM => $group, TO => $sink, WEIGHT => 0, 'space' => $groupData[$id]->maxsize));
+	}
+
+	// Add the edges representing the ratings to the graph
 	foreach($ratings as $id => $rating) {
 		$user = $fromUserid[$rating->userid];
-		if(!array_key_exists($user, $graph2)) {
-			$graph2[$user] = array();
-		}
 		$group = $fromGroupid[$rating->groupsid];
 		$weight = $rating->rating;
 		if($weight > 0) {
-			array_push($graph2[$user], array(FROM => $user, TO => $group, WEIGHT => $weight));
+			array_push($graph[$user], array(FROM => $user, TO => $group, WEIGHT => $weight));
 		}
 	}
-	foreach($fromGroupid as $id => $group) {
-		$graph2[$group] = array();
-		array_push($graph2[$group], array(FROM => $group, TO => $sink, WEIGHT => 0, 'space' => $groupData[$id]->maxsize));
-	}
-	$graph2[$sink] = array();
 
+	// Now that the datastructure is complete, we can start the algorithm
+	// This is an adaptation of the Ford-Fulkerson algorithm
+	// (http://en.wikipedia.org/wiki/Ford%E2%80%93Fulkerson_algorithm)
 	for($i = 1; $i <= $userCount; $i++) {
-		$path = find_shortest_path($source, $sink, $sink + 1, $graph2);
+		// Look for an augmenting path (a shortest path from the source to the sink)
+		$path = find_shortest_path($source, $sink, $sink + 1, $graph);
+		// If ther is no such path, it is impossible to fit any more users into groups.
 		if(is_null($path)) {
+			// Stop the algorithm
 			continue;
 		}
-		reverse_path($path, $graph2);
+		// Reverse the augmentin path, thereby distributing a user into a group
+		reverse_path($path, $graph);
 	}
 
-	$distributions = extract_groupdistribution($graph2, $toUserid, $toGroupid);
+	$distributions = extract_groupdistribution($graph, $toUserid, $toGroupid);
+
+	clear_all_groups_in_course($courseid);
 
 	foreach($distributions as $groupsid => $users) {
 		foreach($users as $userid) {
@@ -216,40 +253,21 @@ function extract_groupdistribution($graph, $toUserid, $toGroupid) {
 	return $distribution;
 }
 
-function pretty_print($graph, $toUserid, $toGroupid) {
-	$assignments = array();
-	$rating = 0;
-	$users = 0;
-	foreach($toGroupid as $g => $id) {
-		$group = $graph[$g];
-		$assignments[$id] = array();
-		$inGroup = 0;
-		foreach($group as $assign) {
-			//TODO testen dass es nicht auf sink zeigt
-			$assignments[$id][$toUserid[$assign[TO]]] = -$assign[WEIGHT];
-			unset($toUserid[$assign[TO]]);
-			$rating -= $assign[WEIGHT];	
-			$users++;
-			$inGroup++;
-		}
-		$assignments[$id]['assigned'] = $inGroup;
-	}
-	$assignments['unassigned'] = $toUserid;
-	$assignments['mean'] = $rating / $users;
-	//TODO die letzten die sich anmelden werden nicht verteilt
-	return $assignments;
-}
-
+/**
+ * Reverses all edges along $path in $graph
+ */
 function reverse_path($path, &$graph) {
 	if(is_null($path) or count($path) < 2) {
 		print_error('Invalid path!');
 	}
 
+	// Walk along the path
 	for($i = count($path) - 1; $i > 0; $i--) {
 		$from = $path[$i];
 		$to = $path[$i - 1];
 		$edge = NULL;
 		$offset = -1;
+		// Find the edge
 		foreach($graph[$from] as $index => &$e) {
 			if($e[TO] == $to) {
 				$edge = $e;
@@ -257,23 +275,46 @@ function reverse_path($path, &$graph) {
 				break;
 			}
 		}
+		// The second to last node in a path has to be a group node.
+		// Reduce its space by one, because one user just got distributed into it.
+		// If there is still space left in this group, stop here.
 		if($i == 1 and $e['space'] > 1) {
 			$e['space']--;
 			continue;
 		}
+		// Remove the edge
 		array_splice($graph[$from], $offset, 1);
+		// Add a new edge in the opposite direction whose weight has an opposite sign
 		array_push($graph[$to], array(FROM => $to, TO => $from, WEIGHT => -$edge[WEIGHT]));
 	}
 }
 
+/**
+ * Uses a modified Bellman-Ford algorithm to find a shortest path
+ * from $from to $to in $graph. We can't use Dijkstra here, because
+ * the graph contains edges with negative weight.
+ *
+ * @param $from index of starting node
+ * @param $to index of end node
+ * @param $graph the graph in which to find the path
+ * @return array with the of the nodes in the path 
+ */
 function find_shortest_path($from, $to, $vertices, &$graph) {
+	// Table of distances known so far
 	$dists = array();
+	// Table of predecessors (used to reconstruct the shortest path later)
 	$preds = array();
+	// Stack of the edges we need to test next
 	$edges = $graph[$from];
+	// Number of nodes in the graph
+	$vertices = count($graph); //TODO stimmt das?
 
+	// To prevent the algorithm from getting stuck in a loop with
+	// with negative weight, we stop it after $vertices ^ 3 iterations
 	$counter = 0;
 	$limit = $vertices * $vertices * $vertices;
 
+	// Initialize dists and preds
 	for($i = 0; $i < $vertices; $i++) {
 		if($i == $from) {
 			$dists[$i] = 0;
@@ -291,6 +332,7 @@ function find_shortest_path($from, $to, $vertices, &$graph) {
 		$t = $e[TO];
 		$dist = $e[WEIGHT] + $dists[$f];
 
+		// If this edge improves a distance update the tables and the edges stack
 		if($dist > $dists[$t]) {
 			$dists[$t] = $dist;
 			$preds[$t] = $f;
@@ -300,14 +342,17 @@ function find_shortest_path($from, $to, $vertices, &$graph) {
 		}
 	}
 
+	// A valid groupdistribution graph can't contain a negative edge
 	if($counter == $limit) {
 		print_error('Negative cycle detected!');
 	}
 
+	// If there is no path to $to, return null
 	if(is_null($preds[$to])) {
 		return NULL;
 	}
 
+	// Use the preds table to reconstruct the shortest path
 	$path = array();
 	$p = $to;
 	while($p != $from) {
