@@ -27,6 +27,8 @@ require_once('../../config.php');
 require_once('locallib.php');
 require_once('view_form.php');
 
+// Get the context, ids and action paramter
+
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $courseid = optional_param('courseid', 0, PARAM_INT); // course ID
 $action = optional_param('action', '', PARAM_TEXT);
@@ -55,10 +57,12 @@ $PAGE->set_title(format_string($groupdistribution->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
+// Distinguish teachers who can start a distribution and 
+// enroled users who can give ratings.
 if(has_capability('mod/groupdistribution:start_distribution', $context)) {
 	$mform = new mod_groupdistribution_start_form($PAGE->url->out());
-	//$mform->set_data(...);
 
+	// Start the distribution algorithm
 	if($mform->is_submitted() and $mform->is_validated() and $data = $mform->get_data()) {
 		if($action == ACTION_START) {
 			require_capability('mod/groupdistribution:start_distribution', $context);
@@ -68,6 +72,7 @@ if(has_capability('mod/groupdistribution:start_distribution', $context)) {
 			redirect($PAGE->url->out(), get_string('distribution_saved', 'groupdistribution'));
 		}
 	}
+	// Undo the distribution
 	else if($action == ACTION_CLEAR) {
 		require_capability('mod/groupdistribution:start_distribution', $context);
 
@@ -76,9 +81,9 @@ if(has_capability('mod/groupdistribution:start_distribution', $context)) {
 		redirect($PAGE->url->out(), get_string('groups_cleared', 'groupdistribution'));
 	}
 }
+// Save the users rating
 else if(is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
 	$mform = new mod_groupdistribution_view_form($PAGE->url->out());
-	//$mform->set_data(...);	
 
 	if($mform->is_validated() and !$mform->is_cancelled() and $data = $mform->get_data()) {
 		if($action == ACTION_RATE and is_enrolled($context)) {
@@ -101,17 +106,17 @@ if($groupdistribution->intro) {
 }
 
 if(has_capability('mod/groupdistribution:start_distribution', $context)) {
-	echo $renderer->show_controls($mform);
+	echo $renderer->teacher_controls($mform);
 }
 else if(is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
-	echo $renderer->display_user_rating_form($mform);
+	echo $renderer->user_rating_form($mform);
 }
 else {
-	echo $renderer->box(get_string('not_enrolled'));
+	echo $renderer->notify(get_string('not_enrolled'));
 }
 if($action == SHOW_TABLE) {
 	require_capability('mod/groupdistribution:start_distribution', $context);
-	echo $renderer->show_groupdistribution_tables();
+	echo $renderer->groupdistribution_tables();
 }
 
 // Finish the page

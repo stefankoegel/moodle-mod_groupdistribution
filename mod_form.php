@@ -82,7 +82,7 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 		$mform->addElement('date_time_selector', 'enddate', get_string('enddate', 'groupdistribution'));
 
 
-		// Check if values for begindate and enddate exist in the databes.
+		// Check if values for begindate and enddate exist in the database.
 		// If not, use default values.
 		if($DB->record_exists('groupdistribution', array('courseid' => $COURSE->id))) {
 			$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));

@@ -27,13 +27,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// defined('MOODLE_INTERNAL') || die();
-// 
-// global $DB;
-// 
-// $logs = array(
-//     array('module'=>'groupdistribution', 'action'=>'add', 'mtable'=>'groupdistribution', 'field'=>'name'),
-//     array('module'=>'groupdistribution', 'action'=>'update', 'mtable'=>'groupdistribution', 'field'=>'name'),
-//     array('module'=>'groupdistribution', 'action'=>'view', 'mtable'=>'groupdistribution', 'field'=>'name'),
-//     array('module'=>'groupdistribution', 'action'=>'view all', 'mtable'=>'groupdistribution', 'field'=>'name')
-// );
+defined('MOODLE_INTERNAL') || die();
+
+global $DB;
+
+$logs = array(
+//    array('module'=>'groupdistribution', 'action'=>'add', 'mtable'=>'groupdistribution', 'field'=>'name'),
+//    array('module'=>'groupdistribution', 'action'=>'update', 'mtable'=>'groupdistribution', 'field'=>'name'),
+    array('module'=>'groupdistribution', 'action'=>'view', 'mtable'=>'groupdistribution', 'field'=>'name'),
+//    array('module'=>'groupdistribution', 'action'=>'view all', 'mtable'=>'groupdistribution', 'field'=>'name')
+);

@@ -322,12 +322,9 @@ function groupdistribution_print_recent_mod_activity($activity, $courseid, $deta
 }
 
 /**
- * Function to be run periodically according to the moodle cron
- * This function searches for things that need to be done, such
- * as sending out mail, toggling flags etc ...
+ * This activity does not use cron.
  *
  * @return boolean
- * @todo Finish documenting this function
  **/
 function groupdistribution_cron () {
 	return true;
@@ -336,7 +333,6 @@ function groupdistribution_cron () {
 /**
  * Returns all other caps used in the module
  *
- * @example return array('moodle/site:accessallgroups');
  * @return array
  */
 function groupdistribution_get_extra_capabilities() {

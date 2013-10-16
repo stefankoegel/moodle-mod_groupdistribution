@@ -29,7 +29,16 @@ require_once('start_form.php');
 
 class mod_groupdistribution_renderer extends plugin_renderer_base {
 
-	function display_user_rating_form($mform) {
+	/**
+	 * Returns HTML code if the user can not yet give ratings or is too late
+	 * to give a rating.
+	 * If the user is on time for the rating it returns the forms HTML in which
+	 * the user can enter his ratings.
+	 * 
+	 * @param $mform view_form to show if the user is on time to give ratings
+	 * @return HTML code
+	 */
+	function user_rating_form(mod_groupdistribution_view_form $mform) {
 		global $DB, $COURSE;
 
 		$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));
@@ -46,10 +55,23 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			return $this->notification(get_string('rating_is_over', 'groupdistribution'));
 		}
 
-		$mform->display();
+		return $mform->toHtml();
 	}
 
-	function show_controls(mod_groupdistribution_start_form $mform) {
+	/**
+	 * Returns HTML code for the teacher view.
+	 * This view contains buttons to start the distribution of the users according
+	 * to their ratings, undo this distribution and to view additional information
+	 * about the distribution.
+	 * The button to start the distribution is only visible after the rating period
+	 * has ended.
+	 *
+	 * @param $mform is a form that contains the button to start the distribution
+	 *        and a field to set the number of seconds the algorithm has to complete
+	 *        the distribution.
+	 * @return HTML code
+	 */
+	function teacher_controls(mod_groupdistribution_start_form $mform) {
 		global $PAGE, $COURSE, $DB;
 
 		$clearURL = new moodle_url($PAGE->url, array('action' => ACTION_CLEAR));
@@ -78,14 +100,16 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			$output .= $this->box_end();
 		} else {
 			// Rating period is not over, tell the teacher
-			$output .= get_string('too_early_to_distribute_1', 'groupdistribution');
-			$output .= userdate($groupdistribution->begindate);
-			$output .= get_string('too_early_to_distribute_2', 'groupdistribution');
-			$output .= userdate($groupdistribution->enddate);
-			$output .= get_string('too_early_to_distribute_3', 'groupdistribution');
-			$output .= '<br><br>';
+			$notify = '';
+			$notify .= get_string('too_early_to_distribute_1', 'groupdistribution');
+			$notify .= userdate($groupdistribution->begindate);
+			$notify .= get_string('too_early_to_distribute_2', 'groupdistribution');
+			$notify .= userdate($groupdistribution->enddate);
+			$notify .= get_string('too_early_to_distribute_3', 'groupdistribution');
+			$output .= $this->notification($notify);
 		}
 
+		// Button to display information about the distribution and ratings
 		$output .= $this->box_start();
 		$output .= get_string('view_distribution_table', 'groupdistribution');
 		$output .= '<br><br>';
@@ -97,7 +121,13 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		return $output;
 	}
 
-	function show_groupdistribution_tables() {
+	/**
+	 * Shows tables containing information about the users' ratings
+	 * and their distribution over the groups (group memberships).
+	 *
+	 * @return HTML code
+	 */
+	function groupdistribution_tables() {
 		global $DB, $PAGE, $COURSE;
 
 		$groups = get_rateable_groups_for_course($COURSE->id);
@@ -137,11 +167,14 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 				// Highlight the cell
 				$cell->attributes['class'] .= ' groupdistribution_member';
 
+				// Increment the counter for users with this rating
 				$distribution_data[$rating->rating]++;
 			}
 			$ratings_cells[$rating->userid][$rating->groupsid] = $cell;
 		}
 
+		// If there is no rating from a user for a group,
+		// put a 'no_rating_given' cell into the table.
 		$users_in_course = all_enrolled_users_in_course($COURSE->id);
 		foreach($users_in_course as $user) {
 			if(!array_key_exists($user->id, $ratings_cells)) {
@@ -157,6 +190,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			ksort($ratings_cells[$user->id]);
 		}
 
+		// The ratings table shows the users' ratings for the groups
 		$ratings_table = new html_table();
 		$ratings_table->data = $ratings_cells;
 		$ratings_table->head = $groupNames;
@@ -174,13 +208,14 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			$distribution_head[$rating] = $cell;
 		}
 		$cell = new html_table_cell();
-		//$cell->text = count_users_with_ratings($COURSE->id) - count($memberships);
 		$cell->text = count($users_in_course) - count($memberships);
 		$distribution_row[] = $cell;
 		$cell = new html_table_cell();
 		$cell->text = get_string('unassigned_users', 'groupdistribution');
 		$distribution_head[] = $cell;
 
+		// The distribution table shows how many users got into a group with a
+		// good/ok/bad... rating
 		$distribution_table = new html_table();
 		$distribution_table->data = array($distribution_row);
 		$distribution_table->head = $distribution_head;

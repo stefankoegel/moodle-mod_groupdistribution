@@ -29,7 +29,8 @@ require_once($CFG->libdir . '/formslib.php');
 require_once('locallib.php');
 
 /**
- * Module instance settings form
+ * Contains the button to start a distribution and to set the time limit
+ * for the distribution algorithm.
  */
 class mod_groupdistribution_start_form extends moodleform {
 
@@ -54,10 +55,16 @@ class mod_groupdistribution_start_form extends moodleform {
 		$mform->addElement('submit', 'submitbutton', get_string('start_distribution', 'groupdistribution'));
 	}
 
+	/**
+	 * Returns the forms HTML code. So we don't have to call display().
+	 */
 	public function toHtml() {
 		return $this->_form->toHtml();
 	}
 
+	/**
+	 * Makes sure that the time limit for the algorithm is a reasonable value.
+	 */
 	public function validation($data, $files) {
 		$errors = parent::validation($data, $files);
 		

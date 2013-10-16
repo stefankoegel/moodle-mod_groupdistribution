@@ -45,6 +45,7 @@ if (! $groupdistributions = get_all_instances_in_course('groupdistribution', $co
 	notice(get_string('nogroupdistributions', 'groupdistribution'), new moodle_url('/course/view.php', array('id' => $course->id)));
 }
 
+$table = new html_table();
 if ($course->format == 'weeks') {
 	$table->head  = array(get_string('week'), get_string('name'));
 	$table->align = array('center', 'left');

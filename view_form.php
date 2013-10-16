@@ -30,7 +30,10 @@ require_once('locallib.php');
 require_once('renderer.php');
 
 /**
- * Module instance settings form
+ * _Users view_
+ * For every group for which the user can give a rating:
+ * - shows the groups name and description
+ * - shows a drop down menu from which the user can choose a rating 
  */
 class mod_groupdistribution_view_form extends moodleform {
 
@@ -63,12 +66,10 @@ class mod_groupdistribution_view_form extends moodleform {
 			$mform->setExpanded($header_elem);
 
 			$renderer = $PAGE->get_renderer('mod_groupdistribution');
-			// $description_box  = '<div class="groupdistribution_description_box">';
 			$description_box = $renderer->box(format_text($data->description));
-			// $description_box .= '</div>';
 			$mform->addElement('html', $description_box);
 
-			// the higher the rating, the greater the desire to get into this group
+			// The higher the rating, the greater the desire to get into this group
 			$options = array(
 				0 => get_string('rating_impossible', 'groupdistribution'),
 				1 => get_string('rating_worst', 'groupdistribution'),
@@ -79,15 +80,28 @@ class mod_groupdistribution_view_form extends moodleform {
 			$mform->addElement('select', $rating_elem, get_string('rate_group', 'groupdistribution'), $options);
 			$mform->setType($rating_elem, PARAM_INT);
 
+			// If there is a valid value in the databse, choose the according rating
+			// from the dropdown.
+			// Else use a default value.
 			if(is_numeric($data->rating) and $data->rating >= 0 and $data->rating <= 5) {
 				$mform->setDefault($rating_elem, $data->rating);
 			} else {
-				$mform->setDefault($rating_elem, 3);
+				$mform->setDefault($rating_elem, 3); // default: ok (3)
 			}
 		}
 		$this->add_action_buttons();
 	}
 
+	/**
+	 * Returns the forms HTML code. So we don't have to call display().
+	 */
+	public function toHtml() {
+		return $this->_form->toHtml();
+	}
+
+	/**
+	 * Make sure that usrs give at least two ratings better than 'impossible' (0).
+	 */
 	public function validation($data, $files) {
 		$errors = parent::validation($data, $files);
 
