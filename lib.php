@@ -217,8 +217,6 @@ function save_ratings_to_db($courseid, $userid, array $data) {
 			$rating = new stdClass();
 			$rating->rating = $rdata['rating'];
 
-			//TODO courseid und groupsid checken, dass sie zusammenpassen...
-
 			// Make sure that users can only change their own ratings
 			$test = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid'], 'userid' => $userid);
 
