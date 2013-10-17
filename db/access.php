@@ -46,7 +46,7 @@ $capabilities = array(
     ),
 
     'mod/groupdistribution:start_distribution' => array(
-        'contextlevel' => CONTEXT_COURSE,
+        'contextlevel' => CONTEXT_MODULE,
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'write',
         'archetypes' => array(
