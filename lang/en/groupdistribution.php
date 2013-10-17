@@ -26,11 +26,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'groupdistribution';
-$string['modulenameplural'] = 'groupdistributions';
-$string['modulename_help'] = 'Use the groupdistribution module for... | The groupdistribution module allows...'; //TODO
+$string['modulename'] = 'Groupdistribution';
+$string['modulenameplural'] = 'Groupdistributions';
+$string['modulename_help'] = 'Groupdistributin allows users give ratings to groups during a rating period. After this period is over an algorithm will distribute the users according to their ratings into the groups.';
 $string['groupdistributionname'] = 'Name';
-$string['groupdistributionname_help'] = 'Help...'; //TODO
 $string['groupdistribution'] = 'Groupdistribution';
 $string['pluginadministration'] = 'Groupdistribution administration';
 $string['pluginname'] = 'groupdistribution';
@@ -57,12 +56,12 @@ $string['too_early_to_distribute_1'] = 'The rating period begins at ';
 $string['too_early_to_distribute_2'] = ' and lasts until ';
 $string['too_early_to_distribute_3'] = '. You can start the distribution after this period.';
 $string['invalid_dates'] = 'The begin date must be before the end date!';
-$string['start_distribution_explanation'] = 'Start the distribution process. This might take some time. Contatct your admin if php runs out of time (sry).';
+$string['start_distribution_explanation'] = 'Start the distribution process. This might take some time.';
 $string['clear_groups_explanation'] = 'Remove all users from groups for which they gave a rating. If a user is in a group of the same course for which he didn\'t supply a rating (because it was not rateable) he will stay in that group.';
 $string['view_distribution_table'] = 'Show the anonymized ratings of all users in a table.';
-$string['show_table'] = 'Show table';
+$string['show_table'] = 'Show tables';
 $string['unassigned_users'] = 'Users without a group';
-$string['distribution_table'] = 'Shows how many users were distributed TODO';
+$string['distribution_table'] = 'Shows how many got into a group with a specific rating.';
 $string['ratings_table'] = 'This table shows all ratings given by users.';
 $string['ratings_saved'] = 'Your ratings have been saved.';
 $string['no_rating_given'] = 'None';
@@ -76,3 +75,5 @@ $string['groups_cleared'] = 'All groups cleared.';
 $string['group_not_in_course'] = 'One of the groups does not belong to this course.';
 $string['invalid_path'] = 'Invalid path!';
 $string['negative_cycle'] = 'Negative cycle detected!';
+$string['groupdistribution:start_distribution'] = 'Start distribution algorithm';
+$string['groupdistribution:give_rating'] = 'Give ratings for groups';
