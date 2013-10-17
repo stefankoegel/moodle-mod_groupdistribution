@@ -44,12 +44,11 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));
 
 		if(time() < $groupdistribution->begindate) {
-			$output  = get_string('too_early_to_rate_1', 'groupdistribution');
-			$output .= userdate($groupdistribution->begindate);
-			$output .= get_string('too_early_to_rate_2', 'groupdistribution');
-			$output .= userdate($groupdistribution->enddate);
-			$output .= get_string('too_early_to_rate_3', 'groupdistribution');
-			return $this->notification($output);
+			$a = new stdClass();
+			$a->begin = userdate($groupdistribution->begindate);
+			$a->end = userdate($groupdistribution->enddate);
+			$note = get_string('too_early_to_rate', 'groupdistribution', $a);
+			return $this->notification($note);
 		}
 		if($groupdistribution->enddate < time()) {
 			return $this->notification(get_string('rating_is_over', 'groupdistribution'));
@@ -99,14 +98,13 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 					get_string('clear_groups', 'groupdistribution'), 'get');
 			$output .= $this->box_end();
 		} else {
+
 			// Rating period is not over, tell the teacher
-			$notify = '';
-			$notify .= get_string('too_early_to_distribute_1', 'groupdistribution');
-			$notify .= userdate($groupdistribution->begindate);
-			$notify .= get_string('too_early_to_distribute_2', 'groupdistribution');
-			$notify .= userdate($groupdistribution->enddate);
-			$notify .= get_string('too_early_to_distribute_3', 'groupdistribution');
-			$output .= $this->notification($notify);
+			$a = new stdClass();
+			$a->begin = userdate($groupdistribution->begindate);
+			$a->end = userdate($groupdistribution->enddate);
+			$note = get_string('too_early_to_distribute', 'groupdistribution', $a);
+			$output .= $this->notification($note);
 		}
 
 		// Button to display information about the distribution and ratings
