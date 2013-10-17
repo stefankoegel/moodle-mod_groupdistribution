@@ -67,10 +67,12 @@ class mod_groupdistribution_start_form extends moodleform {
 	 * Makes sure that the time limit for the algorithm is a reasonable value.
 	 */
 	public function validation($data, $files) {
+		global $CFG;
+
 		$errors = parent::validation($data, $files);
 		
-		if($data['timeout'] < 0 or $data['timeout'] > 600) {
-			$errors['timeout'] = get_string('invalid_timeout', 'groupdistribution');
+		if($data['timeout'] < 0 or $data['timeout'] > $CFG->groupdistribution_max_timeout) {
+			$errors['timeout'] = get_string('invalid_timeout', 'groupdistribution', $CFG->groupdistribution_max_timeout);
 		}
 		return $errors;
 	}
