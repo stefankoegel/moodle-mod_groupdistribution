@@ -293,7 +293,7 @@ function extract_groupdistribution($graph, $toUserid, $toGroupid) {
  */
 function reverse_path($path, &$graph) {
 	if(is_null($path) or count($path) < 2) {
-		print_error('Invalid path!');
+		print_error('invalid_path', 'groupdistribution');
 	}
 
 	// Walk along the path
@@ -379,7 +379,7 @@ function find_shortest_path($from, $to, &$graph) {
 
 	// A valid groupdistribution graph can't contain a negative edge
 	if($counter == $limit) {
-		print_error('Negative cycle detected!');
+		print_error('negative_cycle', 'groupdistribution');
 	}
 
 	// If there is no path to $to, return null

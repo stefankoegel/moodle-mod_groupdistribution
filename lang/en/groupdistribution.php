@@ -73,3 +73,6 @@ $string['invalid_timeout'] = 'You need to enter a more reasonable number!';
 $string['at_least_two'] = 'Please give at least two ratings better than impossible.';
 $string['distribution_saved'] = 'Distribution saved.';
 $string['groups_cleared'] = 'All groups cleared.';
+$string['group_not_in_course'] = 'One of the groups does not belong to this course.';
+$string['invalid_path'] = 'Invalid path!';
+$string['negative_cycle'] = 'Negative cycle detected!';

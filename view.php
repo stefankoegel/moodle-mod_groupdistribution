@@ -42,7 +42,7 @@ if ($id) {
 	$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 	$cm = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $course->id, false, MUST_EXIST);
 } else {
-	print_error('You must specify a course_module ID or an instance ID');
+	print_error('unspecifycourseid');
 }
 
 require_login($course, true, $cm);
