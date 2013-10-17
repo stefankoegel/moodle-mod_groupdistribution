@@ -64,6 +64,7 @@ $string['no_rating_given'] = 'None';
 $string['rating_is_over'] = 'The rating period has ended.';
 $string['only_one_per_course'] = 'You can only have one groupdistribution per course!';
 $string['timeout_field'] = 'Time in seconds until the algorithm gets stopped.';
+$string['timeout_field_help'] = 'Please only change this number if you get a "Time-out Error"';
 $string['invalid_timeout'] = 'You need to enter a more reasonable number!';
 $string['at_least_two'] = 'Please give at least two ratings better than impossible.';
 $string['distribution_saved'] = 'Distribution saved.';

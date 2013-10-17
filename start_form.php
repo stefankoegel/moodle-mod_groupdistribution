@@ -51,6 +51,7 @@ class mod_groupdistribution_start_form extends moodleform {
 		$mform->addElement('text', 'timeout', get_string('timeout_field', 'groupdistribution'), 'size="10"');
 		$mform->setType('timeout', PARAM_INT);
 		$mform->setDefault('timeout', 30);
+		$mform->addHelpButton('timeout', 'timeout_field', 'groupdistribution');
 
 		$mform->addElement('submit', 'submitbutton', get_string('start_distribution', 'groupdistribution'));
 	}
