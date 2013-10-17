@@ -149,8 +149,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		$memberships = memberships_per_course($COURSE->id);
 
 		$ratings_cells = array();
-		$distribution_data = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
-
 		foreach($ratings as $rating) {
 
 			// Create a cell in the table for each rating
@@ -161,15 +159,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			$cell->text = get_string('rating_' . $ratingNames[$rating->rating], 'groupdistribution');
 			$cell->attributes['class'] = 'groupdistribution_rating_' . $ratingNames[$rating->rating];
 
-			// Check if the user has been distributed along this rating
-			if(array_key_exists($rating->userid, $memberships)
-				and array_key_exists($rating->groupsid, $memberships[$rating->userid])) {
-				// Highlight the cell
-				$cell->attributes['class'] .= ' groupdistribution_member';
-
-				// Increment the counter for users with this rating
-				$distribution_data[$rating->rating]++;
-			}
 			$ratings_cells[$rating->userid][$rating->groupsid] = $cell;
 		}
 
@@ -188,6 +177,25 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 				}
 			}
 			ksort($ratings_cells[$user->id]);
+		}
+
+		// Highlight ratings according to which users have been distributed
+		// and count the number of such distributions
+		$distribution_data = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
+		foreach($memberships as $userid => $groups) {
+			foreach($groups as $groupsid => $rating) {
+				if(array_key_exists($userid, $ratings_cells)
+				  and array_key_exists($groupsid, $ratings_cells[$userid])) {
+
+					// Highlight the cell
+					$ratings_cells[$userid][$groupsid]->attributes['class'] .= ' groupdistribution_member';
+
+					// Increment the counter for users with this rating
+					if(1 <= $rating and $rating <= 5) {
+						$distribution_data[$rating]++;
+					}
+				}
+			}
 		}
 
 		// The ratings table shows the users' ratings for the groups
@@ -210,6 +218,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		$cell = new html_table_cell();
 		$cell->text = count($users_in_course) - count($memberships);
 		$distribution_row[] = $cell;
+
 		$cell = new html_table_cell();
 		$cell->text = get_string('unassigned_users', 'groupdistribution');
 		$distribution_head[] = $cell;
