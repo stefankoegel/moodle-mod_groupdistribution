@@ -67,7 +67,7 @@ if(has_capability('mod/groupdistribution:start_distribution', $context)) {
 		if($action == ACTION_START) {
 			require_capability('mod/groupdistribution:start_distribution', $context);
 
-			test_shortest_path($data->courseid, $data->timeout);
+			distribute_users_in_course($data->courseid, $data->timeout);
 
 			redirect($PAGE->url->out(), get_string('distribution_saved', 'groupdistribution'));
 		}

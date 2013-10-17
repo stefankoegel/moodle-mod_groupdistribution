@@ -16,8 +16,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Internal library of functions for module groupdistribution
+ * Internal library of functions for module groupdistribution.
  *
+ * Contains the algorithm for the group distribution and some helper functions
+ * that wrap useful SQL querys.
  *
  * @package    mod_groupdistribution
  * @copyright  2013 Stefan Koegel
@@ -50,7 +52,7 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @param $courseid id of the course in which to distribute the users
  * @param $timeout maximum time in seconds after which the algorithm gets stopped
  */
-function test_shortest_path($courseid, $timeout=30) {
+function distribute_users_in_course($courseid, $timeout=30) {
 	global $DB;
 
 	// Set the time limit to prevent the algorithm from running forever
@@ -225,20 +227,24 @@ function all_enrolled_users_in_course($courseid) {
 
 /**
  * Returns all group memberships for rateable groups in the course with id $courseid.
+ * Also contains the rating the user gave for that group or null if he gave none.
  *
- * @return array of the form array($userid => array($groupid => true, ...), ...)
+ * @return array of the form array($userid => array($groupid => $rating, ...), ...)
  *         i.e. for every user who is a member of at least one rateable group,
- *         the array contains a set of ids representing the groups the user is a member of.
+ *         the array contains a set of ids representing the groups the user is a member of
+ *         and possibly the respective rating.
  */
 function memberships_per_course($courseid) {
 	global $DB;
 
-	$query = 'SELECT gm.id, gm.groupid, gm.userid
+	$query = 'SELECT gm.userid, gm.groupid, r.rating
 	            FROM {groups_members} AS gm
 	            JOIN {groups} AS g
 	              ON gm.groupid = g.id
 	            JOIN {groupdistribution_data} as d
 	              ON gm.groupid = d.groupsid
+	       LEFT JOIN {groupdistribution_ratings} as r
+	              ON gm.groupid = r.groupsid AND gm.userid = r.userid
 	           WHERE g.courseid = :courseid AND d.israteable = 1';
 	$records = $DB->get_records_sql($query, array('courseid' => $courseid));
 	$memberships = array();
@@ -246,7 +252,7 @@ function memberships_per_course($courseid) {
 		if(!array_key_exists($r->userid, $memberships)) {
 			$memberships[$r->userid] = array();
 		}
-		$memberships[$r->userid][$r->groupid] = true;
+		$memberships[$r->userid][$r->groupid] = $r->rating;
 	}
 	return $memberships;
 }
