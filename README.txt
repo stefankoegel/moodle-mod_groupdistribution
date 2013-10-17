@@ -1,48 +1,64 @@
-The following steps should get you up and running with
-this module template code.
+Groupdistribution
+=================
 
-* DO NOT PANIC!
+This module simplifies the distribution of users into groups that are
+constrained by a maximum number of members.
+A teacher can set a time period during which users can give ratings for
+groups. After the period an algorithm tries to distribute the users fairly
+into the groups according to their rating. This gives all users an equal
+chance to enter their preferred group instead of favoring those
+who come first.
 
-* Unzip the archive and read this file
+There can be only one module per course.
 
-* Rename the groupdistribution/ folder to the name of your module (eg "widget").
-  The module folder MUST be lower case. You should check the CVS contrib
-  area at http://cvs.moodle.org/contrib/plugins/mod/ to make sure that
-  your name is not already used by an other module. Registering the plugin
-  name @ http://moodle.org/plugins will secure it for you.
 
-* Edit all the files in this directory and its subdirectories and change
-  all the instances of the string "groupdistribution" to your module name
-  (eg "widget"). If you are using Linux, you can use the following command
-  $ find . -type f -exec sed -i 's/groupdistribution/widget/g' {} \;
-  
-  On a mac, use:
-  $ find . -type f -exec sed -i '' 's/groupdistribution/widget/g' {} \;
+Teachers
+========
 
-* Rename the file lang/en/groupdistribution.php to lang/en/widget.php
-  where "widget" is the name of your module
+Teachers can set the time period during which users can give their rating.
+They can also set maximum sizes for every group. It is also possible to
+make a group invisible to the distribution algorithm and users, so that
+this module leaves it alone.
 
-* Place the widget folder into the /mod folder of the moodle
-  directory.
+After the rating period is over a teacher can start the distribution
+process and view some additional data about the distribution. It is always
+possible to change maximum group sizes and redo the distribution, if the
+outcome was not desirable. Group memberships can of course be changed
+manually via the standard Moodle tools.
 
-* Go to Settings > Site Administration > Development > XMLDB editor
-  and modify the module's tables.
-  Make sure, that the web server has write-access to the db/ folder.
-  You need at least one table, even if your module doesn't use it.
+The algorithm is fair an will always find the solution with the fewest users
+without a group and the best average rating. Unfortunately, this may take
+some time.
 
-* Modify version.php and set the initial version of you module.
 
-* Visit Settings > Site Administration > Notifications, you should find
-  the module's tables successfully created
+Users
+=====
 
-* Go to Site Administration > Plugins > Activity modules > Manage activities
-  and you should find that this groupdistribution has been added to the list of
-  installed modules.
+When a user wants to rate his groups, he is presented with a list containing
+the group names, their descriptions and a menu from which he can choose a rating.
+The user has to give at least two ratings better than 'impossible', because
+the algorithm will not distribute the user into a group with this rating.
 
-* You may now proceed to run your own code in an attempt to develop
-  your module. You will probably want to modify mod_form.php and view.php
-  as a first step. Check db/access.php to add capabilities.
 
-We encourage you to share your code and experience - visit http://moodle.org
+Algorithm
+=========
 
-Good luck!
+This module uses a modified Ford-Fulkerson algorithm to solve the so called
+minimum-cost flow problem. To find augmenting paths a modified Bellman-Ford
+algorithm is used.
+
+The algorithm has a worst case time complexity of O(n^4) where n is the
+number of users. That means it might take VERY LONG to find a solution.
+Some experience values:
+30 seconds for 100 users
+2 minutes for 400 users
+
+
+Usage
+=====
+
+Put the module files into Moodles mod/ directory and install it via the
+administration page.
+
+After the installation you can add the Groupdistribution activity to a course
+and configure it.
