@@ -208,7 +208,7 @@ function get_all_ratings_for_rateable_groups_in_course($courseid) {
 		        FROM {groupdistribution_data} AS d
 		        JOIN {groupdistribution_ratings} AS r
 		          ON d.groupsid = r.groupsid
-		       WHERE d.courseid = :courseid AND d.israteable';
+		       WHERE d.courseid = :courseid AND d.israteable = 1';
 	return $DB->get_records_sql($sql, array('courseid' => $courseid));
 }
 
