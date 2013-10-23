@@ -51,6 +51,7 @@ $string['modulename'] = 'Groupdistribution';
 $string['modulename_help'] = 'Groupdistributin allows users give ratings to groups during a rating period. After this period is over an algorithm will distribute the users according to their ratings into the groups.';
 $string['modulenameplural'] = 'Groupdistributions';
 $string['negative_cycle'] = 'Negative cycle detected!';
+$string['no_groups_to_rate'] = 'There are no groups for you to rate. Ask your teacher to add some.';
 $string['no_rating_given'] = 'None';
 $string['only_one_per_course'] = 'You can only have one groupdistribution per course!';
 $string['pluginadministration'] = 'Groupdistribution administration';

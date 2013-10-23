@@ -47,6 +47,8 @@ class mod_groupdistribution_view_form extends moodleform {
 
 		$rating_data = get_rating_data_for_user_in_course($COURSE->id, $USER->id);
 
+		$renderer = $PAGE->get_renderer('mod_groupdistribution');
+
 		$mform->addElement('hidden', 'action', ACTION_RATE);
 		$mform->setType('action', PARAM_TEXT);
 
@@ -65,7 +67,6 @@ class mod_groupdistribution_view_form extends moodleform {
 			$mform->addElement('header', $header_elem, get_string('group', 'groupdistribution') . ': ' . $data->name);
 			$mform->setExpanded($header_elem);
 
-			$renderer = $PAGE->get_renderer('mod_groupdistribution');
 			$description_box = $renderer->box(format_text($data->description));
 			$mform->addElement('html', $description_box);
 
@@ -89,7 +90,13 @@ class mod_groupdistribution_view_form extends moodleform {
 				$mform->setDefault($rating_elem, 3); // default: ok (3)
 			}
 		}
-		$this->add_action_buttons();
+		// If there are no groups to rate, notify the user.
+		if(count($rating_data) > 0) {
+			$this->add_action_buttons();
+		} else {
+			$box = $renderer->notification(get_string('no_groups_to_rate', 'groupdistribution'));
+			$mform->addElement('html', $box);
+		}
 	}
 
 	/**
@@ -100,10 +107,14 @@ class mod_groupdistribution_view_form extends moodleform {
 	}
 
 	/**
-	 * Make sure that usrs give at least two ratings better than 'impossible' (0).
+	 * Make sure that users give at least two ratings better than 'impossible' (0).
 	 */
 	public function validation($data, $files) {
 		$errors = parent::validation($data, $files);
+
+		if(!array_key_exists('data', $data) or count($data['data'] < 2)) {
+			return $errors;
+		}
 
 		$possibles = 0;
 		$ratings = $data['data'];
