@@ -218,18 +218,19 @@ function save_ratings_to_db($courseid, $userid, array $data) {
 			$rating->rating = $rdata['rating'];
 
 			// Make sure that users can only change their own ratings
-			$test = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid'], 'userid' => $userid);
 
 			// Test if the group belongs to the course	
-			// if(! $DB->record_exists('groupdistribution_data', $test)) {
-			// 	print_error('group_not_in_course', 'groupdistribution');
-			// }
+			$group_in_course = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid']);
+			if(! $DB->record_exists('groupdistribution_data', $group_in_course)) {
+				print_error('group_not_in_course', 'groupdistribution');
+			}
 
-			if($DB->record_exists('groupdistribution_ratings', $test)) {
+			$rating_exists = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid'], 'userid' => $userid);
+			if($DB->record_exists('groupdistribution_ratings', $rating_exists)) {
 				// The rating exists, we need to update its value
 				// We get the id from the database to prevent users tampering with the html form
 
-				$old_rating = $DB->get_record('groupdistribution_ratings', $test);
+				$old_rating = $DB->get_record('groupdistribution_ratings', $rating_exists);
 				$rating->id = $old_rating->id;
 				$DB->update_record('groupdistribution_ratings', $rating);
 			} else {
