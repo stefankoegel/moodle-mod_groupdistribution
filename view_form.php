@@ -112,7 +112,7 @@ class mod_groupdistribution_view_form extends moodleform {
 	public function validation($data, $files) {
 		$errors = parent::validation($data, $files);
 
-		if(!array_key_exists('data', $data) or count($data['data'] < 2)) {
+		if(!array_key_exists('data', $data) or count($data['data']) < 2) {
 			return $errors;
 		}
 
