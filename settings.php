@@ -27,3 +27,8 @@ $settings->add(new admin_setting_configtext('groupdistribution_max_timeout',
 	get_string('max_timeout', 'groupdistribution'),
 	get_string('max_timeout_description', 'groupdistribution'),
 	600, PARAM_INT));
+
+$settings->add(new admin_setting_configtext('groupdistribution_maxsize',
+	get_string('maxsize_setting', 'groupdistribution'),
+	get_string('maxsize_setting_description', 'groupdistribution'),
+	15, PARAM_INT));

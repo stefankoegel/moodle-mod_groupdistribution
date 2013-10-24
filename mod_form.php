@@ -140,14 +140,14 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 			if($DB->record_exists('groupdistribution_data', array('groupsid' => $group->id))) { 
 				$data = $DB->get_record('groupdistribution_data', array('groupsid' => $group->id));
 
-				$mform->setDefault($maxsize_elem, $data->maxsize); // default: 20
-				$mform->setDefault($israteable_elem, $data->israteable); // default: yes (1)
+				$mform->setDefault($maxsize_elem, $data->maxsize);
+				$mform->setDefault($israteable_elem, $data->israteable);
 
 				$mform->addElement('hidden', $groupdataid_elem, $data->id);
 				$mform->setType($groupdataid_elem, PARAM_INT);
 
 			} else {
-				$mform->setDefault($maxsize_elem, 20); // default: 20
+				$mform->setDefault($maxsize_elem, $CFG->groupdistribution_maxsize); // default: $CFG->groupdistribution_maxsize
 				$mform->setDefault($israteable_elem, 1); // default: yes (1)
 			}
 
