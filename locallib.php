@@ -237,7 +237,7 @@ function all_enrolled_users_in_course($courseid) {
 function memberships_per_course($courseid) {
 	global $DB;
 
-	$query = 'SELECT gm.userid, gm.groupid, r.rating
+	$query = 'SELECT gm.id, gm.userid, gm.groupid, r.rating
 	            FROM {groups_members} AS gm
 	            JOIN {groups} AS g
 	              ON gm.groupid = g.id
