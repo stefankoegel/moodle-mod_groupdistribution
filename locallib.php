@@ -52,17 +52,11 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @param $courseid id of the course in which to distribute the users
  * @param $timeout maximum time in seconds after which the algorithm gets stopped
  */
-function distribute_users_in_course($courseid, $timeout=30) {
-	global $DB;
+function distribute_users_in_course($courseid) {
+	global $DB, $CFG;
 
 	// Set the time limit to prevent the algorithm from running forever
-	if($timeout < 0) {
-		$timeout = 30;
-	}
-	if($timeout > 600) {
-		$timeout = 600;
-	}
-	set_time_limit($timeout);
+	set_time_limit($CFG->groupdistribution_timelimit);
 
 	// Load data from database
 	$groupRecords = get_rateable_groups_for_course($courseid);

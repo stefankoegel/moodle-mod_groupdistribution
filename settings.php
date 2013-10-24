@@ -23,10 +23,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$settings->add(new admin_setting_configtext('groupdistribution_max_timeout',
-	get_string('max_timeout', 'groupdistribution'),
-	get_string('max_timeout_description', 'groupdistribution'),
-	600, PARAM_INT));
+$settings->add(new admin_setting_configtext('groupdistribution_timelimit',
+	get_string('max_timelimit', 'groupdistribution'),
+	get_string('max_timelimit_description', 'groupdistribution'),
+	120, PARAM_INT));
 
 $settings->add(new admin_setting_configtext('groupdistribution_maxsize',
 	get_string('maxsize_setting', 'groupdistribution'),
