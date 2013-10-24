@@ -25,7 +25,6 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once('locallib.php');
 require_once('view_form.php');
-require_once('start_form.php');
 
 class mod_groupdistribution_renderer extends plugin_renderer_base {
 
