@@ -294,6 +294,16 @@ function extract_groupdistribution($graph, $toUserid, $toGroupid) {
 	return $distribution;
 }
 
+function get_rating_names() {
+	return array(
+		'impossible',
+		'worst',
+		'bad',
+		'ok',
+		'good',
+		'best');
+}
+
 /**
  * Reverses all edges along $path in $graph
  */

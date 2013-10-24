@@ -116,7 +116,8 @@ else {
 }
 if($action == SHOW_TABLE) {
 	require_capability('mod/groupdistribution:start_distribution', $context);
-	echo $renderer->groupdistribution_tables();
+	echo $renderer->distribution_table_for_course($COURSE->id);
+	echo $renderer->ratings_table_for_course($COURSE->id);
 }
 
 // Finish the page

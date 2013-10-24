@@ -125,27 +125,17 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 	 *
 	 * @return HTML code
 	 */
-	function groupdistribution_tables() {
-		global $DB, $PAGE, $COURSE;
+	function ratings_table_for_course($courseid) {
 
-		$groups = get_rateable_groups_for_course($COURSE->id);
+		$groups = get_rateable_groups_for_course($courseid);
 		$groupNames = array();
 		foreach($groups as $group) {
 			$groupNames[$group->id] = $group->name;
 		}
+		// Sort group names by groupid
 		ksort($groupNames);
 
-		$ratingNames = array(
-			'impossible',
-			'worst',
-			'bad',
-			'ok',
-			'good',
-			'best');
-
-		$ratings = get_all_ratings_for_rateable_groups_in_course($COURSE->id);
-		$memberships = memberships_per_course($COURSE->id);
-
+		$ratings = get_all_ratings_for_rateable_groups_in_course($courseid);
 		$ratings_cells = array();
 		foreach($ratings as $rating) {
 
@@ -162,7 +152,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
 		// If there is no rating from a user for a group,
 		// put a 'no_rating_given' cell into the table.
-		$users_in_course = all_enrolled_users_in_course($COURSE->id);
+		$users_in_course = all_enrolled_users_in_course($courseid);
 		foreach($users_in_course as $user) {
 			if(!array_key_exists($user->id, $ratings_cells)) {
 				$ratings_cells[$user->id] = array();
@@ -174,12 +164,13 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 					$ratings_cells[$user->id][$groupsid] = $cell;
 				}
 			}
+			// Sort ratings by groupid to align them with the group names in the table
 			ksort($ratings_cells[$user->id]);
 		}
 
 		// Highlight ratings according to which users have been distributed
 		// and count the number of such distributions
-		$distribution_data = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
+		$memberships = memberships_per_course($courseid);
 		foreach($memberships as $userid => $groups) {
 			foreach($groups as $groupsid => $rating) {
 				if(array_key_exists($userid, $ratings_cells)
@@ -187,11 +178,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
 					// Highlight the cell
 					$ratings_cells[$userid][$groupsid]->attributes['class'] .= ' groupdistribution_member';
-
-					// Increment the counter for users with this rating
-					if(1 <= $rating and $rating <= 5) {
-						$distribution_data[$rating]++;
-					}
 				}
 			}
 		}
@@ -201,19 +187,46 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		$ratings_table->data = $ratings_cells;
 		$ratings_table->head = $groupNames;
 
+		$output = '';
+		$output .= $this->box_start();
+		$output .= get_string('ratings_table', 'groupdistribution');
+		$output .= '<br><br>';
+		$output .= $this->box(html_writer::table($ratings_table), 'groupdistribution_ratings_box');
+		$output .= $this->box_end();
+
+		return $output;
+	}
+
+	function distribution_table_for_course($courseid) {
+
+		// Count the number of distributions with a specific rating
+		$distribution_data = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
+		$memberships = memberships_per_course($courseid);
+		foreach($memberships as $userid => $groups) {
+			foreach($groups as $groupsid => $rating) {
+				if(1 <= $rating and $rating <= 5) {
+					// Increment the counter for users with this rating
+					$distribution_data[$rating]++;
+				}
+			}
+		}
+
 		$distribution_row = array();
 		$distribution_head = array();
+		$rating_names = get_rating_names();
 		foreach($distribution_data as $rating => $count) {
 			$cell = new html_table_cell();
 			$cell->text = $count;
-			$cell->attributes['class'] = 'groupdistribution_rating_' . $ratingNames[$rating];
+			$cell->attributes['class'] = 'groupdistribution_rating_' . $rating_names[$rating];
 			$distribution_row[$rating] = $cell;
 
 			$cell = new html_table_cell();
-			$cell->text = get_string('rating_' . $ratingNames[$rating], 'groupdistribution');
+			$cell->text = get_string('rating_' . $rating_names[$rating], 'groupdistribution');
 			$distribution_head[$rating] = $cell;
 		}
+
 		$cell = new html_table_cell();
+		$users_in_course = all_enrolled_users_in_course($courseid);
 		$cell->text = count($users_in_course) - count($memberships);
 		$distribution_row[] = $cell;
 
@@ -229,20 +242,11 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
 		$output = '';
 		$output .= $this->box_start();
-		$output .= $this->box_start();
 		$output .= get_string('distribution_table', 'groupdistribution');
 		$output .= '<br><br>';
 		$output .= html_writer::table($distribution_table);
 		$output .= $this->box_end();
-
-		$output .= $this->box_start();
-		$output .= get_string('ratings_table', 'groupdistribution');
-		$output .= '<br><br>';
-		$output .= $this->box(html_writer::table($ratings_table), 'groupdistribution_ratings_box');
-		$output .= $this->box_end();
-
-		$output .= $this->box_end();
-
+		
 		return $output;
 	}
 }
