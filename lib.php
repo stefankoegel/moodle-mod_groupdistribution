@@ -221,9 +221,9 @@ function save_ratings_to_db($courseid, $userid, array $data) {
 			$test = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid'], 'userid' => $userid);
 
 			// Test if the group belongs to the course	
-			if(! $DB->record_exists('groupdistribution_data', $test)) {
-				print_error('group_not_in_course', 'groupdistribution');
-			}
+			// if(! $DB->record_exists('groupdistribution_data', $test)) {
+			// 	print_error('group_not_in_course', 'groupdistribution');
+			// }
 
 			if($DB->record_exists('groupdistribution_ratings', $test)) {
 				// The rating exists, we need to update its value
