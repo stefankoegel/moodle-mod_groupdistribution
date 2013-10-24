@@ -60,27 +60,17 @@ $PAGE->set_context($context);
 // Distinguish teachers who can start a distribution and 
 // enroled users who can give ratings.
 if(has_capability('mod/groupdistribution:start_distribution', $context)) {
-	$mform = new mod_groupdistribution_start_form($PAGE->url->out());
 
 	// Start the distribution algorithm
-	if($mform->is_submitted() and $mform->is_validated() and $data = $mform->get_data()) {
-		if($action == ACTION_START) {
-			require_capability('mod/groupdistribution:start_distribution', $context);
-
-			distribute_users_in_course($data->courseid, $data->timeout);
-
-			redirect($PAGE->url->out(), get_string('distribution_saved', 'groupdistribution'));
-		}
-	}
-	// Undo the distribution
-	else if($action == ACTION_CLEAR) {
+	if($action == ACTION_START) {
 		require_capability('mod/groupdistribution:start_distribution', $context);
 
-		clear_all_groups_in_course($COURSE->id);
+		distribute_users_in_course($COURSE->id);
 
-		redirect($PAGE->url->out(), get_string('groups_cleared', 'groupdistribution'));
+		redirect($PAGE->url->out(), get_string('distribution_saved', 'groupdistribution'));
 	}
 }
+
 // Save the users rating
 else if(is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
 	$mform = new mod_groupdistribution_view_form($PAGE->url->out());
@@ -106,7 +96,8 @@ if($groupdistribution->intro) {
 }
 
 if(has_capability('mod/groupdistribution:start_distribution', $context)) {
-	echo $renderer->teacher_controls($mform);
+	echo $renderer->start_distribution_button();
+	echo $renderer->distribution_table_for_course($COURSE->id);
 }
 else if(is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
 	echo $renderer->user_rating_form($mform);
@@ -114,10 +105,12 @@ else if(is_enrolled($context) and has_capability('mod/groupdistribution:give_rat
 else {
 	echo $renderer->notify(get_string('not_enrolled'));
 }
-if($action == SHOW_TABLE) {
-	require_capability('mod/groupdistribution:start_distribution', $context);
-	echo $renderer->distribution_table_for_course($COURSE->id);
-	echo $renderer->ratings_table_for_course($COURSE->id);
+if(has_capability('mod/groupdistribution:start_distribution', $context)) {
+	if($action == SHOW_TABLE) {
+		echo $renderer->ratings_table_for_course($COURSE->id);
+	} else {
+		echo $renderer->show_table_button();
+	}
 }
 
 // Finish the page

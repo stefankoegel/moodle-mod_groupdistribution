@@ -57,45 +57,22 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		return $mform->toHtml();
 	}
 
-	/**
-	 * Returns HTML code for the teacher view.
-	 * This view contains buttons to start the distribution of the users according
-	 * to their ratings, undo this distribution and to view additional information
-	 * about the distribution.
-	 * The button to start the distribution is only visible after the rating period
-	 * has ended.
-	 *
-	 * @param $mform is a form that contains the button to start the distribution
-	 *        and a field to set the number of seconds the algorithm has to complete
-	 *        the distribution.
-	 * @return HTML code
-	 */
-	function teacher_controls(mod_groupdistribution_start_form $mform) {
+	function start_distribution_button() {
 		global $PAGE, $COURSE, $DB;
 
-		$clearURL = new moodle_url($PAGE->url, array('action' => ACTION_CLEAR));
-		$tableURL = new moodle_url($PAGE->url, array('action' => SHOW_TABLE));
+		$startURL = new moodle_url($PAGE->url, array('action' => ACTION_START));
 
 		$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));
 
 		$output = '';
-		$output .= $this->box_start();
-
 		if($groupdistribution->enddate < time()) {
-			// Rating period is over, show the buttons
 
+			// Rating period is over, show the button
 			$output .= $this->box_start();
 			$output .= get_string('start_distribution_explanation', 'groupdistribution');
-			$mform->is_validated();
-			$output .= $mform->toHtml();
-
-			$output .= $this->box_end();
-
-			$output .= $this->box_start();
-			$output .= get_string('clear_groups_explanation', 'groupdistribution');
 			$output .= '<br><br>';
-			$output .= $this->single_button($clearURL->out(),
-					get_string('clear_groups', 'groupdistribution'), 'get');
+			$output .= $this->single_button($startURL->out(),
+					get_string('start_distribution', 'groupdistribution'), 'get');
 			$output .= $this->box_end();
 		} else {
 
@@ -106,16 +83,23 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			$note = get_string('too_early_to_distribute', 'groupdistribution', $a);
 			$output .= $this->notification($note);
 		}
+		return $output;
+	}
 
-		// Button to display information about the distribution and ratings
+	function show_table_button() {
+		global $PAGE;
+
+		$tableURL = new moodle_url($PAGE->url, array('action' => SHOW_TABLE));
+
+		$output = '';
 		$output .= $this->box_start();
 		$output .= get_string('view_distribution_table', 'groupdistribution');
 		$output .= '<br><br>';
+		// Button to display information about the distribution and ratings
 		$output .= $this->single_button($tableURL->out(),
 				get_string('show_table', 'groupdistribution'), 'get');
 		$output .= $this->box_end();
 
-		$output .= $this->box_end();
 		return $output;
 	}
 
@@ -137,6 +121,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
 		$ratings = get_all_ratings_for_rateable_groups_in_course($courseid);
 		$ratings_cells = array();
+		$rating_names = get_rating_names();
 		foreach($ratings as $rating) {
 
 			// Create a cell in the table for each rating
@@ -144,8 +129,8 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 				$ratings_cells[$rating->userid] = array();
 			}
 			$cell = new html_table_cell();
-			$cell->text = get_string('rating_' . $ratingNames[$rating->rating], 'groupdistribution');
-			$cell->attributes['class'] = 'groupdistribution_rating_' . $ratingNames[$rating->rating];
+			$cell->text = get_string('rating_' . $rating_names[$rating->rating], 'groupdistribution');
+			$cell->attributes['class'] = 'groupdistribution_rating_' . $rating_names[$rating->rating];
 
 			$ratings_cells[$rating->userid][$rating->groupsid] = $cell;
 		}
