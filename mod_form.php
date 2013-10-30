@@ -70,6 +70,8 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 			return;
 		}
 
+		$PAGE->requires->js_init_call('M.mod_groupdistribution.init');
+
 		//-------------------------------------------------------------------------------
 		// Adding the "general" fieldset, where all the common settings are showed
 		$mform->addElement('header', 'general', get_string('general', 'form'));
@@ -107,6 +109,13 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 		$mform->addElement('hidden', 'courseid', $COURSE->id);
 		$mform->setType('courseid', PARAM_INT);
 
+		$size_group = array();
+		$size_group[] = $mform->createElement('text', 'global_max_size', '', array('id' => 'global_max_size'));
+		$size_group[] = $mform->createElement('button', 'set_max_size_button',
+			get_string('set_max_size_button', 'groupdistribution'), array('id' => 'set_max_size_button'));
+		$mform->addGroup($size_group, 'size_group', get_string('global_max_size', 'groupdistribution'));
+		$mform->setType('size_group[global_max_size]', PARAM_INT);
+
 		//-------------------------------------------------------------------------------
 		// Important settings for groupdistribution.
 		// Choose the groups between which the users can choose and set their maximum size.
@@ -141,7 +150,8 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 			$mform->addHelpButton($description_elem, 'description_overrides', 'groupdistribution');
 
 
-			$mform->addElement('text', $maxsize_elem, get_string('maxsize_form', 'groupdistribution'));
+			$mform->addElement('text', $maxsize_elem, get_string('maxsize_form', 'groupdistribution'),
+				array('id' => 'max_size_field'));
 			$mform->setType($maxsize_elem, PARAM_INT);
 
 			$mform->addElement('selectyesno', $israteable_elem, get_string('rateable_form', 'groupdistribution'));
