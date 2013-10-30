@@ -29,6 +29,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once('locallib.php');
 
 /**
  * Module instance settings form
@@ -54,6 +55,16 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 			$renderer = $PAGE->get_renderer('mod_groupdistribution');
 			$mform->addElement('html',
 				$renderer->error_text(get_string('only_one_per_course', 'groupdistribution')));
+
+			$this->standard_hidden_coursemodule_elements();
+			return;
+		}
+
+		// There must be at least two groups
+		if($DB->count_records('groups', array('courseid' => $COURSE->id)) < 2) {
+			$renderer = $PAGE->get_renderer('mod_groupdistribution');
+			$mform->addElement('html',
+				$renderer->error_text(get_string('at_least_two_groups', 'groupdistribution')));
 
 			$this->standard_hidden_coursemodule_elements();
 			return;
