@@ -141,20 +141,24 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 			$groupsid_elem = $elem_prefix . "[groupsid]";
 
 			$mform->addElement('header', $header_elem, get_string('group', 'groupdistribution') . ': ' . $group->name);
-			$mform->setExpanded($header_elem);
 
+			// Checkbox
+			$mform->addElement('selectyesno', $israteable_elem, get_string('rateable_form', 'groupdistribution'));
+
+			// Textfield
+			$mform->addElement('text', $maxsize_elem, get_string('maxsize_form', 'groupdistribution'),
+				array('id' => 'max_size_field'));
+			$mform->setType($maxsize_elem, PARAM_INT);
+			// $mform->disabledIf($maxsize_elem, $israteable_elem, 'eq', 0);
+
+			// Editor
 			$mform->addElement('editor', $description_elem, get_string('description_form', 'groupdistribution'),
 					null, $editoroptions);
 			$mform->setType($description_elem, PARAM_RAW);
 			$mform->setDefault($description_elem, array('text' => $group->description));
 			$mform->addHelpButton($description_elem, 'description_overrides', 'groupdistribution');
-
-
-			$mform->addElement('text', $maxsize_elem, get_string('maxsize_form', 'groupdistribution'),
-				array('id' => 'max_size_field'));
-			$mform->setType($maxsize_elem, PARAM_INT);
-
-			$mform->addElement('selectyesno', $israteable_elem, get_string('rateable_form', 'groupdistribution'));
+			// Does not work for editor elements :(
+			// $mform->disabledIf($description_elem, $israteable_elem, 'eq', 0);
 
 			// Check if there is an entry in groupdistribution_data for this group
 			// and enter its values into the form.
@@ -164,6 +168,11 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 
 				$mform->setDefault($maxsize_elem, $data->maxsize);
 				$mform->setDefault($israteable_elem, $data->israteable);
+
+				// Expand if rateable
+				if($data->israteable == 1) {
+					$mform->setExpanded($header_elem);
+				}
 
 				$mform->addElement('hidden', $groupdataid_elem, $data->id);
 				$mform->setType($groupdataid_elem, PARAM_INT);
