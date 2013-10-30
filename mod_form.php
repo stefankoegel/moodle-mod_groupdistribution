@@ -138,6 +138,7 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 					null, $editoroptions);
 			$mform->setType($description_elem, PARAM_RAW);
 			$mform->setDefault($description_elem, array('text' => $group->description));
+			$mform->addHelpButton($description_elem, 'description_overrides', 'groupdistribution');
 
 
 			$mform->addElement('text', $maxsize_elem, get_string('maxsize_form', 'groupdistribution'));
