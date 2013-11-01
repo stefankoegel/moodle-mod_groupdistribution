@@ -215,7 +215,7 @@ function all_enrolled_users_in_course($courseid) {
 	$context = get_context_instance(CONTEXT_COURSE, $courseid);
 	$student_role = $DB->get_record('role', array('shortname' => 'student'));
 	// Documentation: lib/acceslib.php
-	$students = get_role_users($student_role->id, $context, false, 'u.id, u.username');
+	$students = get_role_users($student_role->id, $context, false, 'u.id, u.lastname, u.firstname, u.email');
 	return $students;
 }
 

@@ -32,3 +32,8 @@ $settings->add(new admin_setting_configtext('groupdistribution_maxsize',
 	get_string('maxsize_setting', 'groupdistribution'),
 	get_string('maxsize_setting_description', 'groupdistribution'),
 	15, PARAM_INT));
+
+$settings->add(new admin_setting_configcheckbox('groupdistribution_show_names',
+	get_string('show_names', 'groupdistribution'),
+	get_string('show_names_description', 'groupdistribution'),
+	1));

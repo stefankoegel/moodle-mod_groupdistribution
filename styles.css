@@ -27,3 +27,9 @@ td.cell.groupdistribution_member {
 	color: white;
 	border: solid black 3px;
 }
+
+div.groupdistribution_user .icons,
+div.groupdistribution_user .names {
+	display: block;
+	margin-right: 5px;
+}

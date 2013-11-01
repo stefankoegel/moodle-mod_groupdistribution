@@ -109,14 +109,13 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 	 * @return HTML code
 	 */
 	function ratings_table_for_course($courseid) {
+		global $CFG;
 
 		$groups = get_rateable_groups_for_course($courseid);
 		$groupNames = array();
 		foreach($groups as $group) {
 			$groupNames[$group->id] = $group->name;
 		}
-		// Sort group names by groupid
-		ksort($groupNames);
 
 		$ratings = get_all_ratings_for_rateable_groups_in_course($courseid);
 		$ratings_cells = array();
@@ -148,9 +147,20 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 					$ratings_cells[$user->id][$groupsid] = $cell;
 				}
 			}
+			if($CFG->groupdistribution_show_names) {
+				// -1 is smaller than any id
+				$ratings_cells[$user->id][-1] = mod_groupdistribution_renderer::format_user_data($user);
+			}
 			// Sort ratings by groupid to align them with the group names in the table
 			ksort($ratings_cells[$user->id]);
 		}
+
+		if($CFG->groupdistribution_show_names) {
+			// -1 is smaller than any id
+			$groupNames[-1] = 'User';
+		}
+		// Sort group names by groupid
+		ksort($groupNames);
 
 		// Highlight ratings according to which users have been distributed
 		// and count the number of such distributions
@@ -177,6 +187,36 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		$output .= '<br><br>';
 		$output .= $this->box(html_writer::table($ratings_table), 'groupdistribution_ratings_box');
 		$output .= $this->box_end();
+
+		return $output;
+	}
+
+	/**
+	 * Taken with permission from block_people:
+	 *   https://github.com/moodleuulm/moodle-block_people
+	 */
+	function format_user_data($data) {
+		global $CFG, $OUTPUT, $USER, $COURSE, $PAGE;
+
+		$output = '';
+		$output .= html_writer::start_tag('div', array('class' => 'groupdistribution_user'));
+		$output .= html_writer::start_tag('div', array('class' => 'name'));
+		$output .= fullname($data);
+		$output .= html_writer::end_tag('div');
+		$output .= html_writer::start_tag('div', array('class' => 'icons'));
+		if (has_capability('moodle/user:viewdetails', $PAGE->context)) {
+			$output .= html_writer::start_tag('a', array('href' => new moodle_url('/user/view.php', array('id' => $data->id, 'course' => $COURSE->id)), 'title' => get_string('viewprofile', 'core')));
+			$output .= html_writer::empty_tag('img', array('src' => $OUTPUT->pix_url('i/user'), 'class' => 'icon', 'alt' => get_string('viewprofile', 'core')));
+			$output .= html_writer::end_tag('a');
+		}
+
+		if ($CFG->messaging && has_capability('moodle/site:sendmessage', $PAGE->context) && $data->id != $USER->id) {
+			$output .= html_writer::start_tag('a', array('href' => new moodle_url('/message/index.php', array('id' => $data->id)), 'title' => get_string('sendmessageto', 'core_message', fullname($data))));
+			$output .= html_writer::empty_tag('img', array('src' => $OUTPUT->pix_url('t/email'), 'class' => 'icon', 'alt' => get_string('sendmessageto', 'core_message', fullname($data))));
+			$output .= html_writer::end_tag('a');
+		}
+		$output .= html_writer::end_tag('div');
+		$output .= html_writer::end_tag('div');
 
 		return $output;
 	}
