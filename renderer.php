@@ -129,7 +129,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 			$groupNames[$group->id] = $group->name;
 		}
 
-		$ratings = get_all_ratings_for_rateable_groups_in_course($courseid);
+		$ratings = all_ratings_for_rateable_groups_from_raters_in_course($courseid);
 		$ratings_cells = array();
 		$rating_names = get_rating_names();
 		foreach($ratings as $rating) {
@@ -147,7 +147,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
 		// If there is no rating from a user for a group,
 		// put a 'no_rating_given' cell into the table.
-		$users_in_course = all_enrolled_users_in_course($courseid);
+		$users_in_course = every_rater_in_course($courseid);
 		foreach($users_in_course as $user) {
 			if(!array_key_exists($user->id, $ratings_cells)) {
 				$ratings_cells[$user->id] = array();
@@ -262,7 +262,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		}
 
 		$cell = new html_table_cell();
-		$users_in_course = all_enrolled_users_in_course($courseid);
+		$users_in_course = every_rater_in_course($courseid);
 		$cell->text = count($users_in_course) - count($memberships);
 		$distribution_row[] = $cell;
 

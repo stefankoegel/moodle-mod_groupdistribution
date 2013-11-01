@@ -68,9 +68,9 @@ function distribute_users_in_course($courseid) {
 
 	$groupCount = count($groupData);
 
-	$userCount = count(all_enrolled_users_in_course($courseid));
+	$userCount = count(every_rater_in_course($courseid));
 
-	$ratings = get_all_ratings_for_rateable_groups_in_course($courseid);
+	$ratings = all_ratings_for_rateable_groups_from_raters_in_course($courseid);
 
 	// Construct the datstructures for the algorithm
 
@@ -193,9 +193,9 @@ function get_rating_data_for_user_in_course($courseid, $userid) {
 }
 
 /**
- * Returns all ratings for groups in the course with id $courseid.
+ * Returns all ratings for groups in the course with id $courseid from users who can give ratings.
  */
-function get_all_ratings_for_rateable_groups_in_course($courseid) {
+function all_ratings_for_rateable_groups_from_raters_in_course($courseid) {
 	global $DB;
 
 	$sql = 'SELECT r.*
@@ -203,24 +203,29 @@ function get_all_ratings_for_rateable_groups_in_course($courseid) {
 		        JOIN {groupdistribution_ratings} AS r
 		          ON d.groupsid = r.groupsid
 		       WHERE d.courseid = :courseid AND d.israteable = 1';
-	return $DB->get_records_sql($sql, array('courseid' => $courseid));
+
+	$ratings = $DB->get_records_sql($sql, array('courseid' => $courseid));
+	$raters = every_rater_in_course($courseid);
+
+	$from_raters = array_filter($ratings, function($rating) use ($raters) {
+		return array_key_exists($rating->userid, $raters);
+	});
+
+	return $from_raters;
 }
 
 /**
- * Returns all users in the course with id $courseid.
+ * Returns all users in the course with id $courseid who can give a rating.
  */
-function all_enrolled_users_in_course($courseid) {
-	global $DB;
-	
-	$context = get_context_instance(CONTEXT_COURSE, $courseid);
-	$student_role = $DB->get_record('role', array('shortname' => 'student'));
-	// Documentation: lib/acceslib.php
-	$students = get_role_users($student_role->id, $context, false, 'u.id, u.lastname, u.firstname, u.email');
-	return $students;
+function every_rater_in_course($courseid) {
+	$ctx = context_course::instance($courseid);
+	$raters = get_enrolled_users($ctx, 'mod/groupdistribution:give_rating');
+	return $raters;
 }
 
 /**
- * Returns all group memberships for rateable groups in the course with id $courseid.
+ * Returns all group memberships from users who can give ratings,
+ * for rateable groups in the course with id $courseid.
  * Also contains the rating the user gave for that group or null if he gave none.
  *
  * @return array of the form array($userid => array($groupid => $rating, ...), ...)
@@ -242,7 +247,13 @@ function memberships_per_course($courseid) {
 	           WHERE g.courseid = :courseid AND d.israteable = 1';
 	$records = $DB->get_records_sql($query, array('courseid' => $courseid));
 	$memberships = array();
+	$raters = every_rater_in_course($courseid);
 	foreach($records as $r) {
+
+		// Ignore all members who can't give ratings
+		if(!array_key_exists($r->userid, $raters)) {
+			continue;
+		}
 		if(!array_key_exists($r->userid, $memberships)) {
 			$memberships[$r->userid] = array();
 		}
