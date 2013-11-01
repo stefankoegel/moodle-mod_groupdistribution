@@ -41,7 +41,7 @@ class mod_groupdistribution_view_form extends moodleform {
 	 * Defines forms elements
 	 */
 	public function definition() {
-		global $COURSE, $PAGE, $USER;
+		global $COURSE, $PAGE, $USER, $DB;
 
 		$mform = $this->_form;
 
@@ -66,6 +66,10 @@ class mod_groupdistribution_view_form extends moodleform {
 
 			$mform->addElement('header', $header_elem, get_string('group', 'groupdistribution') . ': ' . $data->name);
 			$mform->setExpanded($header_elem);
+
+			$group = $DB->get_record('groups', array('id' => $data->groupsid));
+			$picture_box = print_group_picture($group, $COURSE->id, false, true);
+			$mform->addElement('html', $picture_box);
 
 			$description_box = $renderer->box(format_text($data->description));
 			$mform->addElement('html', $description_box);
