@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
     'mod/groupdistribution:addinstance' => array(
-        'riskbitmask' => RISK_XSS | RISK_SPAM,
+        'riskbitmask' => RISK_XSS | RISK_SPAM | RISK_PERSONAL,
         'contextlevel' => CONTEXT_COURSE, 
         'captype' => 'write',
         'archetypes' => array(
@@ -47,7 +47,7 @@ $capabilities = array(
 
     'mod/groupdistribution:start_distribution' => array(
         'contextlevel' => CONTEXT_MODULE,
-        'riskbitmask' => RISK_PERSONAL,
+        'riskbitmask' => RISK_XSS | RISK_SPAM | RISK_PERSONAL,
         'captype' => 'write',
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
