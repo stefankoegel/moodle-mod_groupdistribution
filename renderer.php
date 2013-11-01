@@ -42,18 +42,28 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
 		$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));
 
+		$output = '';
+		$output .= mod_groupdistribution_renderer::show_rating_period($groupdistribution);
+
 		if(time() < $groupdistribution->begindate) {
-			$a = new stdClass();
-			$a->begin = userdate($groupdistribution->begindate);
-			$a->end = userdate($groupdistribution->enddate);
-			$note = get_string('too_early_to_rate', 'groupdistribution', $a);
-			return $this->notification($note);
-		}
-		if($groupdistribution->enddate < time()) {
-			return $this->notification(get_string('rating_is_over', 'groupdistribution'));
+			$output .= $this->notification(get_string('too_early_to_rate', 'groupdistribution', $a));
+		} else if($groupdistribution->enddate < time()) {
+			$output .= $this->notification(get_string('rating_is_over', 'groupdistribution'));
+		} else {
+			$output .= $mform->toHtml();
 		}
 
-		return $mform->toHtml();
+		return $output;
+	}
+
+	function show_rating_period($groupdistribution) {
+
+		$a = new stdClass();
+		$a->begin = userdate($groupdistribution->begindate);
+		$a->end = userdate($groupdistribution->enddate);
+		$note = get_string('show_rating_period', 'groupdistribution', $a);
+
+		return $this->notification($note, 'notifysucces');
 	}
 
 	function start_distribution_button() {
@@ -64,6 +74,8 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 		$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));
 
 		$output = '';
+		$output .= mod_groupdistribution_renderer::show_rating_period($groupdistribution);
+
 		if($groupdistribution->enddate < time()) {
 
 			// Rating period is over, show the button
