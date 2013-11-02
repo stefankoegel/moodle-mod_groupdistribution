@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['at_least_two'] = 'Please give at least two ratings better than impossible.';
 $string['at_least_two_groups'] = 'A course must have at least two groups to add a groupdistribution activity.';
 $string['begindate'] = 'Rating begins at:';
+$string['changes'] = 'There have been {$a} change(s)! Please review your ratings.';
 $string['clear_groups'] = 'Clear all groups';
 $string['clear_groups_explanation'] = 'Remove all users from groups for which they gave a rating. If a user is in a group of the same course for which he didn\'t supply a rating (because it was not rateable) he will stay in that group.';
 $string['description_form'] = "Group's description";

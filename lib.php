@@ -286,15 +286,41 @@ function groupdistribution_user_outline($course, $user, $mod, $groupdistribution
 function groupdistribution_user_complete($course, $user, $mod, $groupdistribution) {
 }
 
+function groupdistribution_get_logs($courseid, $timestart) {
+
+	$selector = "l.course = :courseid";
+	$selector .= " AND l.module = 'groupdistribution'";
+	$selector .= " AND l.action = 'update'";
+	$selector .= " AND l.url LIKE 'modedit%'";
+	$selector .= " AND l.time > :timestart";
+	$params = array('courseid' => $courseid, 'timestart' => $timestart);
+	$count = 0;
+	$logs = get_logs($selector, $params, 'l.time ASC', '', '', $count);
+	return $logs;
+}
+
 /**
  * Given a course and a time, this module should find recent activity
  * that has occurred in groupdistribution activities and print it out.
- * Return true if there was output, or false is there was none.
+ * Return true if there was output, or false if there was none.
  *
  * @return boolean
  */
 function groupdistribution_print_recent_activity($course, $viewfullnames, $timestart) {
-	return false;  //  True if anything was printed, otherwise false
+	global $PAGE;
+
+	$logs = groupdistribution_get_logs($course->id, $timestart);
+	$changes = count($logs);
+
+	if($changes > 0) {
+		$renderer = $PAGE->get_renderer('mod_groupdistribution');
+
+		echo $renderer->heading(get_string('groupdistribution', 'groupdistribution') . ':', 3);
+		$output = get_string('changes', 'groupdistribution', count($logs));
+		echo $renderer->box($output);
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -314,6 +340,15 @@ function groupdistribution_print_recent_activity($course, $viewfullnames, $times
  * @return void adds items into $activities and increases $index
  */
 function groupdistribution_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
+	foreach(groupdistribution_get_logs($courseid, $timestart) as $log) {
+		$act = new stdClass();
+		$act->cmid = $cmid;
+		$act->type = 'groupdistribution';
+		$act->visible = true;
+		$act->log = $log;
+
+		$activities[$index++] = $act;
+	}
 }
 
 /**
@@ -322,6 +357,14 @@ function groupdistribution_get_recent_mod_activity(&$activities, &$index, $times
  * @return void
  */
 function groupdistribution_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
+	global $PAGE;
+
+	$output = userdate($activity->log->time) . ':';
+	$output .= '<br>';
+	$output .= $activity->log->info;
+
+	$renderer = $PAGE->get_renderer('mod_groupdistribution');
+	echo $renderer->box($output);
 }
 
 /**
