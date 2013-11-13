@@ -315,18 +315,29 @@ function groupdistribution_get_logs($courseid, $timestart) {
  * @return boolean
  */
 function groupdistribution_print_recent_activity($course, $viewfullnames, $timestart) {
-    global $PAGE;
+    global $PAGE, $DB;
 
-    $logs = groupdistribution_get_logs($course->id, $timestart);
-    $lastlog = null; // TODO
-    $changes = count($logs);
+    $groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $course->id));
+    $renderer = $PAGE->get_renderer('mod_groupdistribution');
 
-    if ($changes > 0) {
-        $renderer = $PAGE->get_renderer('mod_groupdistribution');
+    if ($groupdistribution->begindate < $timestart and $timestart < $groupdistribution->enddate) {
+        // During the rating period.
 
         echo $renderer->heading(get_string('groupdistribution', 'groupdistribution') . ':', 3);
-        $output = get_string('changes', 'groupdistribution', count($logs));
-        echo $renderer->box($output);
+
+        $a = new stdClass();
+        $a->until = userdate($groupdistribution->enddate);
+
+        echo $renderer->box(get_string('rating_has_begun', 'groupdistribution', $a));
+
+        $logs = groupdistribution_get_logs($course->id, $timestart);
+        $a->count = count($logs);
+        $a->time = userdate($timestart);
+
+        if ($a->count > 0) {
+            echo $renderer->box(get_string('changes', 'groupdistribution', $a));
+        }
+
         return true;
     }
     return false;

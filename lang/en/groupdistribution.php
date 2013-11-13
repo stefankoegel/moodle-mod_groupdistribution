@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['at_least_two'] = 'Please give at least two ratings better than impossible.';
 $string['at_least_two_groups'] = 'A course must have at least two groups to add a groupdistribution activity.';
 $string['begindate'] = 'Rating begins at:';
-$string['changes'] = 'There have been {$a} change(s)! Please review your ratings.';
+$string['changes'] = 'There have been {$a->count} change(s) since {$a->time}! Please review your ratings.';
 $string['clear_groups'] = 'Clear all groups';
 $string['clear_groups_explanation'] = 'Remove all users from groups for which they gave a rating. If a user is in a group of the same course for which he didn\'t supply a rating (because it was not rateable) he will stay in that group.';
 $string['description_form'] = "Group's description";
@@ -67,6 +67,7 @@ $string['rateable_form'] = 'Can users view and rate this group via Groupdistribu
 $string['rating_bad'] = "Bad";
 $string['rating_best'] = "Best";
 $string['rating_good'] = "Good";
+$string['rating_has_begun'] = 'The rating period has started and lasts until {$a->until}.';
 $string['rating_impossible'] = "Impossible";
 $string['rating_is_over'] = 'The rating period has ended.';
 $string['rating_ok'] = "Ok";
