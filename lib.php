@@ -131,7 +131,7 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
 
 				if($DB->record_exists('groupdistribution_data', array('groupsid' => $data['groupsid']))) {
 
-					// groupdata already exists, use the id from the form to updat it
+					// groupdata already exists, use the id from the form to update it
 					$groupdata->id = $data['groupdataid'];
 					$DB->update_record('groupdistribution_data', $groupdata);
 				} else {
@@ -310,6 +310,7 @@ function groupdistribution_print_recent_activity($course, $viewfullnames, $times
 	global $PAGE;
 
 	$logs = groupdistribution_get_logs($course->id, $timestart);
+	$last_log = 
 	$changes = count($logs);
 
 	if($changes > 0) {
