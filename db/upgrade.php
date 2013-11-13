@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -81,7 +80,7 @@ function xmldb_groupdistribution_upgrade($oldversion) {
 
         // Define field intro to be added to groupdistribution
         $table = new xmldb_table('groupdistribution');
-        $field = new xmldb_field('intro', XMLDB_TYPE_TEXT, 'medium', null, null, null, null,'name');
+        $field = new xmldb_field('intro', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'name');
 
         // Add field intro
         if (!$dbman->field_exists($table, $field)) {

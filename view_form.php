@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -37,103 +36,103 @@ require_once('renderer.php');
  */
 class mod_groupdistribution_view_form extends moodleform {
 
-	/**
-	 * Defines forms elements
-	 */
-	public function definition() {
-		global $COURSE, $PAGE, $USER, $DB;
+    /**
+     * Defines forms elements
+     */
+    public function definition() {
+        global $COURSE, $PAGE, $USER, $DB;
 
-		$mform = $this->_form;
+        $mform = $this->_form;
 
-		$rating_data = get_rating_data_for_user_in_course($COURSE->id, $USER->id);
+        $ratingdata = get_rating_data_for_user_in_course($COURSE->id, $USER->id);
 
-		$renderer = $PAGE->get_renderer('mod_groupdistribution');
+        $renderer = $PAGE->get_renderer('mod_groupdistribution');
 
-		$mform->addElement('hidden', 'action', ACTION_RATE);
-		$mform->setType('action', PARAM_TEXT);
+        $mform->addElement('hidden', 'action', ACTION_RATE);
+        $mform->setType('action', PARAM_TEXT);
 
-		$mform->addElement('hidden', 'courseid', $COURSE->id);
-		$mform->setType('courseid', PARAM_INT);
+        $mform->addElement('hidden', 'courseid', $COURSE->id);
+        $mform->setType('courseid', PARAM_INT);
 
-		foreach($rating_data as $data) {
-			$header_elem      = "head_groupdistribution_$data->groupsid";
-			$elem_prefix      = "data[$data->groupsid]";
-			$rating_elem      = $elem_prefix . '[rating]';
-			$groupsid_elem    = $elem_prefix . '[groupsid]';
+        foreach ($ratingdata as $data) {
+            $headerelem      = "head_groupdistribution_$data->groupsid";
+            $elemprefix      = "data[$data->groupsid]";
+            $ratingelem      = $elemprefix . '[rating]';
+            $groupsidelem    = $elemprefix . '[groupsid]';
 
-			$mform->addElement('hidden', $groupsid_elem, $data->groupsid);
-			$mform->setType($groupsid_elem, PARAM_INT);
+            $mform->addElement('hidden', $groupsidelem, $data->groupsid);
+            $mform->setType($groupsidelem, PARAM_INT);
 
-			$mform->addElement('header', $header_elem, get_string('group', 'groupdistribution') . ': ' . $data->name);
-			$mform->setExpanded($header_elem);
+            $mform->addElement('header', $headerelem, get_string('group', 'groupdistribution') . ': ' . $data->name);
+            $mform->setExpanded($headerelem);
 
-			$group = $DB->get_record('groups', array('id' => $data->groupsid));
-			$picture_box = print_group_picture($group, $COURSE->id, false, true);
-			$mform->addElement('html', $picture_box);
+            $group = $DB->get_record('groups', array('id' => $data->groupsid));
+            $picturebox = print_group_picture($group, $COURSE->id, false, true);
+            $mform->addElement('html', $picturebox);
 
-			$description_box = $renderer->box(format_text($data->description));
-			$mform->addElement('html', $description_box);
+            $descriptionbox = $renderer->box(format_text($data->description));
+            $mform->addElement('html', $descriptionbox);
 
-			// The higher the rating, the greater the desire to get into this group
-			$options = array(
-				0 => get_string('rating_impossible', 'groupdistribution'),
-				1 => get_string('rating_worst', 'groupdistribution'),
-				2 => get_string('rating_bad', 'groupdistribution'),
-				3 => get_string('rating_ok', 'groupdistribution'),
-				4 => get_string('rating_good', 'groupdistribution'),
-				5 => get_string('rating_best', 'groupdistribution'));
-			$mform->addElement('select', $rating_elem, get_string('rate_group', 'groupdistribution'), $options);
-			$mform->setType($rating_elem, PARAM_INT);
+            // The higher the rating, the greater the desire to get into this group
+            $options = array(
+                0 => get_string('rating_impossible', 'groupdistribution'),
+                1 => get_string('rating_worst', 'groupdistribution'),
+                2 => get_string('rating_bad', 'groupdistribution'),
+                3 => get_string('rating_ok', 'groupdistribution'),
+                4 => get_string('rating_good', 'groupdistribution'),
+                5 => get_string('rating_best', 'groupdistribution'));
+            $mform->addElement('select', $ratingelem, get_string('rate_group', 'groupdistribution'), $options);
+            $mform->setType($ratingelem, PARAM_INT);
 
-			// If there is a valid value in the databse, choose the according rating
-			// from the dropdown.
-			// Else use a default value.
-			if(is_numeric($data->rating) and $data->rating >= 0 and $data->rating <= 5) {
-				$mform->setDefault($rating_elem, $data->rating);
-			} else {
-				$mform->setDefault($rating_elem, 3); // default: ok (3)
-			}
-		}
-		// If there are no groups to rate, notify the user.
-		if(count($rating_data) > 0) {
-			$this->add_action_buttons();
-		} else {
-			$box = $renderer->notification(get_string('no_groups_to_rate', 'groupdistribution'));
-			$mform->addElement('html', $box);
-		}
-	}
+            // If there is a valid value in the databse, choose the according rating
+            // from the dropdown.
+            // Else use a default value.
+            if (is_numeric($data->rating) and $data->rating >= 0 and $data->rating <= 5) {
+                $mform->setDefault($ratingelem, $data->rating);
+            } else {
+                $mform->setDefault($ratingelem, 3); // default: ok (3)
+            }
+        }
+        // If there are no groups to rate, notify the user.
+        if (count($ratingdata) > 0) {
+            $this->add_action_buttons();
+        } else {
+            $box = $renderer->notification(get_string('no_groups_to_rate', 'groupdistribution'));
+            $mform->addElement('html', $box);
+        }
+    }
 
-	/**
-	 * Returns the forms HTML code. So we don't have to call display().
-	 */
-	public function toHtml() {
-		return $this->_form->toHtml();
-	}
+    /**
+     * Returns the forms HTML code. So we don't have to call display().
+     */
+    public function to_html() {
+        return $this->_form->toHtml();
+    }
 
-	/**
-	 * Make sure that users give at least two ratings better than 'impossible' (0).
-	 */
-	public function validation($data, $files) {
-		$errors = parent::validation($data, $files);
+    /**
+     * Make sure that users give at least two ratings better than 'impossible' (0).
+     */
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
 
-		if(!array_key_exists('data', $data) or count($data['data']) < 2) {
-			return $errors;
-		}
+        if (!array_key_exists('data', $data) or count($data['data']) < 2) {
+            return $errors;
+        }
 
-		$possibles = 0;
-		$ratings = $data['data'];
-		foreach($ratings as $rating) {
-			if($rating['rating'] > 0) {
-				$possibles++;
-			}
-		}
-		if($possibles < 2) {
-			foreach($ratings as $gid => $rating) {
-				if($rating['rating'] == 0) {
-					$errors['data[' . $gid . '][rating]'] = get_string('at_least_two', 'groupdistribution');
-				}
-			}
-		}
-		return $errors;
-	}
+        $possibles = 0;
+        $ratings = $data['data'];
+        foreach ($ratings as $rating) {
+            if ($rating['rating'] > 0) {
+                $possibles++;
+            }
+        }
+        if ($possibles < 2) {
+            foreach ($ratings as $gid => $rating) {
+                if ($rating['rating'] == 0) {
+                    $errors['data[' . $gid . '][rating]'] = get_string('at_least_two', 'groupdistribution');
+                }
+            }
+        }
+        return $errors;
+    }
 }

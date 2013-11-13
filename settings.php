@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,16 +23,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 $settings->add(new admin_setting_configtext('groupdistribution_timelimit',
-	get_string('max_timelimit', 'groupdistribution'),
-	get_string('max_timelimit_description', 'groupdistribution'),
-	120, PARAM_INT));
+    get_string('max_timelimit', 'groupdistribution'),
+    get_string('max_timelimit_description', 'groupdistribution'),
+    120, PARAM_INT));
 
 $settings->add(new admin_setting_configtext('groupdistribution_maxsize',
-	get_string('maxsize_setting', 'groupdistribution'),
-	get_string('maxsize_setting_description', 'groupdistribution'),
-	15, PARAM_INT));
+    get_string('maxsize_setting', 'groupdistribution'),
+    get_string('maxsize_setting_description', 'groupdistribution'),
+    15, PARAM_INT));
 
 $settings->add(new admin_setting_configcheckbox('groupdistribution_show_names',
-	get_string('show_names', 'groupdistribution'),
-	get_string('show_names_description', 'groupdistribution'),
-	1));
+    get_string('show_names', 'groupdistribution'),
+    get_string('show_names_description', 'groupdistribution'),
+    1));

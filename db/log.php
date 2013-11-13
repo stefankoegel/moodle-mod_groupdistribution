@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -32,8 +31,8 @@ defined('MOODLE_INTERNAL') || die();
 global $DB;
 
 $logs = array(
-//    array('module'=>'groupdistribution', 'action'=>'add', 'mtable'=>'groupdistribution', 'field'=>'name'),
-//    array('module'=>'groupdistribution', 'action'=>'update', 'mtable'=>'groupdistribution', 'field'=>'name'),
-    array('module'=>'groupdistribution', 'action'=>'view', 'mtable'=>'groupdistribution', 'field'=>'name'),
-//    array('module'=>'groupdistribution', 'action'=>'view all', 'mtable'=>'groupdistribution', 'field'=>'name')
+//    array('module' => 'groupdistribution', 'action' => 'add', 'mtable' => 'groupdistribution', 'field' => 'name'),
+//    array('module' => 'groupdistribution', 'action' => 'update', 'mtable' => 'groupdistribution', 'field' => 'name'),
+    array('module' => 'groupdistribution', 'action' => 'view', 'mtable' => 'groupdistribution', 'field' => 'name'),
+//    array('module' => 'groupdistribution', 'action' => 'view all', 'mtable' => 'groupdistribution', 'field' => 'name')
 );

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -28,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $capabilities = array(
     'mod/groupdistribution:addinstance' => array(
         'riskbitmask' => RISK_XSS | RISK_SPAM | RISK_PERSONAL,
-        'contextlevel' => CONTEXT_COURSE, 
+        'contextlevel' => CONTEXT_COURSE,
         'captype' => 'write',
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,

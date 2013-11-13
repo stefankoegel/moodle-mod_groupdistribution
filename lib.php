@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -31,9 +30,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-////////////////////////////////////////////////////////////////////////////////
+/*////////////////////////////////////////////////////////////////////////////*/
 // Moodle core API                                                            //
-////////////////////////////////////////////////////////////////////////////////
+/*////////////////////////////////////////////////////////////////////////////*/
 
 /**
  * Returns the information on whether the module supports a feature
@@ -43,12 +42,14 @@ defined('MOODLE_INTERNAL') || die();
  * @return mixed true if the feature is supported, null if unknown
  */
 function groupdistribution_supports($feature) {
-	switch($feature) {
-		case FEATURE_MOD_INTRO:         return true;
-		case FEATURE_SHOW_DESCRIPTION:  return true;
-
-		default:                        return null;
-	}
+    switch ($feature) {
+        case FEATURE_MOD_INTRO:
+            return true;
+        case FEATURE_SHOW_DESCRIPTION:
+            return true;
+        default:
+            return null;
+    }
 }
 
 /**
@@ -64,48 +65,48 @@ function groupdistribution_supports($feature) {
  * @return int The id of the newly inserted groupdistribution record
  */
 function groupdistribution_add_instance(stdClass $groupdistribution, mod_groupdistribution_mod_form $mform = null) {
-	global $DB, $USER;
+    global $DB, $USER;
 
-	$groupdistribution->timecreated = time();
+    $groupdistribution->timecreated = time();
 
-	try {
-		$transaction = $DB->start_delegated_transaction();
-		if(property_exists($groupdistribution, 'data')) {
-			foreach($groupdistribution->data as $id => $data) {
+    try {
+        $transaction = $DB->start_delegated_transaction();
+        if (property_exists($groupdistribution, 'data')) {
+            foreach ($groupdistribution->data as $id => $data) {
 
-				// Create a new entry in groupdistribution_data
-				// so we need a groupsid but no id.
-				$groupdata = new stdClass();
-				$groupdata->groupsid   = $data['groupsid'];
-				$groupdata->courseid   = $groupdistribution->courseid;
-				$groupdata->maxsize    = $data['maxsize'];
-				$groupdata->israteable = $data['rateable'];
+                // Create a new entry in groupdistribution_data
+                // so we need a groupsid but no id.
+                $groupdata = new stdClass();
+                $groupdata->groupsid   = $data['groupsid'];
+                $groupdata->courseid   = $groupdistribution->courseid;
+                $groupdata->maxsize    = $data['maxsize'];
+                $groupdata->israteable = $data['rateable'];
 
-				$DB->insert_record('groupdistribution_data', $groupdata);
+                $DB->insert_record('groupdistribution_data', $groupdata);
 
-				// Update the description of the group
-				$groupdescription = new stdClass();
-				$groupdescription->id          = $data['groupsid'];
-				$groupdescription->description = $data['description']['text'];
+                // Update the description of the group
+                $groupdescription = new stdClass();
+                $groupdescription->id          = $data['groupsid'];
+                $groupdescription->description = $data['description']['text'];
 
-				$DB->update_record('groups', $groupdescription);
-			}
-		}
-		$id = $DB->insert_record('groupdistribution', $groupdistribution);
-		// Add to course and groupdistribution log
-		add_to_log($groupdistribution->courseid, 'course', 'add',
-			'modedit.php?add=groupdistribution&course=' . $groupdistribution->courseid . '&section=0',
-			'Created instance', $groupdistribution->coursemodule);
-		add_to_log($groupdistribution->courseid, 'groupdistribution', 'add',
-			'modedit.php?add=groupdistribution&course=' . $groupdistribution->courseid . '&section=0',
-			'Created instance', $groupdistribution->coursemodule);
+                $DB->update_record('groups', $groupdescription);
+            }
+        }
+        $id = $DB->insert_record('groupdistribution', $groupdistribution);
+        // Add to course and groupdistribution log
+        add_to_log($groupdistribution->courseid, 'course', 'add',
+            'modedit.php?add=groupdistribution&course=' . $groupdistribution->courseid . '&section=0',
+            'Created instance', $groupdistribution->coursemodule);
+        add_to_log($groupdistribution->courseid, 'groupdistribution', 'add',
+            'modedit.php?add=groupdistribution&course=' . $groupdistribution->courseid . '&section=0',
+            'Created instance', $groupdistribution->coursemodule);
 
-		$transaction->allow_commit();
+        $transaction->allow_commit();
 
-		return $id;
-	} catch(Exception $e) {
-		$transaction->rollback($e);
-	}
+        return $id;
+    } catch (Exception $e) {
+        $transaction->rollback($e);
+    }
 }
 
 /**
@@ -120,55 +121,55 @@ function groupdistribution_add_instance(stdClass $groupdistribution, mod_groupdi
  * @return boolean Success/Fail
  */
 function groupdistribution_update_instance(stdClass $groupdistribution, mod_groupdistribution_mod_form $mform = null) {
-	global $DB, $USER;
+    global $DB, $USER;
 
-	$groupdistribution->timemodified = time();
-	$groupdistribution->id = $groupdistribution->instance;
+    $groupdistribution->timemodified = time();
+    $groupdistribution->id = $groupdistribution->instance;
 
-	try {
-		$transaction = $DB->start_delegated_transaction();
-		if(property_exists($groupdistribution, 'data')) {
-			foreach($groupdistribution->data as $id => $data) {
-				$groupdata = new stdClass();
-				$groupdata->maxsize    = $data['maxsize'];
-				$groupdata->israteable = $data['rateable'];
+    try {
+        $transaction = $DB->start_delegated_transaction();
+        if (property_exists($groupdistribution, 'data')) {
+            foreach ($groupdistribution->data as $id => $data) {
+                $groupdata = new stdClass();
+                $groupdata->maxsize    = $data['maxsize'];
+                $groupdata->israteable = $data['rateable'];
 
-				if($DB->record_exists('groupdistribution_data', array('groupsid' => $data['groupsid']))) {
+                if ($DB->record_exists('groupdistribution_data', array('groupsid' => $data['groupsid']))) {
 
-					// groupdata already exists, use the id from the form to update it
-					$groupdata->id = $data['groupdataid'];
-					$DB->update_record('groupdistribution_data', $groupdata);
-				} else {
+                    // groupdata already exists, use the id from the form to update it
+                    $groupdata->id = $data['groupdataid'];
+                    $DB->update_record('groupdistribution_data', $groupdata);
+                } else {
 
-					// Create new entry in groupdata and set its groupsid
-					$groupdata->groupsid   = $data['groupsid'];
-					$groupdata->courseid   = $groupdistribution->courseid;
-					$DB->insert_record('groupdistribution_data', $groupdata);
-				}
+                    // Create new entry in groupdata and set its groupsid
+                    $groupdata->groupsid   = $data['groupsid'];
+                    $groupdata->courseid   = $groupdistribution->courseid;
+                    $DB->insert_record('groupdistribution_data', $groupdata);
+                }
 
-				// Update the description of the group
-				$groupdescription = new stdClass();
-				$groupdescription->id          = $data['groupsid'];
-				$groupdescription->description = $data['description']['text'];
+                // Update the description of the group
+                $groupdescription = new stdClass();
+                $groupdescription->id          = $data['groupsid'];
+                $groupdescription->description = $data['description']['text'];
 
-				$DB->update_record('groups', $groupdescription);
-			}
-		}
-		// Update groupdistribution (including start/enddate)
-		$bool = $DB->update_record('groupdistribution', $groupdistribution);
+                $DB->update_record('groups', $groupdescription);
+            }
+        }
+        // Update groupdistribution (including start/enddate)
+        $bool = $DB->update_record('groupdistribution', $groupdistribution);
 
-		// TODO: log what has been changed
-		add_to_log($groupdistribution->courseid, 'groupdistribution', 'update',
-			'modedit.php?update=' . $groupdistribution->coursemodule,
-			'Saved changes', $groupdistribution->coursemodule);
-		
-		$transaction->allow_commit();
+        // TODO: log what has been changed
+        add_to_log($groupdistribution->courseid, 'groupdistribution', 'update',
+            'modedit.php?update=' . $groupdistribution->coursemodule,
+            'Saved changes', $groupdistribution->coursemodule);
 
-		return $bool;
+        $transaction->allow_commit();
 
-	} catch(Exception $e) {
-		$transaction->rollback($e);
-	}
+        return $bool;
+
+    } catch (Exception $e) {
+        $transaction->rollback($e);
+    }
 }
 
 /**
@@ -182,30 +183,30 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
  * @return boolean Success/Failure
  */
 function groupdistribution_delete_instance($id) {
-	global $DB, $USER;
+    global $DB, $USER;
 
-	$groupdistribution = $DB->get_record('groupdistribution', array('id' => $id));
-	if (! $groupdistribution) {
-		return false;
-	}
+    $groupdistribution = $DB->get_record('groupdistribution', array('id' => $id));
+    if (! $groupdistribution) {
+        return false;
+    }
 
-	try {
-		$transaction = $DB->start_delegated_transaction();
+    try {
+        $transaction = $DB->start_delegated_transaction();
 
-		$DB->delete_records('groupdistribution_ratings', array('courseid' => $groupdistribution->courseid));
-		$DB->delete_records('groupdistribution_data', array('courseid' => $groupdistribution->courseid));
-		$DB->delete_records('groupdistribution', array('id' => $id));
+        $DB->delete_records('groupdistribution_ratings', array('courseid' => $groupdistribution->courseid));
+        $DB->delete_records('groupdistribution_data', array('courseid' => $groupdistribution->courseid));
+        $DB->delete_records('groupdistribution', array('id' => $id));
 
-		add_to_log($groupdistribution->courseid, 'course', 'delete',
-			'mod.php?delete=' . $groupdistribution->id,
-			'Deleted groupdistribution', $groupdistribution->id);
-	
-		$transaction->allow_commit();
-	} catch(Exception $e) {
-		$transaction->rollback($e);
-	}
+        add_to_log($groupdistribution->courseid, 'course', 'delete',
+            'mod.php?delete=' . $groupdistribution->id,
+            'Deleted groupdistribution', $groupdistribution->id);
 
-	return true;
+        $transaction->allow_commit();
+    } catch (Exception $e) {
+        $transaction->rollback($e);
+    }
+
+    return true;
 }
 
 /**
@@ -215,51 +216,51 @@ function groupdistribution_delete_instance($id) {
  * specify the ratings for the respective groups.
  */
 function save_ratings_to_db($courseid, $userid, array $data) {
-	global $DB;
+    global $DB;
 
-	try {
-		$transaction = $DB->start_delegated_transaction();
+    try {
+        $transaction = $DB->start_delegated_transaction();
 
-		foreach($data as $id => $rdata) {
-			$rating = new stdClass();
-			$rating->rating = $rdata['rating'];
+        foreach ($data as $id => $rdata) {
+            $rating = new stdClass();
+            $rating->rating = $rdata['rating'];
 
-			// Make sure that users can only change their own ratings
+            // Make sure that users can only change their own ratings
 
-			// Test if the group belongs to the course	
-			$group_in_course = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid']);
-			if(! $DB->record_exists('groupdistribution_data', $group_in_course)) {
-				print_error('group_not_in_course', 'groupdistribution');
-			}
+            // Test if the group belongs to the course
+            $groupincourse = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid']);
+            if (! $DB->record_exists('groupdistribution_data', $groupincourse)) {
+                print_error('group_not_in_course', 'groupdistribution');
+            }
 
-			$rating_exists = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid'], 'userid' => $userid);
-			if($DB->record_exists('groupdistribution_ratings', $rating_exists)) {
-				// The rating exists, we need to update its value
-				// We get the id from the database to prevent users tampering with the html form
+            $ratingexists = array('courseid' => $courseid, 'groupsid' => $rdata['groupsid'], 'userid' => $userid);
+            if ($DB->record_exists('groupdistribution_ratings', $ratingexists)) {
+                // The rating exists, we need to update its value
+                // We get the id from the database to prevent users tampering with the html form
 
-				$old_rating = $DB->get_record('groupdistribution_ratings', $rating_exists);
-				$rating->id = $old_rating->id;
-				$DB->update_record('groupdistribution_ratings', $rating);
-			} else {
-				// Create a new rating in the table
+                $oldrating = $DB->get_record('groupdistribution_ratings', $ratingexists);
+                $rating->id = $oldrating->id;
+                $DB->update_record('groupdistribution_ratings', $rating);
+            } else {
+                // Create a new rating in the table
 
-				$rating->userid = $userid;
-				$rating->groupsid = $rdata['groupsid'];
-				$rating->courseid = $courseid;
-				$DB->insert_record('groupdistribution_ratings', $rating);
-			}
-		}
-		$groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $courseid));
-		$course_module = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $courseid, false, MUST_EXIST);
+                $rating->userid = $userid;
+                $rating->groupsid = $rdata['groupsid'];
+                $rating->courseid = $courseid;
+                $DB->insert_record('groupdistribution_ratings', $rating);
+            }
+        }
+        $groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $courseid));
+        $coursemodule = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $courseid, false, MUST_EXIST);
 
-		add_to_log($courseid, 'groupdistribution', 'update',
-			'view.php?id=' . $course_module->id,
-			'User saved rating', $course_module->id);
+        add_to_log($courseid, 'groupdistribution', 'update',
+            'view.php?id=' . $coursemodule->id,
+            'User saved rating', $coursemodule->id);
 
-		$transaction->allow_commit();
-	} catch(Exception $e) {
-		$transaction->rollback($e);
-	}
+        $transaction->allow_commit();
+    } catch (Exception $e) {
+        $transaction->rollback($e);
+    }
 }
 
 
@@ -274,10 +275,10 @@ function save_ratings_to_db($courseid, $userid, array $data) {
  */
 function groupdistribution_user_outline($course, $user, $mod, $groupdistribution) {
 
-	$return = new stdClass();
-	$return->time = 0;
-	$return->info = '';
-	return $return;
+    $return = new stdClass();
+    $return->time = 0;
+    $return->info = '';
+    return $return;
 }
 
 /**
@@ -295,15 +296,15 @@ function groupdistribution_user_complete($course, $user, $mod, $groupdistributio
 
 function groupdistribution_get_logs($courseid, $timestart) {
 
-	$selector = "l.course = :courseid";
-	$selector .= " AND l.module = 'groupdistribution'";
-	$selector .= " AND l.action = 'update'";
-	$selector .= " AND l.url LIKE 'modedit%'";
-	$selector .= " AND l.time > :timestart";
-	$params = array('courseid' => $courseid, 'timestart' => $timestart);
-	$count = 0;
-	$logs = get_logs($selector, $params, 'l.time ASC', '', '', $count);
-	return $logs;
+    $selector = "l.course = :courseid";
+    $selector .= " AND l.module = 'groupdistribution'";
+    $selector .= " AND l.action = 'update'";
+    $selector .= " AND l.url LIKE 'modedit%'";
+    $selector .= " AND l.time > :timestart";
+    $params = array('courseid' => $courseid, 'timestart' => $timestart);
+    $count = 0;
+    $logs = get_logs($selector, $params, 'l.time ASC', '', '', $count);
+    return $logs;
 }
 
 /**
@@ -314,21 +315,21 @@ function groupdistribution_get_logs($courseid, $timestart) {
  * @return boolean
  */
 function groupdistribution_print_recent_activity($course, $viewfullnames, $timestart) {
-	global $PAGE;
+    global $PAGE;
 
-	$logs = groupdistribution_get_logs($course->id, $timestart);
-	$last_log = 
-	$changes = count($logs);
+    $logs = groupdistribution_get_logs($course->id, $timestart);
+    $lastlog = null; // TODO
+    $changes = count($logs);
 
-	if($changes > 0) {
-		$renderer = $PAGE->get_renderer('mod_groupdistribution');
+    if ($changes > 0) {
+        $renderer = $PAGE->get_renderer('mod_groupdistribution');
 
-		echo $renderer->heading(get_string('groupdistribution', 'groupdistribution') . ':', 3);
-		$output = get_string('changes', 'groupdistribution', count($logs));
-		echo $renderer->box($output);
-		return true;
-	}
-	return false;
+        echo $renderer->heading(get_string('groupdistribution', 'groupdistribution') . ':', 3);
+        $output = get_string('changes', 'groupdistribution', count($logs));
+        echo $renderer->box($output);
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -348,15 +349,15 @@ function groupdistribution_print_recent_activity($course, $viewfullnames, $times
  * @return void adds items into $activities and increases $index
  */
 function groupdistribution_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
-	foreach(groupdistribution_get_logs($courseid, $timestart) as $log) {
-		$act = new stdClass();
-		$act->cmid = $cmid;
-		$act->type = 'groupdistribution';
-		$act->visible = true;
-		$act->log = $log;
+    foreach (groupdistribution_get_logs($courseid, $timestart) as $log) {
+        $act = new stdClass();
+        $act->cmid = $cmid;
+        $act->type = 'groupdistribution';
+        $act->visible = true;
+        $act->log = $log;
 
-		$activities[$index++] = $act;
-	}
+        $activities[$index++] = $act;
+    }
 }
 
 /**
@@ -365,14 +366,14 @@ function groupdistribution_get_recent_mod_activity(&$activities, &$index, $times
  * @return void
  */
 function groupdistribution_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
-	global $PAGE;
+    global $PAGE;
 
-	$output = userdate($activity->log->time) . ':';
-	$output .= '<br>';
-	$output .= $activity->log->info;
+    $output = userdate($activity->log->time) . ':';
+    $output .= '<br>';
+    $output .= $activity->log->info;
 
-	$renderer = $PAGE->get_renderer('mod_groupdistribution');
-	echo $renderer->box($output);
+    $renderer = $PAGE->get_renderer('mod_groupdistribution');
+    echo $renderer->box($output);
 }
 
 /**
@@ -381,7 +382,7 @@ function groupdistribution_print_recent_mod_activity($activity, $courseid, $deta
  * @return boolean
  **/
 function groupdistribution_cron () {
-	return true;
+    return true;
 }
 
 /**
@@ -390,5 +391,5 @@ function groupdistribution_cron () {
  * @return array
  */
 function groupdistribution_get_extra_capabilities() {
-	return array();
+    return array();
 }
