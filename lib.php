@@ -92,10 +92,14 @@ function groupdistribution_add_instance(stdClass $groupdistribution, mod_groupdi
 			}
 		}
 		$id = $DB->insert_record('groupdistribution', $groupdistribution);
+		// Add to course and groupdistribution log
 		add_to_log($groupdistribution->courseid, 'course', 'add',
 			'modedit.php?add=groupdistribution&course=' . $groupdistribution->courseid . '&section=0',
 			'Created instance', $groupdistribution->coursemodule);
-	
+		add_to_log($groupdistribution->courseid, 'groupdistribution', 'add',
+			'modedit.php?add=groupdistribution&course=' . $groupdistribution->courseid . '&section=0',
+			'Created instance', $groupdistribution->coursemodule);
+
 		$transaction->allow_commit();
 
 		return $id;
@@ -150,7 +154,10 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
 				$DB->update_record('groups', $groupdescription);
 			}
 		}
+		// Update groupdistribution (including start/enddate)
 		$bool = $DB->update_record('groupdistribution', $groupdistribution);
+
+		// TODO: log what has been changed
 		add_to_log($groupdistribution->courseid, 'groupdistribution', 'update',
 			'modedit.php?update=' . $groupdistribution->coursemodule,
 			'Saved changes', $groupdistribution->coursemodule);
