@@ -237,7 +237,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
             $a['title'] = get_string('sendmessageto', 'core_message', fullname($data));
             $output .= html_writer::start_tag('a', $a);
 
-            $src = array('src' => $OUTPUT->pix_url('t/email'), 'class' => 'icon', $alt);
+            $src = array('src' => $OUTPUT->pix_url('t/email'), 'class' => 'icon');
             $src['alt'] = get_string('sendmessageto', 'core_message', fullname($data));
             $output .= html_writer::empty_tag('img', $src);
 
