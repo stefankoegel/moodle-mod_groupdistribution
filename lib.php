@@ -193,11 +193,11 @@ function groupdistribution_delete_instance($id) {
     try {
         $transaction = $DB->start_delegated_transaction();
 
-        $DB->delete_records('groupdistribution_ratings', array('courseid' => $groupdistribution->courseid));
-        $DB->delete_records('groupdistribution_data', array('courseid' => $groupdistribution->courseid));
+        $DB->delete_records('groupdistribution_ratings', array('courseid' => $groupdistribution->course));
+        $DB->delete_records('groupdistribution_data', array('courseid' => $groupdistribution->course));
         $DB->delete_records('groupdistribution', array('id' => $id));
 
-        add_to_log($groupdistribution->courseid, 'course', 'delete',
+        add_to_log($groupdistribution->course, 'course', 'delete',
             'mod.php?delete=' . $groupdistribution->id,
             'Deleted groupdistribution', $groupdistribution->id);
 
@@ -250,7 +250,7 @@ function save_ratings_to_db($courseid, $userid, array $data) {
                 $DB->insert_record('groupdistribution_ratings', $rating);
             }
         }
-        $groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $courseid));
+        $groupdistribution = $DB->get_record('groupdistribution', array('course' => $courseid));
         $coursemodule = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $courseid, false, MUST_EXIST);
 
         add_to_log($courseid, 'groupdistribution', 'update',
@@ -317,7 +317,7 @@ function groupdistribution_get_logs($courseid, $timestart) {
 function groupdistribution_print_recent_activity($course, $viewfullnames, $timestart) {
     global $PAGE, $DB;
 
-    $groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $course->id));
+    $groupdistribution = $DB->get_record('groupdistribution', array('course' => $course->id));
     $renderer = $PAGE->get_renderer('mod_groupdistribution');
 
     if ($groupdistribution->begindate < $timestart and $timestart < $groupdistribution->enddate) {

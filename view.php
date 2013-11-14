@@ -37,7 +37,7 @@ if ($id) {
     $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $groupdistribution = $DB->get_record('groupdistribution', array('id' => $cm->instance), '*', MUST_EXIST);
 } else if ($courseid) {
-    $groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $courseid), '*', MUST_EXIST);
+    $groupdistribution = $DB->get_record('groupdistribution', array('course' => $courseid), '*', MUST_EXIST);
     $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $course->id, false, MUST_EXIST);
 } else {

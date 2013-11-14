@@ -48,7 +48,7 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
         // And: https://github.com/SWiT/moodle-internal-course-email/blob/master/mod/email/mod_form.php
 
         $isupdate = optional_param('update', 0, PARAM_INT);
-        $alreadyexists = $DB->record_exists('groupdistribution', array('courseid' => $COURSE->id));
+        $alreadyexists = $DB->record_exists('groupdistribution', array('course' => $COURSE->id));
 
         if ($alreadyexists and $isupdate == 0) {
             $renderer = $PAGE->get_renderer('mod_groupdistribution');
@@ -93,8 +93,8 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 
         // Check if values for begindate and enddate exist in the database.
         // If not, use default values.
-        if ($DB->record_exists('groupdistribution', array('courseid' => $COURSE->id))) {
-            $groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));
+        if ($DB->record_exists('groupdistribution', array('course' => $COURSE->id))) {
+            $groupdistribution = $DB->get_record('groupdistribution', array('course' => $COURSE->id));
 
             $mform->setDefault('begindate', $groupdistribution->begindate);
             $mform->setDefault('enddate', $groupdistribution->enddate);

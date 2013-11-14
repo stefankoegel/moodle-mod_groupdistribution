@@ -85,3 +85,4 @@ $string['too_early_to_distribute'] = 'You can start the distribution after the r
 $string['too_early_to_rate'] = 'You can not yet give your ratings. Please come back during the rating period.';
 $string['unassigned_users'] = 'Users without a group';
 $string['view_distribution_table'] = 'Show the anonymized ratings of all users in a table.';
+$string['you_must_reinstall'] = 'Please reinstall the groupdistribution plugin. It is not possible to update from this alpha version!';

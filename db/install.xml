@@ -7,7 +7,7 @@
     <TABLE NAME="groupdistribution" COMMENT="Data about the groupdistribution activity associated with a course.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course groupdistribution activity belongs to"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course groupdistribution activity belongs to"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="name field for moodle instances"/>
         <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="General introduction of the groupdistribution activity"/>
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)"/>
@@ -20,7 +20,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="courseindex" UNIQUE="true" FIELDS="courseid" COMMENT="Index over courseid."/>
+        <INDEX NAME="courseindex" UNIQUE="true" FIELDS="course" COMMENT="There is only one groupdistribution per course."/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="groupdistribution_data" COMMENT="Associates addtional data with a group.">
