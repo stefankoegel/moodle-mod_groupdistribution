@@ -39,10 +39,14 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
     public function user_rating_form(mod_groupdistribution_view_form $mform) {
         global $DB, $COURSE;
 
-        $groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));
+        $groupdistribution = $DB->get_record('groupdistribution', array('course' => $COURSE->id));
 
         $output = '';
         $output .= self::show_rating_period($groupdistribution);
+        
+        $a = new stdClass();
+        $a->begin = userdate($groupdistribution->begindate);
+        $a->end = userdate($groupdistribution->enddate);
 
         if (time() < $groupdistribution->begindate) {
             $output .= $this->notification(get_string('too_early_to_rate', 'groupdistribution', $a));
@@ -70,7 +74,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $starturl = new moodle_url($PAGE->url, array('action' => ACTION_START));
 
-        $groupdistribution = $DB->get_record('groupdistribution', array('courseid' => $COURSE->id));
+        $groupdistribution = $DB->get_record('groupdistribution', array('course' => $COURSE->id));
 
         $output = '';
         $output .= self::show_rating_period($groupdistribution);
