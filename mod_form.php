@@ -205,6 +205,24 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
         if ($data['enddate'] <= $data['begindate']) {
             $errors['begindate'] = get_string('invalid_dates', 'groupdistribution');
         }
+
+        // This form is only visible if there are at least two groups.
+        // So we don't need to check this.
+        $count = 0;
+        foreach ($data['data'] as $group) {
+            if ($group['rateable'] > 0) {
+                $count++;
+            }
+        }
+        if ($count < 2) {
+            foreach ($data['data'] as $id => $group) {
+                if ($group['rateable'] <= 0) {
+                    $errors['data[' . $id . '][rateable]'] =
+                    get_string('at_least_two_rateable_groups', 'groupdistribution');
+                }
+            }
+        }
+
         return $errors;
     }
 }

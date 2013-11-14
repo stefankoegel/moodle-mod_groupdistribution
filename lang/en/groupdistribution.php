@@ -26,7 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['at_least_two'] = 'Please give at least two ratings better than impossible.';
-$string['at_least_two_groups'] = 'A course must have at least two groups to add a groupdistribution activity.';
+$string['at_least_two_groups'] = 'A course must have at least two groups for the groupdistribution activity to work.';
+$string['at_least_two_rateable_groups'] = 'A course must have at least two rateable groups.';
 $string['begindate'] = 'Rating begins at:';
 $string['changes'] = 'There have been {$a->count} change(s) since {$a->time}! Please review your ratings.';
 $string['clear_groups'] = 'Clear all groups';
