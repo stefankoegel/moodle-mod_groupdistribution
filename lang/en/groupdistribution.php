@@ -43,6 +43,7 @@ $string['group'] = 'Group';
 $string['group_not_in_course'] = 'One of the groups does not belong to this course.';
 $string['groupdistribution'] = 'Groupdistribution';
 $string['groupdistribution:give_rating'] = 'Give ratings for groups';
+$string['groupdistribution:group_teacher'] = 'Teacher responsible for a single group';
 $string['groupdistribution:start_distribution'] = 'Start distribution algorithm';
 $string['groupdistributionname'] = 'Name';
 $string['groups_cleared'] = 'All groups cleared.';

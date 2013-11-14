@@ -44,6 +44,11 @@ $capabilities = array(
         )
     ),
 
+    'mod/groupdistribution:group_teacher' => array(
+        'contextlevel' => CONTEXT_MODULE,
+        'captype' => 'read',
+    ),
+
     'mod/groupdistribution:start_distribution' => array(
         'contextlevel' => CONTEXT_MODULE,
         'riskbitmask' => RISK_XSS | RISK_SPAM | RISK_PERSONAL,
