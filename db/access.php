@@ -46,7 +46,7 @@ $capabilities = array(
 
     'mod/groupdistribution:group_teacher' => array(
         'contextlevel' => CONTEXT_MODULE,
-        'captype' => 'read',
+        'captype' => 'read'
     ),
 
     'mod/groupdistribution:start_distribution' => array(
