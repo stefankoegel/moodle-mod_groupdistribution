@@ -223,6 +223,19 @@ function every_rater_in_course($courseid) {
 }
 
 /**
+ * Returns all group_teachers in the course with id $courseid and 
+ * group with id $groupid.
+ */
+function every_group_teacher_in_group($courseid, $groupid) {
+    global $DB;
+
+    $ctx = context_course::instance($courseid);
+    $teachers = get_enrolled_users($ctx, 'mod/groupdistribution:group_teacher', $groupid);
+
+    return $teachers;
+}
+
+/**
  * Returns all group memberships from users who can give ratings,
  * for rateable groups in the course with id $courseid.
  * Also contains the rating the user gave for that group or null if he gave none.

@@ -207,6 +207,26 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Formats the names and pictures of $teachers and returns HTML.
+     */
+    public function format_group_teachers($teachers) {
+        global $COURSE;
+
+        $output = '';
+        $output .= $this->box_start();
+        foreach ($teachers as $teacher) {
+            $output .= $this->box_start('groupdistribution_user');
+            $output .= $this->user_picture($teacher, array('courseid' => $COURSE->id));
+            $output .= fullname($teacher);
+            $output .= $this->box_end();
+        }
+        $output .= $this->box_end();
+        $output .= '<br>';
+
+        return $output;
+    }
+
+    /**
      * Taken with permission from block_people:
      *   https://github.com/moodleuulm/moodle-block_people
      */

@@ -55,8 +55,8 @@ class mod_groupdistribution_view_form extends moodleform {
         $mform->setType('courseid', PARAM_INT);
 
         foreach ($ratingdata as $data) {
-            $headerelem      = "head_groupdistribution_$data->groupsid";
-            $elemprefix      = "data[$data->groupsid]";
+            $headerelem      = 'head_groupdistribution_' . $data->groupsid;
+            $elemprefix      = 'data[' . $data->groupsid . ']';
             $ratingelem      = $elemprefix . '[rating]';
             $groupsidelem    = $elemprefix . '[groupsid]';
 
@@ -70,8 +70,15 @@ class mod_groupdistribution_view_form extends moodleform {
             $picturebox = print_group_picture($group, $COURSE->id, false, true);
             $mform->addElement('html', $picturebox);
 
-            $descriptionbox = $renderer->box(format_text($data->description));
-            $mform->addElement('html', $descriptionbox);
+            $teachers = every_group_teacher_in_group($COURSE->id, $data->groupsid);
+            if (count($teachers) > 0) {
+                $mform->addElement('html', $renderer->format_group_teachers($teachers));
+            }
+
+            if ($data->description !== '') {
+                $descriptionbox = $renderer->box(format_text($data->description));
+                $mform->addElement('html', $descriptionbox);
+            }
 
             // The higher the rating, the greater the desire to get into this group
             $options = array(

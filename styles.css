@@ -29,7 +29,8 @@ td.cell.groupdistribution_member {
 }
 
 div.groupdistribution_user .icons,
+div.groupdistribution_user .userpicture,
 div.groupdistribution_user .names {
 	display: block;
-	margin-right: 5px;
+	margin: 5px;
 }
