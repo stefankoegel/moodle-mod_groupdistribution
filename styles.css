@@ -38,7 +38,7 @@ table.groupdistribution_ratings_table {
 }
 
 .groupdistribution_highlight {
-	color: #F60018;
+	font-weight: bold;
 }
 
 div.groupdistribution_user .icons,
