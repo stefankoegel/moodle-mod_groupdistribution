@@ -186,8 +186,8 @@ function get_rating_data_for_user_in_course($courseid, $userid) {
                 JOIN {groups} AS g
                   ON g.id = d.groupsid
            LEFT JOIN {groupdistribution_ratings} AS r
-                  ON g.id = r.groupsid
-               WHERE g.courseid = :courseid AND d.israteable = 1 AND (r.userid = :userid OR r.userid IS NULL)";
+                  ON g.id = r.groupsid AND r.userid = :userid
+               WHERE g.courseid = :courseid AND d.israteable = 1";
     return $DB->get_records_sql($sql, array('courseid' => $courseid, 'userid' => $userid));
 }
 
