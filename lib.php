@@ -263,7 +263,6 @@ function save_ratings_to_db($courseid, $userid, array $data) {
     }
 }
 
-
 /**
  * Returns a small object with summary information about what a
  * user has done with a given particular instance of this module
