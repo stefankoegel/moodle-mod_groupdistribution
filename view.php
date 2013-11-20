@@ -94,7 +94,9 @@ if ($groupdistribution->intro) {
 
 if (has_capability('mod/groupdistribution:start_distribution', $context)) {
     echo $renderer->start_distribution_button();
-    echo $renderer->distribution_table_for_course($COURSE->id);
+    if(time() > $groupdistribution->enddate) {
+        echo $renderer->distribution_table_for_course($COURSE->id);
+    }
 } else if (is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
     echo $renderer->user_rating_form($mform);
 } else {
