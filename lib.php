@@ -320,24 +320,10 @@ function groupdistribution_print_recent_activity($course, $viewfullnames, $times
     $groupdistribution = $DB->get_record('groupdistribution', array('course' => $course->id));
     $renderer = $PAGE->get_renderer('mod_groupdistribution');
 
-    if ($groupdistribution->begindate < $timestart and $timestart < $groupdistribution->enddate) {
-        // During the rating period.
+    $output = $renderer->format_notifications($groupdistribution, $timestart);
 
-        echo $renderer->heading(get_string('groupdistribution', 'groupdistribution') . ':', 3);
-
-        $a = new stdClass();
-        $a->until = userdate($groupdistribution->enddate);
-
-        echo $renderer->box(get_string('rating_has_begun', 'groupdistribution', $a));
-
-        $logs = groupdistribution_get_logs($course->id, $timestart);
-        $a->count = count($logs);
-        $a->time = userdate($timestart);
-
-        if ($a->count > 0) {
-            echo $renderer->box(get_string('changes', 'groupdistribution', $a));
-        }
-
+    if ($output !== '') {
+        echo $output;
         return true;
     }
     return false;
@@ -385,6 +371,26 @@ function groupdistribution_print_recent_mod_activity($activity, $courseid, $deta
 
     $renderer = $PAGE->get_renderer('mod_groupdistribution');
     echo $renderer->box($output);
+}
+
+function groupdistribution_print_overview($courses, &$htmlarray) {
+    global $PAGE;
+    $renderer = $PAGE->get_renderer('mod_groupdistribution');
+
+    $groupdistributions = get_all_instances_in_courses('groupdistribution', $courses);
+
+    if (!$groupdistributions) {
+        return;
+    }
+
+    foreach ($groupdistributions as $gd) {
+        $output = $renderer->format_notifications($gd,
+            $courses[$gd->course]->lastaccess);
+
+        if ($output !== '') {
+            $htmlarray[$gd->course]['groupdistribution'] = $output;
+        }
+    }
 }
 
 /**

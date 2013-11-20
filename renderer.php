@@ -322,6 +322,30 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         return $output;
     }
 
+
+    public function format_notifications($groupdistribution, $timestart) {
+        $output = '';
+
+        if ($groupdistribution->begindate < time() and time() < $groupdistribution->enddate) {
+            // during the rating period.
+            $a = new stdclass();
+            $a->until = userdate($groupdistribution->enddate);
+            $output .= '<br>';
+            $output .= $this->box(get_string('rating_has_begun', 'groupdistribution', $a));
+        }
+
+        $logs = groupdistribution_get_logs($groupdistribution->course, $timestart);
+        if (count($logs) > 0) {
+            $a = new stdclass();
+            $a->count = count($logs);
+            $a->time = userdate($timestart);
+            $output .= '<br>';
+            $output .= $this->box(get_string('changes', 'groupdistribution', $a));
+        }
+
+        return $output;
+    }
+
     public function distribution_table_for_course($courseid) {
 
         // Count the number of distributions with a specific rating
