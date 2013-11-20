@@ -23,16 +23,18 @@ div.groupdistribution_ratings_box {
 	overflow: auto;
 	height: 600px;
 }
-.groupdistribution_ratings_table td.cell {
-	border: solid white 2px;
-}
 table.groupdistribution_ratings_table {
 	border-collapse: separate;
 	border-spacing: 1px;
 }
-.groupdistribution_ratings_table td.cell.groupdistribution_member {
+.groupdistribution_ratings_table td.groupdistribution_member {
 	color: white;
 	border: solid black 2px;
+}
+.groupdistribution_ratings_table td {
+	border: solid white 2px;
+	text-align: center;
+	vertical-align: middle;
 }
 
 div.groupdistribution_user .icons,
