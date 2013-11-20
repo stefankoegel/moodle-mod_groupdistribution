@@ -88,17 +88,18 @@ class mod_groupdistribution_view_form extends moodleform {
                 3 => get_string('rating_ok', 'groupdistribution'),
                 4 => get_string('rating_good', 'groupdistribution'),
                 5 => get_string('rating_best', 'groupdistribution'));
-            $mform->addElement('select', $ratingelem, get_string('rate_group', 'groupdistribution'), $options);
-            $mform->setType($ratingelem, PARAM_INT);
 
             // If there is a valid value in the databse, choose the according rating
             // from the dropdown.
             // Else use a default value.
             if (is_numeric($data->rating) and $data->rating >= 0 and $data->rating <= 5) {
+                $mform->addElement('select', $ratingelem, get_string('rate_group', 'groupdistribution'), $options);
                 $mform->setDefault($ratingelem, $data->rating);
             } else {
+                $mform->addElement('select', $ratingelem, get_string('rate_group_not_saved', 'groupdistribution'), $options);
                 $mform->setDefault($ratingelem, 3); // default: ok (3)
             }
+            $mform->setType($ratingelem, PARAM_INT);
         }
         // If there are no groups to rate, notify the user.
         if (count($ratingdata) > 0) {
