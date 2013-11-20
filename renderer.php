@@ -248,6 +248,19 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Formats the $description and return HTML.
+     */
+    public function format_group_description($description) {
+        $output = $this->box_start();
+        $output .= $this->heading(get_string('group_description', 'groupdistribution'), 5, 'groupdistribution_heading'); 
+        $output .= format_text($description);
+        $output .= '<br>';
+        $output .= $this->box_end();
+
+        return $output;
+    }
+
+    /**
      * Taken with permission from block_people:
      *   https://github.com/moodleuulm/moodle-block_people
      */

@@ -66,19 +66,18 @@ class mod_groupdistribution_view_form extends moodleform {
             $mform->addElement('header', $headerelem, get_string('group', 'groupdistribution') . ': ' . $data->name);
             $mform->setExpanded($headerelem);
 
-            $group = $DB->get_record('groups', array('id' => $data->groupsid));
-            if ($group->picture == 1 and $group->hidepicture != 1) {
-                $mform->addElement('html', $renderer->format_group_picture($group));
-            }
-
             $teachers = every_group_teacher_in_group($COURSE->id, $data->groupsid);
             if (count($teachers) > 0) {
                 $mform->addElement('html', $renderer->format_group_teachers($teachers));
             }
 
+            $group = $DB->get_record('groups', array('id' => $data->groupsid));
+            if ($group->picture == 1 and $group->hidepicture != 1) {
+                $mform->addElement('html', $renderer->format_group_picture($group));
+            }
+
             if ($data->description !== '') {
-                $descriptionbox = $renderer->box(format_text($data->description));
-                $mform->addElement('html', $descriptionbox);
+                $mform->addElement('html', $renderer->format_group_description($data->description));
             }
 
             // The higher the rating, the greater the desire to get into this group
