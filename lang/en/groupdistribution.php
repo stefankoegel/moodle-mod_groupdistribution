@@ -41,6 +41,7 @@ $string['enddate'] = 'Rating ends at:';
 $string['global_max_size'] = 'Sets the maximum number of users of all groups to this value.';
 $string['group'] = 'Group';
 $string['group_not_in_course'] = 'One of the groups does not belong to this course.';
+$string['group_picture'] = 'Groups picture:';
 $string['groupdistribution'] = 'Groupdistribution';
 $string['groupdistribution:addinstance'] = 'Create a new groupdistribution';
 $string['groupdistribution:give_rating'] = 'Give ratings for groups';

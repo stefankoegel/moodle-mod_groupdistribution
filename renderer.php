@@ -229,6 +229,21 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Formats the picture of $group and return HTML.
+     */
+    public function format_group_picture($group) {
+        global $COURSE;
+
+        $picture = print_group_picture($group, $COURSE->id, false, true);
+        $output = $this->box_start();
+        $output .= $this->heading(get_string('group_picture', 'groupdistribution'), 5, 'groupdistribution_heading'); 
+        $output .= $picture;
+        $output .= $this->box_end();
+
+        return $output;
+    }
+
+    /**
      * Taken with permission from block_people:
      *   https://github.com/moodleuulm/moodle-block_people
      */

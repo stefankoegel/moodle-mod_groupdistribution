@@ -67,8 +67,9 @@ class mod_groupdistribution_view_form extends moodleform {
             $mform->setExpanded($headerelem);
 
             $group = $DB->get_record('groups', array('id' => $data->groupsid));
-            $picturebox = print_group_picture($group, $COURSE->id, false, true);
-            $mform->addElement('html', $picturebox);
+            if ($group->picture == 1 and $group->hidepicture != 1) {
+                $mform->addElement('html', $renderer->format_group_picture($group));
+            }
 
             $teachers = every_group_teacher_in_group($COURSE->id, $data->groupsid);
             if (count($teachers) > 0) {
