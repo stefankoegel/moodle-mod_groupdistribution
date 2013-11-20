@@ -216,11 +216,14 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $output = '';
         $output .= $this->box_start();
+        $output .= $this->heading(get_string('group_teachers', 'groupdistribution'), 5, 'groupdistribution_heading'); 
+        $output .= '<br>';
         foreach ($teachers as $teacher) {
             $output .= $this->box_start('groupdistribution_user');
+            $output .= $this->heading(fullname($teacher), 6, 'groupdistribution_heading'); 
             $output .= $this->user_picture($teacher, array('courseid' => $COURSE->id));
-            $output .= fullname($teacher);
             $output .= $this->box_end();
+            $output .= '<br>';
         }
         $output .= $this->box_end();
         $output .= '<br>';
