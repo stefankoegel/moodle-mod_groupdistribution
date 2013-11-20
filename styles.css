@@ -1,31 +1,38 @@
-div.groupdistribution_description_box {
-	border: solid #ddd 1px;
+.groupdistribution_ratings_table .groupdistribution_rating_impossible {
+	background-color: #888;
 }
-td.cell.groupdistribution_rating_impossible {
-	background-color: gray;
+.groupdistribution_ratings_table .groupdistribution_rating_worst {
+	background-color: #F60018;
 }
-td.cell.groupdistribution_rating_worst {
-	background-color: red;
+.groupdistribution_ratings_table .groupdistribution_rating_bad {
+	background-color: #FF8C00;
 }
-td.cell.groupdistribution_rating_bad {
-	background-color: orange;
+.groupdistribution_ratings_table .groupdistribution_rating_ok {
+	background-color: #FFC000;
 }
-td.cell.groupdistribution_rating_ok {
-	background-color: yellow;
+.groupdistribution_ratings_table .groupdistribution_rating_good {
+	background-color: #188A00;
 }
-td.cell.groupdistribution_rating_good {
-	background-color: cyan;
+.groupdistribution_ratings_table .groupdistribution_rating_best {
+	background-color: #0969A2;
 }
-td.cell.groupdistribution_rating_best {
-	background-color: green;
+.groupdistribution_ratings_table .groupdistribution_rating_none {
+	background-color: #bbb;
 }
-.box.groupdistribution_ratings_box {
+div.groupdistribution_ratings_box {
 	overflow: auto;
 	height: 600px;
 }
-td.cell.groupdistribution_member {
+.groupdistribution_ratings_table td.cell {
+	border: solid white 2px;
+}
+table.groupdistribution_ratings_table {
+	border-collapse: separate;
+	border-spacing: 1px;
+}
+.groupdistribution_ratings_table td.cell.groupdistribution_member {
 	color: white;
-	border: solid black 3px;
+	border: solid black 2px;
 }
 
 div.groupdistribution_user .icons,

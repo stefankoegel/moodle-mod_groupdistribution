@@ -159,6 +159,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
                 if (!array_key_exists($groupsid, $ratingscells[$user->id])) {
                     $cell = new html_table_cell();
                     $cell->text = get_string('no_rating_given', 'groupdistribution');
+                    $cell->attributes['class'] = 'groupdistribution_rating_none';
                     $ratingscells[$user->id][$groupsid] = $cell;
                 }
             }
@@ -195,6 +196,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $ratingstable = new html_table();
         $ratingstable->data = $ratingscells;
         $ratingstable->head = $groupnames;
+        $ratingstable->attributes['class'] = 'groupdistribution_ratings_table';
 
         $output = '';
         $output .= $this->box_start();
