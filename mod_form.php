@@ -178,7 +178,7 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
 
             } else {
                 $mform->setDefault($maxsizeelem, $CFG->groupdistribution_maxsize); // default: $CFG->groupdistribution_maxsize
-                $mform->setDefault($israteableelem, 1); // default: yes (1)
+                $mform->setDefault($israteableelem, 0); // default: no (0)
                 // Always expand new group data
                 $mform->setExpanded($headerelem);
             }
