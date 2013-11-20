@@ -42,7 +42,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $groupdistribution = $DB->get_record('groupdistribution', array('course' => $COURSE->id));
 
         $output = '';
-        $output .= self::show_rating_period($groupdistribution);
         
         $a = new stdClass();
         $a->begin = userdate($groupdistribution->begindate);
@@ -59,16 +58,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         return $output;
     }
 
-    private function show_rating_period($groupdistribution) {
-
-        $a = new stdClass();
-        $a->begin = userdate($groupdistribution->begindate);
-        $a->end = userdate($groupdistribution->enddate);
-        $note = get_string('show_rating_period', 'groupdistribution', $a);
-
-        return $this->notification($note, 'notifysucces');
-    }
-
     public function start_distribution_button() {
         global $PAGE, $COURSE, $DB;
 
@@ -77,7 +66,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $groupdistribution = $DB->get_record('groupdistribution', array('course' => $COURSE->id));
 
         $output = '';
-        $output .= self::show_rating_period($groupdistribution);
 
         if ($groupdistribution->enddate < time()) {
 
@@ -255,6 +243,37 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $output .= $this->heading(get_string('group_description', 'groupdistribution'), 5, 'groupdistribution_heading'); 
         $output .= format_text($description);
         $output .= '<br>';
+        $output .= $this->box_end();
+
+        return $output;
+    }
+
+    /**
+     * Formats the $groupdistribution (name, desription, begin and enddate) and returns HTML.
+     */
+    public function format_groupdistribution($groupdistribution) {
+        global $COURSE;
+
+        $output = $this->box_start();
+
+        $heading = get_string('groupdistribution_name', 'groupdistribution') . ': ';
+        $heading .= $groupdistribution->name;
+
+        $output .= $this->heading($heading, 5, 'groupdistribution_heading'); 
+        $output .= '<br>';
+
+        $cm = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $COURSE->id, false, MUST_EXIST);
+        $output .= $this->box(format_module_intro('groupdistribution', $groupdistribution, $cm->id));
+        $output .= '<br>';
+
+        $a = new stdClass();
+        $begin = userdate($groupdistribution->begindate);
+        $a->begin = $this->box($begin, 'groupdistribution_highlight');
+        $end = userdate($groupdistribution->enddate);
+        $a->end = $this->box($end, 'groupdistribution_highlight');
+        $note = get_string('show_rating_period', 'groupdistribution', $a);
+        $output .= $note;
+
         $output .= $this->box_end();
 
         return $output;

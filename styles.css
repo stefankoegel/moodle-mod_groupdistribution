@@ -37,6 +37,10 @@ table.groupdistribution_ratings_table {
 	vertical-align: middle;
 }
 
+.groupdistribution_highlight {
+	color: #F60018;
+}
+
 div.groupdistribution_user .icons,
 div.groupdistribution_user .userpicture,
 div.groupdistribution_user .names {

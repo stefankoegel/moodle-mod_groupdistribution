@@ -88,8 +88,7 @@ $renderer = $PAGE->get_renderer('mod_groupdistribution');
 echo $renderer->header();
 
 if ($groupdistribution->intro) {
-    echo $renderer->box(format_module_intro('groupdistribution', $groupdistribution, $cm->id),
-            'generalbox mod_introbox', 'groupdistributionintro');
+    echo $renderer->format_groupdistribution($groupdistribution);
 }
 
 if (has_capability('mod/groupdistribution:start_distribution', $context)) {

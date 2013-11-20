@@ -76,7 +76,7 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field
-        $mform->addElement('text', 'name', get_string('groupdistributionname', 'groupdistribution'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('groupdistribution_name', 'groupdistribution'), array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
