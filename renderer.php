@@ -239,6 +239,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $output .= $this->heading(get_string('group_picture', 'groupdistribution'), 5, 'groupdistribution_heading'); 
         $output .= $picture;
         $output .= $this->box_end();
+        $output .= '<br>';
 
         return $output;
     }
