@@ -337,7 +337,13 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $logs = groupdistribution_get_logs($groupdistribution->course, $timestart);
         if (count($logs) > 0) {
             $a = new stdclass();
-            $a->count = count($logs);
+
+            $changes = array();
+            foreach ($logs as $log) {
+                $changes = array_merge($log->expandedinfo, $changes);
+            }
+
+            $a->changes = '<br>' . implode('<br>', array_keys($changes));
             $a->time = userdate($timestart);
             $output .= '<br>';
             $output .= $this->box(get_string('changes', 'groupdistribution', $a));

@@ -126,6 +126,11 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
     $groupdistribution->timemodified = time();
     $groupdistribution->id = $groupdistribution->instance;
 
+    $newgroup = false;
+    $removegroup = false;
+    $datechange = false;
+    $descriptionchange = false;
+
     try {
         $transaction = $DB->start_delegated_transaction();
         if (property_exists($groupdistribution, 'data')) {
@@ -138,13 +143,29 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
 
                     // groupdata already exists, use the id from the form to update it
                     $groupdata->id = $data['groupdataid'];
+
+                    $olddata = $DB->get_record('groupdistribution_data', array('id' => $groupdata->id));
                     $DB->update_record('groupdistribution_data', $groupdata);
+
+                    if ($olddata->israteable == 1 and $groupdata->israteable == 0) {
+                        // A group is no longer rateable.
+                        $removegroup = true;
+                    }
+                    if ($olddata->israteable == 0 and $groupdata->israteable == 1) {
+                        // A group has become rateable.
+                        $newgroup = true;
+                    }
                 } else {
 
-                    // Create new entry in groupdata and set its groupsid
+                    // Create new entry in groupdata
                     $groupdata->groupsid   = $data['groupsid'];
                     $groupdata->courseid   = $groupdistribution->courseid;
                     $DB->insert_record('groupdistribution_data', $groupdata);
+
+                    if ($groupdata->israteable == 1) {
+                        // A new rateable group has been added.
+                        $newgroup = true;
+                    }
                 }
 
                 // Update the description of the group
@@ -152,16 +173,54 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
                 $groupdescription->id          = $data['groupsid'];
                 $groupdescription->description = $data['description']['text'];
 
+                $olddescription = $DB->get_record('groups', array('id' => $groupdescription->id));
                 $DB->update_record('groups', $groupdescription);
+
+                if ($olddescription->description !== $groupdescription->description and $groupdata->israteable == 1) {
+                    // The description has changed.
+                    $descriptionchange = true;
+                }
             }
         }
         // Update groupdistribution (including start/enddate)
+        $old = $DB->get_record('groupdistribution', array('id' => $groupdistribution->id));
         $bool = $DB->update_record('groupdistribution', $groupdistribution);
 
-        // TODO: log what has been changed
+        if ($old->begindate != $groupdistribution->begindate or
+            $old->enddate != $groupdistribution->enddate) {
+            // Begin or enddate has changed.
+            $datechange = true;
+        }
+
+        $changes = '';
+        if ($newgroup) {
+            $changes .= 'group_added_to_rating';
+        }
+        if ($removegroup) {
+            if($changes !== '') {
+                $changes .= ',';
+            }
+            $changes .= 'group_removed_from_rating';
+        }
+        if ($descriptionchange) {
+            if($changes !== '') {
+                $changes .= ',';
+            }
+            $changes .= 'group_description_changed';
+        }
+        if ($datechange) {
+            if($changes !== '') {
+                $changes .= ',';
+            }
+            $changes .= 'groupdistribution_date_changed';
+        }
+        if ($changes == '') {
+            $changes = 'other_changes';
+        }
+
         add_to_log($groupdistribution->courseid, 'groupdistribution', 'update',
             'modedit.php?update=' . $groupdistribution->coursemodule,
-            'Saved changes', $groupdistribution->coursemodule);
+            $changes, $groupdistribution->coursemodule);
 
         $transaction->allow_commit();
 
@@ -300,9 +359,23 @@ function groupdistribution_get_logs($courseid, $timestart) {
     $selector .= " AND l.action = 'update'";
     $selector .= " AND l.url LIKE 'modedit%'";
     $selector .= " AND l.time > :timestart";
+    $selector .= " AND l.info <> ''";
+
     $params = array('courseid' => $courseid, 'timestart' => $timestart);
     $count = 0;
     $logs = get_logs($selector, $params, 'l.time ASC', '', '', $count);
+
+    foreach ($logs as $log) {
+        $expandedinfo = array();
+        foreach (explode(',', $log->info) as $str) {
+            if (get_string_manager()->string_exists($str, 'groupdistribution')) {
+                $expandedinfo[get_string($str, 'groupdistribution')] =
+                    get_string($str, 'groupdistribution');
+            }
+        }
+        $log->expandedinfo = $expandedinfo;
+    }
+
     return $logs;
 }
 
@@ -366,7 +439,7 @@ function groupdistribution_print_recent_mod_activity($activity, $courseid, $deta
 
     $output = userdate($activity->log->time) . ':';
     $output .= '<br>';
-    $output .= $activity->log->info;
+    $output .= implode(', ', $activity->log->expandedinfo);
 
     $renderer = $PAGE->get_renderer('mod_groupdistribution');
     echo $renderer->box($output);
