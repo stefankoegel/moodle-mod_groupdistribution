@@ -358,11 +358,16 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $distributiondata = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
         $memberships = memberships_per_course($courseid);
         foreach ($memberships as $userid => $groups) {
+            $best = 0;
+            // If a user is in multiple rateable groups, only count
+            // the one with the best rating.
             foreach ($groups as $groupsid => $rating) {
-                if (1 <= $rating and $rating <= 5) {
-                    // Increment the counter for users with this rating
-                    $distributiondata[$rating]++;
+                if ($rating > $best and 1 <= $rating and $rating <= 5) {
+                    $best = $rating;
                 }
+            }
+            if (1 <= $best and $best <= 5) {
+                $distributiondata[$best]++;
             }
         }
 
