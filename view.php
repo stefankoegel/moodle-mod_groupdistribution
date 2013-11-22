@@ -99,7 +99,7 @@ if (has_capability('mod/groupdistribution:start_distribution', $context)) {
 } else if (is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
     echo $renderer->user_rating_form($mform);
 } else {
-    echo $renderer->notify(get_string('not_enrolled'));
+    echo $renderer->notification(get_string('not_enrolled', 'groupdistribution'));
 }
 if (has_capability('mod/groupdistribution:start_distribution', $context)) {
     if ($action == SHOW_TABLE) {
