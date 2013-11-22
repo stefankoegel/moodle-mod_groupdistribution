@@ -1,0 +1,206 @@
+Unless you know what you are doing, you should execute these steps
+in the given order.
+
+Always view as administrator or teacher in the course, unless
+something else is specified.
+
+
+1. Put the groupdistribution files into the mod/ folder and install
+the plugin.
+---
+Expected: The plugin installs successfully and adds three new
+settings. Notice the groupdistribution_maxsize value.
+
+2. Don't modify the settings and press the save button.
+---
+Expected: The plugin is correctly installed.
+
+3. Find/create a course with zero groups and try to add a
+groupdistribution activity to it.
+---
+Expected: An error message because there are too few groups and
+no groupdistribution created.
+
+4. Add one group to the course and repeat the above step.
+---
+Expected: Same as above.
+
+5. Add another group to the course (so that there are two) and add
+groupdistribution activity to it.
+---
+Expected: A module settings dialogue appears to configure the
+groupdistribution activity. The value in the 'Maximum number of
+students in group' fields should be equal to the value in the
+groupdistribution_maxsize field in the settings dialogue
+during installation.
+The begin date is now plus one day and the end date is now plus
+seven days.
+
+6. Enter a name for the activity and a description. Set the
+'Can students rate this group' drop down menus from 'No' to 'Yes'
+for both groups.
+Then press 'save and display'.
+---
+Expected: You see a page with the activity's name, description,
+begin and end date, a note that you can not yet start the
+distribution a button to show a 'ratings table'.
+The activity has also been created.
+
+7. Enable guest access for the course and view the groupdistribution as
+a guest.
+---
+Expected: A notification that you can't use the activity as a guest.
+
+8. View the groupdistribution as an enrolled student.
+---
+Expected: A notification that the rating period has not yet started.
+
+9. Add more groups to the course. Then check the activity's settings
+page again.
+---
+Expected: Students can not rate the new groups, because there is a
+'No' instead of a 'Yes'.
+
+10. Set all but one group to 'No' (not rateable) and try to save.
+---
+Expected: An error message that at least two groups have to be
+rateable.
+
+11. Set all groups to 'Yes' (rateable).
+
+12. Change the rating's begin date to a date after the end date and try
+to save.
+---
+Expected: An error message that the dates are not correct appears and
+you can not save.
+
+13. Set the begin date to a date before the end date.
+
+14. Put "asdf" into any 'Maximum number of students' field and press
+'Save'.
+---
+Expected: An error message that this is not a number appears and you
+can not save.
+
+15. Set the 'Maximum number of students' field to a number.
+
+16. Change a groups description via the groups settings page
+(Course Administration > Users > Groups).
+---
+Expected: The groupdistribution settings page shows the new description.
+
+17. Change a groups description in the groupdistribution settings page
+and press save.
+---
+Expected: The groups description in the groups settings page has the
+same value.
+
+18. Put a number into the 'Set maximum number of students for all
+groups' and press 'Change all maximum students'.
+---
+Expected: All 'Maximum number of students' fields have the new value.
+
+19. Put "asdf" into the 'Set maximum number of students for all
+groups' and press 'Change all maximum students'.
+---
+Expected: Nothing happens.
+
+20. In the groupdistribution administration page (Site administration >
+Plugins > Activity modules > Groupdistribuion) set the 'Default
+maximum number of students per group' to a new value and save.
+
+21. Add a new group to the course and view the groupdistribution
+settings page.
+---
+Expected: The 'Maximum number of students' field of the new group
+has the new value from the administration page.
+
+22. Set the begin date of the groupdistribution to a date before
+today. Make one group not rateable ('No'). Press 'Save and Display'.
+---
+Expected: The view page of the groupdistribution looks like before,
+but the begin date has the new value.
+
+23. View the course overview as a student enrolled in your test
+course.
+---
+Expected: There are notifications that the rating period has started
+and that there have been changes to the groupdistribution
+(added group, removed group, group description changed,
+rating period changed)
+
+24. View the course as a student enrolled in you test course.
+---
+Expected: If the recent activity block is enabled, it shows the
+same information as the course overview.
+
+25. View the groupdistribution activity as an enrolled student.
+---
+Expected: A page showing the groups names, descriptions and a
+drop down menu for the students rating. The default is 'ok'.
+The ratings description hints that the student has not yet rated
+this group.
+
+26. As an enrolled student set all ratings to 'impossible' and
+click save.
+---
+Expected: An error message is displayed notifying the student,
+that he must give at least two ratings better than 'impossible'.
+
+27. As an enrolled student make at least two better than 'impossible'
+ratings and click save.
+---
+Expected: A notification that the ratings have been saved. The
+description next to a rating indicates that the student has already
+rated this group and can change his rating at any time.
+
+28. As the course's teacher or administrator view the
+groupdistribution. Then click on 'show ratings table'.
+---
+Expected: A coloured table showing the ratings given in the step
+above. The tables first column contains the students name,
+a link to his profile and a button to contact him.
+
+29. On the activity's administration page, turn off 'show students
+names' and save.
+---
+Expected: The table from the above step no longer contains the first
+the column.
+
+30. Undo the previous step.
+---
+Expected: The first column is visible again.
+
+31. Log out the enrolled student.
+
+31. On the groupdistribution settings page, make a group rateable
+(or create a new group and make it rateable) and make another one
+not rateable.
+---
+Expected: The 'ratings table' no longer contains the not rateable
+group. The group that was previously not rateable has the value
+'none' instead of a rating in the table.
+
+32. Log in as the enrolled student.
+---
+Expected: The course overview and recent activity block notify the
+student about the removal and addition of a group.
+
+33. View the groupdistribution as the enrolled student.
+---
+Expected: The student sees the added group but not the removed group.
+The description of the rating field indicates that he has not yet
+rated the added group.
+
+34. As the teacher or administrator edit the groupdistribution's
+permissions. Add a role to the capability 'group_teacher'
+(for example the role non-editing teacher).
+Add someone with _only_ this role to a _rateable_ group. Then view
+the groupdistribution as an enrolled student.
+---
+Expected: 
+
+xx. Delete all groups
+---
+Expected:
+ka
