@@ -197,19 +197,19 @@ function groupdistribution_update_instance(stdClass $groupdistribution, mod_grou
             $changes .= 'group_added_to_rating';
         }
         if ($removegroup) {
-            if($changes !== '') {
+            if ($changes !== '') {
                 $changes .= ',';
             }
             $changes .= 'group_removed_from_rating';
         }
         if ($descriptionchange) {
-            if($changes !== '') {
+            if ($changes !== '') {
                 $changes .= ',';
             }
             $changes .= 'group_description_changed';
         }
         if ($datechange) {
-            if($changes !== '') {
+            if ($changes !== '') {
                 $changes .= ',';
             }
             $changes .= 'groupdistribution_date_changed';

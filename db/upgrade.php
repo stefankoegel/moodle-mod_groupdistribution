@@ -42,9 +42,9 @@ function xmldb_groupdistribution_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
 
-    if($oldversion < 2013111401) {
-	   	print_error('you_must_reinstall', 'groupdistribution');
-    	return false;
+    if ($oldversion < 2013111401) {
+        print_error('you_must_reinstall', 'groupdistribution');
+        return false;
     }
 
     return true;

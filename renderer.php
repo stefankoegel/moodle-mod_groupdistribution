@@ -42,7 +42,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $groupdistribution = $DB->get_record('groupdistribution', array('course' => $COURSE->id));
 
         $output = '';
-        
+
         $a = new stdClass();
         $a->begin = userdate($groupdistribution->begindate);
         $a->end = userdate($groupdistribution->enddate);
@@ -204,11 +204,11 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $output = '';
         $output .= $this->box_start();
-        $output .= $this->heading(get_string('group_teachers', 'groupdistribution'), 5, 'groupdistribution_heading'); 
+        $output .= $this->heading(get_string('group_teachers', 'groupdistribution'), 5, 'groupdistribution_heading');
         $output .= '<br>';
         foreach ($teachers as $teacher) {
             $output .= $this->box_start('groupdistribution_user');
-            $output .= $this->heading(fullname($teacher), 6, 'groupdistribution_heading'); 
+            $output .= $this->heading(fullname($teacher), 6, 'groupdistribution_heading');
             $output .= $this->user_picture($teacher, array('courseid' => $COURSE->id));
             $output .= $this->box_end();
             $output .= '<br>';
@@ -227,7 +227,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $picture = print_group_picture($group, $COURSE->id, false, true);
         $output = $this->box_start();
-        $output .= $this->heading(get_string('group_picture', 'groupdistribution'), 5, 'groupdistribution_heading'); 
+        $output .= $this->heading(get_string('group_picture', 'groupdistribution'), 5, 'groupdistribution_heading');
         $output .= $picture;
         $output .= $this->box_end();
         $output .= '<br>';
@@ -240,7 +240,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
      */
     public function format_group_description($description) {
         $output = $this->box_start();
-        $output .= $this->heading(get_string('group_description', 'groupdistribution'), 5, 'groupdistribution_heading'); 
+        $output .= $this->heading(get_string('group_description', 'groupdistribution'), 5, 'groupdistribution_heading');
         $output .= format_text($description);
         $output .= '<br>';
         $output .= $this->box_end();
@@ -259,7 +259,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $heading = get_string('groupdistribution_name', 'groupdistribution') . ': ';
         $heading .= $groupdistribution->name;
 
-        $output .= $this->heading($heading, 5, 'groupdistribution_heading'); 
+        $output .= $this->heading($heading, 5, 'groupdistribution_heading');
         $output .= '<br>';
 
         $cm = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $COURSE->id, false, MUST_EXIST);
