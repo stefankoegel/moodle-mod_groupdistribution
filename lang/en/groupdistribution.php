@@ -66,6 +66,7 @@ $string['modulename'] = 'Groupdistribution';
 $string['modulename_help'] = 'Groupdistribution allows students give ratings to groups during a rating period. After this period is over an algorithm will distribute the students according to their ratings into the groups.';
 $string['modulenameplural'] = 'Groupdistributions';
 $string['negative_cycle'] = 'Negative cycle detected!';
+$string['not_enrolled'] = 'You can\'t use this acitivty, because you are not enrolled in its course.';
 $string['no_groups_to_rate'] = 'There are no groups for you to rate. Ask your teacher to add some.';
 $string['no_rating_given'] = 'None';
 $string['only_one_per_course'] = 'You can only have one groupdistribution per course!';
