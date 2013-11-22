@@ -201,11 +201,14 @@ function all_ratings_for_rateable_groups_from_raters_in_course($courseid) {
                 FROM {groupdistribution_data} AS d
                 JOIN {groupdistribution_ratings} AS r
                   ON d.groupsid = r.groupsid
+                JOIN {groups} AS g
+                  ON d.groupsid = g.id
                WHERE d.courseid = :courseid AND d.israteable = 1';
 
     $ratings = $DB->get_records_sql($sql, array('courseid' => $courseid));
     $raters = every_rater_in_course($courseid);
 
+    // Filter out everyone who can't give ratings
     $fromraters = array_filter($ratings, function($rating) use ($raters) {
         return array_key_exists($rating->userid, $raters);
     });
