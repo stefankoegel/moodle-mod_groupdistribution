@@ -92,6 +92,12 @@ if ($groupdistribution->intro) {
 }
 
 if (has_capability('mod/groupdistribution:start_distribution', $context)) {
+
+    // Notify if there aren't at least two rateable groups
+    if (count(get_rateable_groups_for_course($COURSE->id)) < 2) {
+        echo $renderer->notification(get_string('at_least_two_rateable_groups', 'groupdistribution'));
+    }
+
     echo $renderer->start_distribution_button();
     if (time() > $groupdistribution->enddate) {
         echo $renderer->distribution_table_for_course($COURSE->id);
