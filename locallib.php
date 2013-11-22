@@ -214,10 +214,21 @@ function all_ratings_for_rateable_groups_from_raters_in_course($courseid) {
 }
 
 /**
+ * Returns the groupdistribution instance id in the course with id $courseid.
+ */
+function get_groupdistribution_context($courseid) {
+    // There is only one instance per course
+    $modules = get_coursemodules_in_course('groupdistribution', $courseid);
+    $module = array_pop($modules);
+    $ctx = context_module::instance($module->id);
+    return $ctx;
+}
+
+/**
  * Returns all users in the course with id $courseid who can give a rating.
  */
 function every_rater_in_course($courseid) {
-    $ctx = context_course::instance($courseid);
+    $ctx = get_groupdistribution_context($courseid);
     $raters = get_enrolled_users($ctx, 'mod/groupdistribution:give_rating');
     return $raters;
 }
@@ -229,7 +240,7 @@ function every_rater_in_course($courseid) {
 function every_group_teacher_in_group($courseid, $groupid) {
     global $DB;
 
-    $ctx = context_course::instance($courseid);
+    $ctx = get_groupdistribution_context($courseid);
     $teachers = get_enrolled_users($ctx, 'mod/groupdistribution:group_teacher', $groupid);
 
     return $teachers;
