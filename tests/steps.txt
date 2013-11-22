@@ -1,8 +1,10 @@
-Unless you know what you are doing, you should execute these steps
-in the given order.
-
-Always view as administrator or teacher in the course, unless
-something else is specified.
+This is a manual testing guide for the Moodle groupdistribution
+activity.
+Unless you know what you are doing, you should execute
+these steps in the given order.
+The tests expect you to be an  administrator or teacher of the
+course,
+unless something else is specified.
 
 
 1. Put the groupdistribution files into the mod/ folder and install
@@ -192,15 +194,65 @@ Expected: The student sees the added group but not the removed group.
 The description of the rating field indicates that he has not yet
 rated the added group.
 
-34. As the teacher or administrator edit the groupdistribution's
+34. As the teacher or administrator edit the _groupdistribution's_
 permissions. Add a role to the capability 'group_teacher'
 (for example the role non-editing teacher).
 Add someone with _only_ this role to a _rateable_ group. Then view
 the groupdistribution as an enrolled student.
 ---
-Expected: 
+Expected: The added persons name and picture are now visible in
+addition to the groups name and description.
 
-xx. Delete all groups
+35. Set the end date of the rating period to a date before now.
 ---
-Expected:
-ka
+Expected: The enrolled student can no longer give ratings.
+The teacher or administrator now sees a summary of the students'
+distribution and their ratings and a button 'Start distribution'.
+
+36. Notice the contents of the summary table and click 'Start
+distribution'.
+---
+Expected: After a couple of seconds you are notified that the
+distribution has been saved. The contents of the summary table
+have changed. Less 'students without a group' and more students
+in groups with ratings. The student with ratings are now members
+of groups for which they gave ratings (see next steps).
+
+37. Click 'show ratings table'.
+---
+Expected: The table highlights the group into which a student has
+been distributed with a border. (Course Administration > Users >
+Groups)
+
+38. Manually add students to a rateable group and one that is not.
+Click 'start distribution' again.
+---
+Expected: The students who were added to the rateable group are no longer
+members of that group. The ones added to the not rateable group are
+still a members.
+
+39. Make some groups rateable and some not rateable and start another
+distribution.
+---
+Expected: The distribution produces no errors or warnings and only
+modifies memberships of rateable groups.
+
+40. Add more students and ratings (change the rating period or modify
+the groupdistribution_ratings table (be careful!)). Choose any group
+for which every student gives a 'best' rating and set that groups
+'maximum size' to a value smaller than the number of students.
+Then start the distribution.
+---
+Expected: The chosen group has as many member _student_ members as
+the 'maximum size' field allows.
+
+41. Delete all groups.
+---
+Expected: The enrolled student is notified during the rating period,
+that there are too few groups. The teacher or administrator is
+notified on the view page that there are too few groups. The settings
+page displays an error that there are too few groups.
+
+42. Delete the groupdistribution activity and the course.
+---
+Expected: No errors or warnings.
