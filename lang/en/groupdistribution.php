@@ -30,7 +30,6 @@ $string['at_least_two_groups'] = 'A course must have at least two groups for the
 $string['at_least_two_rateable_groups'] = 'A course must have at least two rateable groups.';
 $string['begindate'] = 'Rating begins at:';
 $string['changes'] = 'Since {$a->time}, there have been the following changes:{$a->changes}';
-$string['clear_groups_explanation'] = 'Remove all students from groups for which they gave a rating. If a student is in a group of the same course for which he didn\'t supply a rating (because it was not rateable) he will stay in that group.';
 $string['description_form'] = "Group's description";
 $string['description_overrides'] = 'Overrides group description';
 $string['description_overrides_help'] = 'This field shows the groups description. When you save your changes, the groups description will be overridden with the content of this field.';
