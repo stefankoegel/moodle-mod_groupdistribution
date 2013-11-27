@@ -33,7 +33,6 @@ define('FROM', 2);
 
 define('ACTION_RATE', 'rate');
 define('ACTION_START', 'start_distribution');
-define('ACTION_CLEAR', 'clear_groups');
 define('SHOW_TABLE', 'show_table');
 
 require_once($CFG->dirroot . '/mod/groupdistribution/lib.php');
