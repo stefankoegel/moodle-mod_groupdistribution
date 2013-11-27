@@ -10,7 +10,7 @@ A teacher can set a time period during which students can give ratings for
 groups. After the period an algorithm tries to distribute the students
 into the groups according to their ratings. This gives all students an equal
 chance to enter their preferred group instead of favouring those
-who come first.
+who came first.
 
 
 Teachers
@@ -28,9 +28,9 @@ The groupdistribution settings page makes it easy to change groups description.
 
 The activity defines a capability called group_teacher. There is no default
 role associated with this capability.
-When a person with this capability is added to group, the persons name and
-picture will be shown alongside the group.
-This can be used to represent the tutor of the group.
+When a person with this capability is in a group, the persons name and
+picture will be shown alongside the group to the students during the rating
+period. This can be used to represent the tutor of the group.
 
 After the rating period is over a teacher can start the distribution
 process and view some additional data about the distribution. It is always
