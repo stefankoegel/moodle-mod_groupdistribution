@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['at_least_two'] = 'Please give at least two ratings better than impossible.';
+$string['at_least_two'] = 'Please give at least two ratings better than "impossible".';
 $string['at_least_two_groups'] = 'A course must have at least two groups for the groupdistribution activity to work.';
 $string['at_least_two_rateable_groups'] = 'A course must have at least two rateable groups.';
 $string['begindate'] = 'Rating begins at:';
@@ -47,12 +47,11 @@ $string['group_removed_from_rating'] = 'Group removed from rating';
 $string['group_teachers'] = 'Group\'s teacher(s):';
 $string['groupdistribution'] = 'Groupdistribution';
 $string['groupdistribution:addinstance'] = 'Create a new groupdistribution';
-$string['groupdistribution:give_rating'] = 'Give ratings for groups';
-$string['groupdistribution:group_teacher'] = 'Teacher responsible for a single group';
-$string['groupdistribution:start_distribution'] = 'Start distribution algorithm';
+$string['groupdistribution:give_rating'] = 'Gives ratings for groups';
+$string['groupdistribution:group_teacher'] = 'Teacher responsible for a group';
+$string['groupdistribution:start_distribution'] = 'Starts the distribution algorithm';
 $string['groupdistribution_date_changed'] = 'Rating period changed';
 $string['groupdistribution_name'] = 'Groupdistribution\'s name';
-$string['groups_cleared'] = 'All groups cleared.';
 $string['invalid_dates'] = 'The begin date must be before the end date!';
 $string['invalid_path'] = 'Invalid path!';
 $string['max_timelimit'] = 'Groupdistribution algorithm time limit in seconds';
@@ -86,7 +85,7 @@ $string['ratings_saved'] = 'Your ratings have been saved.';
 $string['ratings_table'] = 'This table shows all ratings given by students. A rating with a border means, that the student is a member in the corresponding group.';
 $string['set_max_size_button'] = 'Change all maximum students';
 $string['show_names'] = 'Show students\' names in ratings table';
-$string['show_names_description'] = 'You can protect students privacy by hiding their names and e-mail addresses in the ratings table. This prevents teachers from knowing about the students ratings.';
+$string['show_names_description'] = 'You can protect students privacy by hiding their names in the ratings table. This prevents teachers from knowing about a specific student\'s ratings.';
 $string['show_rating_period'] = 'The rating period begins at {$a->begin} and lasts until {$a->end}';
 $string['show_table'] = 'Show ratings table';
 $string['start_distribution'] = "Start distribution";
@@ -95,5 +94,5 @@ $string['too_early_to_distribute'] = 'You can start the distribution after the r
 $string['too_early_to_rate'] = 'You can not yet give your ratings. Please come back during the rating period.';
 $string['other_changes'] = 'Other changes';
 $string['unassigned_users'] = 'Students without a group';
-$string['view_distribution_table'] = 'Show the anonymized ratings of all students in a table.';
+$string['view_distribution_table'] = 'Show the ratings of all students in a table.';
 $string['you_must_reinstall'] = 'Please reinstall the groupdistribution plugin. It is not possible to update from this alpha version!';
