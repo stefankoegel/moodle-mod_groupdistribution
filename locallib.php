@@ -58,17 +58,27 @@ function distribute_users_in_course($courseid) {
 
     // Load data from database
     $grouprecords = get_rateable_groups_for_course($courseid);
+    $ratings = all_ratings_for_rateable_groups_from_raters_in_course($courseid);
+    $usercount = count(every_rater_in_course($courseid));
 
+    $distributions = compute_distribution($grouprecords, $ratings, $usercount);
+
+    clear_all_groups_in_course($courseid);
+
+    foreach ($distributions as $groupsid => $users) {
+        foreach ($users as $userid) {
+            groups_add_member($groupsid, $userid);
+        }
+    }
+}
+
+function compute_distribution($grouprecords, $ratings, $usercount)
+{
     $groupdata = array();
     foreach ($grouprecords as $record) {
         $groupdata[$record->groupsid] = $record;
     }
-
     $groupcount = count($groupdata);
-
-    $usercount = count(every_rater_in_course($courseid));
-
-    $ratings = all_ratings_for_rateable_groups_from_raters_in_course($courseid);
 
     // Construct the datstructures for the algorithm
 
@@ -148,15 +158,7 @@ function distribute_users_in_course($courseid) {
         reverse_path($path, $graph);
     }
 
-    $distributions = extract_groupdistribution($graph, $touserid, $togroupid);
-
-    clear_all_groups_in_course($courseid);
-
-    foreach ($distributions as $groupsid => $users) {
-        foreach ($users as $userid) {
-            groups_add_member($groupsid, $userid);
-        }
-    }
+    return extract_groupdistribution($graph, $touserid, $togroupid);
 }
 
 /**
