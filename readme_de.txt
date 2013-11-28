@@ -35,64 +35,66 @@ zusätzlich zur Beschreibung während der Bewertung durch die Studenten
 angezeigt. Dadurch kann zum Beispiel der Tutor eines Tutoriums dargestellt
 werden.
 
-After the rating period is over a teacher can start the distribution
-process and view some additional data about the distribution. It is always
-possible to change maximum group sizes and redo the distribution, if the
-outcome was not desirable. Group memberships can of course be changed
-manually via the standard Moodle tools.
+Nach Ablauf der Bewertungsperiode kann ein Lehrer den Verteilungsalgorithmus
+starten und sich zusätzliche Informationen über die Verteilung ansehen.
+Es ist jederzeit möglich die maximale Gruppengröße zu verändern und den
+Verteilungsalgorithmus erneut zu starten, falls das Ergebnis nicht den
+Erwartungen entspricht. Gruppenmitgliedschaften können natürlich auch von
+Hand über die normalen Moodle Werkzeuge bearbeitet werden.
 
-The algorithm is fair an will always find the solution with the fewest students
-without a group and the best average rating. Unfortunately, this may take
-some time.
+Der Algorithmus ist fair und versucht die Verteilung zu finden bei der
+die meisten Studenten in einer Gruppe sind und die Durchschnittsbewertung
+möglichst gut ist. Dies kann allerdings einige Zeit dauern.
 
 
-Students
---------
+Studenten
+---------
 
-The groupdistribution activity informs students about changes to the rating
-period and rateable groups. These changes are shown on the student's course
-overview page and the course's recent activity block.
+Die Groupdistribution informiert Studenten über Änderungen an der
+Bewertungsperiode und über das Hinzufügen oder Entfernen von Gruppen. Diese
+Informationen werden auf der Kursübersichtsseite des Studenten und auf der
+Kursseite angezeigt.
 
-When a student wants to rate his groups, he is presented with a list containing
-the group names, their descriptions, possibly the names of the groups' teachers,
-and a menu from which the student can choose a rating.
-The student has to give at least two ratings better than 'impossible'.
-A student will never be distributed into a group with the rating 'impossible'.
-
+Wenn ein Student seine Gruppen bewertet, werden ihm die Namen, Beschreibungen
+und, falls vorhanden, die Namen der Lehrer die der Gruppe zugeteilt sind
+angezeigt. Er kann dann aus Dropdownmenüs Bewertungen für die Gruppen
+auswählen, muss aber mindestens zwei Bewertungen besser als 'unmöglich' abgeben.
+Der Algorithmus verteilt keine Studenten auf Gruppen mit der
+Bewertung 'unmöglich'
 
 Administrator
 -------------
 
-The groupdistribution module has three settings:
-- You can choose if the teachers can see student's name next to his/her rating
-  in the ratings table.
-- You can set a standard maximum size for all groups.
-- You can set a maximum time limit for the distribution algorithm.
-  This feature tries to increase the standard php time limit of 30 seconds.
-  Depending on your php settings it is possible for this setting to be
-  ignored by php. This can be circumvented by changing the time limit directly
-  in the php.ini file.
+Die Groupdistribution hat drei Einstellungen:
+- Man kann auswählen ob die Lehrer die Namen der Studenten neben ihren
+  Bewertungen in der Bewertungstabelle sehen können.
+- Man kann den Standardwert des 'Maximle Anzahl von Studenten pro Gruppe'
+  Feldes festlegen
+- Man kann das Zeitlimit des Verteilungsalgorithmus erhöhen.
+  Diese Einstellung versucht das Zeitlimit von PHP, das normalerweise bei
+  30 Sekunden liegt, zu erhöhen. Abhängig von den Einstellungen von PHP,
+  kann dies scheitern. In diesem Fall muss das Zeitlimit in der php.ini Datei
+  erhöht werden.
 
 
-Algorithm
----------
+Algorithmus
+-----------
 
-This module uses a modified Ford-Fulkerson algorithm to solve the so called
-minimum-cost flow problem. To find augmenting paths a modified Bellman-Ford
-algorithm is used.
+Der Verteilungsalgorithmus verwendet einen modifizierten Ford-Fulkerson
+Algorithmus um das sogenannte 'minimum-cost flow' Problem zu Lösen.
+Er findet Erweiterungspfade mithilfe eines modifizierten Bellman-Ford
+Algorithmus.
 
-The algorithm has a worst case time complexity of O(n^4) where n is the
-number of students. That means it might take VERY LONG to find a solution.
-Some experience values:
-30 seconds for 100 students
-2 minutes for 400 students
+Die Laufzeitkomplexität beträgt O(n^4), wobei n die Anzahl der Studenten ist.
+Das bedeutet, dass es lange dauern kann, bis die Verteilung gefunden wird.
+Einige Erfahrungswerte:
+30 Sekunden für 100 Studenten
+2 Minuten für 400 Studenten
 
 
 Installation
 ------------
 
-Put the module files into Moodles mod/ directory and install it via the
-administration page.
-
-After the installation you can add the Groupdistribution activity to a course
-and configure it.
+Lege die Dateien von Groupdistribution in das mod/ Verzeichnis von Moodle
+und installiere es über die Administrator Seite, danach kann man einem Kurs
+die Groupdistribution Aktivität hinzufügen.
