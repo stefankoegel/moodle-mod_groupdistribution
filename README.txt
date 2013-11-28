@@ -79,7 +79,7 @@ minimum-cost flow problem. To find augmenting paths a modified Bellman-Ford
 algorithm is used.
 
 The algorithm has a worst case time complexity of O(n^4) where n is the
-number of students. That means it might take VERY LONG to find a solution.
+number of students. That means it might take some time to find a solution.
 Some experience values:
 30 seconds for 100 students
 2 minutes for 400 students
@@ -89,7 +89,5 @@ Installation
 ------------
 
 Put the module files into Moodles mod/ directory and install it via the
-administration page.
-
-After the installation you can add the Groupdistribution activity to a course
+administration page. Then add the Groupdistribution activity to a course
 and configure it.
