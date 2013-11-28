@@ -4,8 +4,8 @@ Groupdistribution
 Zusammenfassung
 ---------------
 
-Dieses Plugin die Verteilung von Studenten auf Gruppen in denen nur eine
-begrenzte Anzahl an Studenten platz findet.
+Dieses Plugin vereinfacht die Verteilung von Studenten auf Gruppen in denen
+nur eine begrenzte Anzahl an Studenten platz findet.
 Ein Lehrer kann eine Bewertungsperiode einstellen, während der Studenten
 Bewertungen für Gruppen abgeben können. Nach Ablauf dieser Periode versucht
 ein Algorithmus die Studenten, entsprechend ihrer Bewertungen,
@@ -17,7 +17,7 @@ Lehrer
 ------
 
 Lehrer können den Zeitraum während dem Studenten ihre Bewertungen abgeben
-können sowie die maximale Größe der einzelnen Gruppen auf der
+können, sowie die maximale Größe der einzelnen Gruppen auf der
 Einstellungsseite der Groupdistribution festlegen. Es ist auch möglich
 Gruppen vor dem Verteilungsalgorithmus und den Studenten zu verstecken,
 so dass sie von Groupdistribution nicht verändert werden.
@@ -68,7 +68,7 @@ Administrator
 Die Groupdistribution hat drei Einstellungen:
 - Man kann auswählen ob die Lehrer die Namen der Studenten neben ihren
   Bewertungen in der Bewertungstabelle sehen können.
-- Man kann den Standardwert des 'Maximle Anzahl von Studenten pro Gruppe'
+- Man kann den Standardwert des 'Maximale Anzahl von Studenten pro Gruppe'
   Feldes festlegen
 - Man kann das Zeitlimit des Verteilungsalgorithmus erhöhen.
   Diese Einstellung versucht das Zeitlimit von PHP, das normalerweise bei
