@@ -28,7 +28,7 @@ The groupdistribution settings page makes it easy to change groups description.
 
 The activity defines a capability called group_teacher. There is no default
 role associated with this capability.
-When a person with this capability is in a group, the persons name and
+When a person with this capability is in a group, the person's name and
 picture will be shown alongside the group to the students during the rating
 period. This can be used to represent the tutor of the group.
 
@@ -50,9 +50,9 @@ The groupdistribution activity informs students about changes to the rating
 period and rateable groups. These changes are shown on the student's course
 overview page and the course's recent activity block.
 
-When a student wants to rate his groups, he is presented with a list containing
-the group names, their descriptions, possibly the names of the groups' teachers,
-and a menu from which the student can choose a rating.
+When a student wants to rate his groups, he/she is presented with a list
+containing the group names, their descriptions, possibly the names of the
+groups' teachers, and a menu from which the student can choose a rating.
 The student has to give at least two ratings better than 'impossible'.
 A student will never be distributed into a group with the rating 'impossible'.
 
@@ -65,10 +65,10 @@ The groupdistribution module has three settings:
   in the ratings table.
 - You can set a standard maximum size for all groups.
 - You can set a maximum time limit for the distribution algorithm.
-  This feature tries to increase the standard php time limit of 30 seconds.
-  Depending on your php settings it is possible for this setting to be
-  ignored by php. This can be circumvented by changing the time limit directly
-  in the php.ini file.
+  This feature tries to increase the standard PHP time limit of 30 seconds.
+  Depending on your PHP settings it is possible for this setting to be
+  ignored by PHP. This can be circumvented by changing the time limit directly
+  in the PHP.ini file.
 
 
 Algorithm
