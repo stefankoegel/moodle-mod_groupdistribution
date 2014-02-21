@@ -20,7 +20,8 @@
  * Contains the algorithm for the group distribution and some helper functions
  * that wrap useful SQL querys.
  *
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,8 +36,8 @@ define('ACTION_RATE', 'rate');
 define('ACTION_START', 'start_distribution');
 define('SHOW_TABLE', 'show_table');
 
-require_once($CFG->dirroot . '/mod/groupdistribution/lib.php');
-require_once($CFG->dirroot . '/group/lib.php');
+require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(dirname(dirname(__FILE__))).'/group/lib.php');
 
 /**
  * Starts the distribution algorithm.
@@ -51,10 +52,10 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @param $timeout maximum time in seconds after which the algorithm gets stopped
  */
 function distribute_users_in_course($courseid) {
-    global $DB, $CFG;
+    global $DB;
 
     // Set the time limit to prevent the algorithm from running forever
-    set_time_limit($CFG->groupdistribution_timelimit);
+    set_time_limit(get_config('mod_groupdistribution', 'timelimit'));
 
     // Load data from database
     $grouprecords = get_rateable_groups_for_course($courseid);
@@ -171,7 +172,8 @@ function get_rateable_groups_for_course($courseid) {
                 FROM {groupdistribution_data} AS d
                 JOIN {groups} AS g
                   ON g.id = d.groupsid
-               WHERE g.courseid = :courseid AND d.israteable = 1';
+               WHERE g.courseid = :courseid AND d.israteable = 1
+               ORDER by g.name';
     return $DB->get_records_sql($sql, array('courseid' => $courseid));
 }
 
@@ -188,7 +190,8 @@ function get_rating_data_for_user_in_course($courseid, $userid) {
                   ON g.id = d.groupsid
            LEFT JOIN {groupdistribution_ratings} AS r
                   ON g.id = r.groupsid AND r.userid = :userid
-               WHERE g.courseid = :courseid AND d.israteable = 1";
+               WHERE g.courseid = :courseid AND d.israteable = 1
+               ORDER by g.name";
     return $DB->get_records_sql($sql, array('courseid' => $courseid, 'userid' => $userid));
 }
 
@@ -238,7 +241,7 @@ function every_rater_in_course($courseid) {
 }
 
 /**
- * Returns all group_teachers in the course with id $courseid and 
+ * Returns all group_teachers in the course with id $courseid and
  * group with id $groupid.
  */
 function every_group_teacher_in_group($courseid, $groupid) {
@@ -304,7 +307,7 @@ function clear_all_groups_in_course($courseid) {
 
 /**
  * Extracts a distribution from a graph.
- * 
+ *
  * @param $graph a groupdistribution graph
  *         on which the distribution algorithm has been run
  * @param $touserid a map mapping from indexes in the graph to userids
@@ -380,7 +383,7 @@ function reverse_path($path, &$graph) {
  * @param $from index of starting node
  * @param $to index of end node
  * @param $graph the graph in which to find the path
- * @return array with the of the nodes in the path 
+ * @return array with the of the nodes in the path
  */
 function find_shortest_path($from, $to, &$graph) {
     // Table of distances known so far

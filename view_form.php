@@ -17,22 +17,23 @@
 /**
  * Form for users giving ratings.
  *
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/formslib.php');
-require_once('locallib.php');
-require_once('renderer.php');
+require_once($CFG->libdir.'/formslib.php');
+require_once(dirname(__FILE__).'/locallib.php');
+require_once(dirname(__FILE__).'/renderer.php');
 
 /**
  * _Users view_
  * For every group for which the user can give a rating:
  * - shows the groups name and description
- * - shows a drop down menu from which the user can choose a rating 
+ * - shows a drop down menu from which the user can choose a rating
  */
 class mod_groupdistribution_view_form extends moodleform {
 
@@ -63,13 +64,8 @@ class mod_groupdistribution_view_form extends moodleform {
             $mform->addElement('hidden', $groupsidelem, $data->groupsid);
             $mform->setType($groupsidelem, PARAM_INT);
 
-            $mform->addElement('header', $headerelem, get_string('group', 'groupdistribution') . ': ' . $data->name);
+            $mform->addElement('header', $headerelem, $data->name);
             $mform->setExpanded($headerelem);
-
-            $teachers = every_group_teacher_in_group($COURSE->id, $data->groupsid);
-            if (count($teachers) > 0) {
-                $mform->addElement('html', $renderer->format_group_teachers($teachers));
-            }
 
             $group = $DB->get_record('groups', array('id' => $data->groupsid));
             if ($group->picture == 1 and $group->hidepicture != 1) {
@@ -80,14 +76,19 @@ class mod_groupdistribution_view_form extends moodleform {
                 $mform->addElement('html', $renderer->format_group_description($data->description));
             }
 
+            $teachers = every_group_teacher_in_group($COURSE->id, $data->groupsid);
+            if (count($teachers) > 0) {
+                $mform->addElement('html', $renderer->format_group_teachers($teachers));
+            }
+
             // The higher the rating, the greater the desire to get into this group
             $options = array(
-                0 => get_string('rating_impossible', 'groupdistribution'),
-                1 => get_string('rating_worst', 'groupdistribution'),
-                2 => get_string('rating_bad', 'groupdistribution'),
-                3 => get_string('rating_ok', 'groupdistribution'),
+                5 => get_string('rating_best', 'groupdistribution'),
                 4 => get_string('rating_good', 'groupdistribution'),
-                5 => get_string('rating_best', 'groupdistribution'));
+                3 => get_string('rating_ok', 'groupdistribution'),
+                2 => get_string('rating_bad', 'groupdistribution'),
+                1 => get_string('rating_worst', 'groupdistribution'),
+                0 => get_string('rating_impossible', 'groupdistribution'));
 
             // If there is a valid value in the databse, choose the according rating
             // from the dropdown.

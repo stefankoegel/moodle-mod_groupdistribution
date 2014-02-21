@@ -20,15 +20,16 @@
  * It uses the standard core Moodle formslib. For more info about them, please
  * visit: http://docs.moodle.org/en/Development:lib/formslib.php
  *
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
-require_once('locallib.php');
+require_once(dirname(dirname(dirname(__FILE__))).'/course/moodleform_mod.php');
+require_once(dirname(__FILE__).'/locallib.php');
 
 /**
  * Module instance settings form
@@ -46,26 +47,18 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
         // Allow only one groupdistribution per course
         // See: https://moodle.org/mod/forum/discuss.php?d=205664
         // And: https://github.com/SWiT/moodle-internal-course-email/blob/master/mod/email/mod_form.php
-
         $isupdate = optional_param('update', 0, PARAM_INT);
         $alreadyexists = $DB->record_exists('groupdistribution', array('course' => $COURSE->id));
-
         if ($alreadyexists and $isupdate == 0) {
-            $renderer = $PAGE->get_renderer('mod_groupdistribution');
-            $mform->addElement('html',
-                $renderer->error_text(get_string('only_one_per_course', 'groupdistribution')));
-
-            $this->standard_hidden_coursemodule_elements();
+            $url = new moodle_url('/course/view.php', array('id' => $COURSE->id));
+            redirect($url, get_string('only_one_per_course', 'groupdistribution'));
             return;
         }
 
         // There must be at least two groups
         if ($DB->count_records('groups', array('courseid' => $COURSE->id)) < 2) {
-            $renderer = $PAGE->get_renderer('mod_groupdistribution');
-            $mform->addElement('html',
-                $renderer->error_text(get_string('at_least_two_groups', 'groupdistribution')));
-
-            $this->standard_hidden_coursemodule_elements();
+            $url = new moodle_url('/group/index.php', array('id' => $COURSE->id));
+            redirect($url, get_string('at_least_two_groups', 'groupdistribution'));
             return;
         }
 
@@ -177,7 +170,7 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
                 $mform->setType($groupdataidelem, PARAM_INT);
 
             } else {
-                $mform->setDefault($maxsizeelem, $CFG->groupdistribution_maxsize); // default: $CFG->groupdistribution_maxsize
+                $mform->setDefault($maxsizeelem, get_config('mod_groupdistribution', 'maxsize'));
                 $mform->setDefault($israteableelem, 0); // default: no (0)
                 // Always expand new group data
                 $mform->setExpanded($headerelem);

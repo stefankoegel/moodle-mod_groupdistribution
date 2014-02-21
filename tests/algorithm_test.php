@@ -17,7 +17,8 @@
 /**
  * Contains unit tests for the distribution algorithm.
  *
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

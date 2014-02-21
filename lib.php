@@ -17,13 +17,8 @@
 /**
  * Library of interface functions and constants for module groupdistribution
  *
- * All the core Moodle functions, neeeded to allow the module to work
- * integrated in Moodle should be placed here.
- * All the groupdistribution specific functions, needed to implement all the module
- * logic, should go to locallib.php. This will help to save some memory when
- * Moodle is performing actions across all modules.
- *
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

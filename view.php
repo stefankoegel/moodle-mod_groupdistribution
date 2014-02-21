@@ -17,17 +17,17 @@
 /**
  * Prints a particular instance of groupdistribution
  *
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
-require_once('locallib.php');
-require_once('view_form.php');
+require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(__FILE__).'/locallib.php');
+require_once(dirname(__FILE__).'/view_form.php');
 
 // Get the context, ids and action paramter
-
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $courseid = optional_param('courseid', 0, PARAM_INT); // course ID
 $action = optional_param('action', '', PARAM_TEXT);
@@ -45,21 +45,20 @@ if ($id) {
 }
 
 require_login($course, true, $cm);
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+$context = context_module::instance($cm->id);
 
 add_to_log($course->id, 'groupdistribution', 'view', "view.php?id={$cm->id}", $groupdistribution->name, $cm->id);
 
-// Print the page header
 
+// Print the page header
 $PAGE->set_url('/mod/groupdistribution/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($groupdistribution->name));
-$PAGE->set_heading(format_string($course->fullname));
+$PAGE->set_heading(format_string($groupdistribution->name));
 $PAGE->set_context($context);
 
-// Distinguish teachers who can start a distribution and
-// enroled users who can give ratings.
-if (has_capability('mod/groupdistribution:start_distribution', $context)) {
 
+// Process form: Start distribution and redirect after finishing
+if (has_capability('mod/groupdistribution:start_distribution', $context)) {
     // Start the distribution algorithm
     if ($action == ACTION_START) {
         require_capability('mod/groupdistribution:start_distribution', $context);
@@ -68,12 +67,15 @@ if (has_capability('mod/groupdistribution:start_distribution', $context)) {
 
         redirect($PAGE->url->out(), get_string('distribution_saved', 'groupdistribution'));
     }
-} else if (is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
-    // Save the users rating
+}
+
+// Save the user's rating
+if (has_capability('mod/groupdistribution:give_rating', $context)) {
+    // Save the user's rating
     $mform = new mod_groupdistribution_view_form($PAGE->url->out());
 
     if ($mform->is_validated() and !$mform->is_cancelled() and $data = $mform->get_data()) {
-        if ($action == ACTION_RATE and is_enrolled($context)) {
+        if ($action == ACTION_RATE) {
             require_capability('mod/groupdistribution:give_rating', $context);
 
             save_ratings_to_db($COURSE->id, $USER->id, $data->data);
@@ -83,35 +85,52 @@ if (has_capability('mod/groupdistribution:start_distribution', $context)) {
     }
 }
 
+
 // Output starts here
 $renderer = $PAGE->get_renderer('mod_groupdistribution');
 echo $renderer->header();
 
-if ($groupdistribution->intro) {
-    echo $renderer->format_groupdistribution($groupdistribution);
+// Print header, intro and start/end information
+echo $renderer->format_groupdistribution($groupdistribution);
+
+// Get current time
+$now = time();
+
+// Print data and controls for students
+if (has_capability('mod/groupdistribution:give_rating', $context)) {
+    if ($groupdistribution->begindate > $now) {
+        echo $renderer->user_rating_form_tooearly();
+    } else if ($groupdistribution->enddate < $now) {
+        echo $renderer->user_rating_form_finished();
+    } else {
+        echo $renderer->user_rating_form_ready($mform);
+    }
 }
 
+// Print data and controls for teachers
 if (has_capability('mod/groupdistribution:start_distribution', $context)) {
-
     // Notify if there aren't at least two rateable groups
     if (count(get_rateable_groups_for_course($COURSE->id)) < 2) {
         echo $renderer->notification(get_string('at_least_two_rateable_groups', 'groupdistribution'));
     }
 
-    echo $renderer->start_distribution_button();
-    if (time() > $groupdistribution->enddate) {
+    // Print group distribution algorithm control
+    if ($groupdistribution->enddate < $now) {
+        echo $renderer->groupdistribution_algorithm_control_ready();
+    } else {
+        echo $renderer->groupdistribution_algorithm_control_tooearly();
+    }
+
+    // Print distribution table
+    if ($groupdistribution->enddate < $now) {
         echo $renderer->distribution_table_for_course($COURSE->id);
     }
-} else if (is_enrolled($context) and has_capability('mod/groupdistribution:give_rating', $context)) {
-    echo $renderer->user_rating_form($mform);
-} else {
-    echo $renderer->notification(get_string('not_enrolled', 'groupdistribution'));
-}
-if (has_capability('mod/groupdistribution:start_distribution', $context)) {
+
+    // Print ratings table
     if ($action == SHOW_TABLE) {
         echo $renderer->ratings_table_for_course($COURSE->id);
     } else {
-        echo $renderer->show_table_button();
+        echo $renderer->show_ratings_table_button();
     }
 }
 

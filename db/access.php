@@ -17,7 +17,8 @@
 /**
  * Capability definitions for the groupdistribution module
  *
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
     'mod/groupdistribution:addinstance' => array(
-        'riskbitmask' => RISK_XSS | RISK_SPAM | RISK_PERSONAL,
+        'riskbitmask' => RISK_XSS | RISK_PERSONAL,
         'contextlevel' => CONTEXT_COURSE,
         'captype' => 'write',
         'archetypes' => array(
@@ -51,7 +52,7 @@ $capabilities = array(
 
     'mod/groupdistribution:start_distribution' => array(
         'contextlevel' => CONTEXT_MODULE,
-        'riskbitmask' => RISK_XSS | RISK_SPAM | RISK_PERSONAL,
+        'riskbitmask' => RISK_PERSONAL,
         'captype' => 'write',
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,

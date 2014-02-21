@@ -15,238 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('locallib.php');
-require_once('view_form.php');
+require_once(dirname(__FILE__).'/locallib.php');
+require_once(dirname(__FILE__).'/view_form.php');
 
 class mod_groupdistribution_renderer extends plugin_renderer_base {
-
-    /**
-     * Returns HTML code if the user can not yet give ratings or is too late
-     * to give a rating.
-     * If the user is on time for the rating it returns the forms HTML in which
-     * the user can enter his ratings.
-     * 
-     * @param $mform view_form to show if the user is on time to give ratings
-     * @return HTML code
-     */
-    public function user_rating_form(mod_groupdistribution_view_form $mform) {
-        global $DB, $COURSE;
-
-        $groupdistribution = $DB->get_record('groupdistribution', array('course' => $COURSE->id));
-
-        $output = '';
-
-        $a = new stdClass();
-        $a->begin = userdate($groupdistribution->begindate);
-        $a->end = userdate($groupdistribution->enddate);
-
-        if (time() < $groupdistribution->begindate) {
-            $output .= $this->notification(get_string('too_early_to_rate', 'groupdistribution', $a));
-        } else if ($groupdistribution->enddate < time()) {
-            $output .= $this->notification(get_string('rating_is_over', 'groupdistribution'));
-        } else {
-            $output .= $mform->to_html();
-        }
-
-        return $output;
-    }
-
-    public function start_distribution_button() {
-        global $PAGE, $COURSE, $DB;
-
-        $starturl = new moodle_url($PAGE->url, array('action' => ACTION_START));
-
-        $groupdistribution = $DB->get_record('groupdistribution', array('course' => $COURSE->id));
-
-        $output = '';
-
-        if ($groupdistribution->enddate < time()) {
-
-            // Rating period is over, show the button
-            $output .= $this->box_start();
-            $output .= get_string('start_distribution_explanation', 'groupdistribution');
-            $output .= '<br><br>';
-            $output .= $this->single_button($starturl->out(),
-                    get_string('start_distribution', 'groupdistribution'), 'get');
-            $output .= $this->box_end();
-        } else {
-
-            // Rating period is not over, tell the teacher
-            $a = new stdClass();
-            $a->begin = userdate($groupdistribution->begindate);
-            $a->end = userdate($groupdistribution->enddate);
-            $note = get_string('too_early_to_distribute', 'groupdistribution', $a);
-            $output .= $this->notification($note);
-        }
-        return $output;
-    }
-
-    public function show_table_button() {
-        global $PAGE;
-
-        $tableurl = new moodle_url($PAGE->url, array('action' => SHOW_TABLE));
-
-        $output = '';
-        $output .= $this->box_start();
-        $output .= get_string('view_distribution_table', 'groupdistribution');
-        $output .= '<br><br>';
-        // Button to display information about the distribution and ratings
-        $output .= $this->single_button($tableurl->out(),
-                get_string('show_table', 'groupdistribution'), 'get');
-        $output .= $this->box_end();
-
-        return $output;
-    }
-
-    /**
-     * Shows tables containing information about the users' ratings
-     * and their distribution over the groups (group memberships).
-     *
-     * @return HTML code
-     */
-    public function ratings_table_for_course($courseid) {
-        global $CFG;
-
-        $groups = get_rateable_groups_for_course($courseid);
-        $groupnames = array();
-        foreach ($groups as $group) {
-            $groupnames[$group->id] = $group->name;
-        }
-
-        $ratings = all_ratings_for_rateable_groups_from_raters_in_course($courseid);
-        $ratingscells = array();
-        $ratingnames = get_rating_names();
-        foreach ($ratings as $rating) {
-
-            // Create a cell in the table for each rating
-            if (!array_key_exists($rating->userid, $ratingscells)) {
-                $ratingscells[$rating->userid] = array();
-            }
-            $cell = new html_table_cell();
-            $cell->text = get_string('rating_' . $ratingnames[$rating->rating], 'groupdistribution');
-            $cell->attributes['class'] = 'groupdistribution_rating_' . $ratingnames[$rating->rating];
-
-            $ratingscells[$rating->userid][$rating->groupsid] = $cell;
-        }
-
-        // If there is no rating from a user for a group,
-        // put a 'no_rating_given' cell into the table.
-        $usersincourse = every_rater_in_course($courseid);
-        foreach ($usersincourse as $user) {
-            if (!array_key_exists($user->id, $ratingscells)) {
-                $ratingscells[$user->id] = array();
-            }
-            foreach ($groupnames as $groupsid => $name) {
-                if (!array_key_exists($groupsid, $ratingscells[$user->id])) {
-                    $cell = new html_table_cell();
-                    $cell->text = get_string('no_rating_given', 'groupdistribution');
-                    $cell->attributes['class'] = 'groupdistribution_rating_none';
-                    $ratingscells[$user->id][$groupsid] = $cell;
-                }
-            }
-            if ($CFG->groupdistribution_show_names) {
-                // -1 is smaller than any id
-                $ratingscells[$user->id][-1] = self::format_user_data($user);
-            }
-            // Sort ratings by groupid to align them with the group names in the table
-            ksort($ratingscells[$user->id]);
-        }
-
-        if ($CFG->groupdistribution_show_names) {
-            // -1 is smaller than any id
-            $groupnames[-1] = 'User';
-        }
-        // Sort group names by groupid
-        ksort($groupnames);
-
-        // Highlight ratings according to which users have been distributed
-        // and count the number of such distributions
-        $memberships = memberships_per_course($courseid);
-        foreach ($memberships as $userid => $groups) {
-            foreach ($groups as $groupsid => $rating) {
-                if (array_key_exists($userid, $ratingscells)
-                  and array_key_exists($groupsid, $ratingscells[$userid])) {
-
-                    // Highlight the cell
-                    $ratingscells[$userid][$groupsid]->attributes['class'] .= ' groupdistribution_member';
-                }
-            }
-        }
-
-        // The ratings table shows the users' ratings for the groups
-        $ratingstable = new html_table();
-        $ratingstable->data = $ratingscells;
-        $ratingstable->head = $groupnames;
-        $ratingstable->attributes['class'] = 'groupdistribution_ratings_table';
-
-        $output = '';
-        $output .= $this->box_start();
-        $output .= get_string('ratings_table', 'groupdistribution');
-        $output .= '<br><br>';
-        $output .= $this->box(html_writer::table($ratingstable), 'groupdistribution_ratings_box');
-        $output .= $this->box_end();
-
-        return $output;
-    }
-
-    /**
-     * Formats the names and pictures of $teachers and returns HTML.
-     */
-    public function format_group_teachers($teachers) {
-        global $COURSE;
-
-        $output = '';
-        $output .= $this->box_start();
-        $output .= $this->heading(get_string('group_teachers', 'groupdistribution'), 5, 'groupdistribution_heading');
-        $output .= '<br>';
-        foreach ($teachers as $teacher) {
-            $output .= $this->box_start('groupdistribution_user');
-            $output .= $this->heading(fullname($teacher), 6, 'groupdistribution_heading');
-            $output .= $this->user_picture($teacher, array('courseid' => $COURSE->id));
-            $output .= $this->box_end();
-            $output .= '<br>';
-        }
-        $output .= $this->box_end();
-        $output .= '<br>';
-
-        return $output;
-    }
-
-    /**
-     * Formats the picture of $group and return HTML.
-     */
-    public function format_group_picture($group) {
-        global $COURSE;
-
-        $picture = print_group_picture($group, $COURSE->id, false, true);
-        $output = $this->box_start();
-        $output .= $this->heading(get_string('group_picture', 'groupdistribution'), 5, 'groupdistribution_heading');
-        $output .= $picture;
-        $output .= $this->box_end();
-        $output .= '<br>';
-
-        return $output;
-    }
-
-    /**
-     * Formats the $description and return HTML.
-     */
-    public function format_group_description($description) {
-        $output = $this->box_start();
-        $output .= $this->heading(get_string('group_description', 'groupdistribution'), 5, 'groupdistribution_heading');
-        $output .= format_text($description);
-        $output .= '<br>';
-        $output .= $this->box_end();
-
-        return $output;
-    }
 
     /**
      * Formats the $groupdistribution (name, desription, begin and enddate) and returns HTML.
@@ -254,25 +34,22 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
     public function format_groupdistribution($groupdistribution) {
         global $COURSE;
 
-        $output = $this->box_start();
+        $output = $this->heading(format_string($groupdistribution->name), 2);
 
-        $heading = get_string('groupdistribution_name', 'groupdistribution') . ': ';
-        $heading .= $groupdistribution->name;
+        if ($groupdistribution->intro) {
+            $cm = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $COURSE->id, false, MUST_EXIST);
+            $output .= $this->box(format_module_intro('groupdistribution', $groupdistribution, $cm->id), 'generalbox', 'intro');
+        }
 
-        $output .= $this->heading($heading, 5, 'groupdistribution_heading');
-        $output .= '<br>';
-
-        $cm = get_coursemodule_from_instance('groupdistribution', $groupdistribution->id, $COURSE->id, false, MUST_EXIST);
-        $output .= $this->box(format_module_intro('groupdistribution', $groupdistribution, $cm->id));
-        $output .= '<br>';
+        $output .= $this->box_start();
 
         $a = new stdClass();
         $begin = userdate($groupdistribution->begindate);
-        $a->begin = $this->box($begin, 'groupdistribution_highlight');
+        $a->begin = '<span class="groupdistribution_highlight">'.$begin.'</span>';
         $end = userdate($groupdistribution->enddate);
-        $a->end = $this->box($end, 'groupdistribution_highlight');
+        $a->end = '<span class="groupdistribution_highlight">'.$end.'</span>';
         $note = get_string('show_rating_period', 'groupdistribution', $a);
-        $output .= $note;
+        $output .= '<p>'.$note.'</p>';
 
         $output .= $this->box_end();
 
@@ -280,80 +57,78 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Taken with permission from block_people:
-     *   https://github.com/moodleuulm/moodle-block_people
+     * Output the rating form section (as long as the rating period has not yet started)
      */
-    public function format_user_data($data) {
-        global $CFG, $OUTPUT, $USER, $COURSE, $PAGE;
+    public function user_rating_form_tooearly() {
+        $output = $this->heading(get_string('your_rating', 'groupdistribution'), 2);
 
-        $output = '';
-        $output .= html_writer::start_tag('div', array('class' => 'groupdistribution_user'));
-        $output .= html_writer::start_tag('div', array('class' => 'name'));
-        $output .= fullname($data);
-        $output .= html_writer::end_tag('div');
-        $output .= html_writer::start_tag('div', array('class' => 'icons'));
-        if (has_capability('moodle/user:viewdetails', $PAGE->context)) {
-            $a = array();
-            $a['href'] = new moodle_url('/user/view.php', array('id' => $data->id, 'course' => $COURSE->id));
-            $a['title'] = get_string('viewprofile', 'core');
-            $output .= html_writer::start_tag('a', $a);
-
-            $src = array('src' => $OUTPUT->pix_url('i/user'), 'class' => 'icon', 'alt' => get_string('viewprofile', 'core'));
-            $output .= html_writer::empty_tag('img', $src);
-
-            $output .= html_writer::end_tag('a');
-        }
-
-        if ($CFG->messaging && has_capability('moodle/site:sendmessage', $PAGE->context) && $data->id != $USER->id) {
-            $a = array();
-            $a['href'] = new moodle_url('/message/index.php', array('id' => $data->id));
-            $a['title'] = get_string('sendmessageto', 'core_message', fullname($data));
-            $output .= html_writer::start_tag('a', $a);
-
-            $src = array('src' => $OUTPUT->pix_url('t/email'), 'class' => 'icon');
-            $src['alt'] = get_string('sendmessageto', 'core_message', fullname($data));
-            $output .= html_writer::empty_tag('img', $src);
-
-            $output .= html_writer::end_tag('a');
-        }
-        $output .= html_writer::end_tag('div');
-        $output .= html_writer::end_tag('div');
+        $output .= $this->notification(get_string('too_early_to_rate', 'groupdistribution'));
 
         return $output;
     }
 
+    /**
+     * Output the rating form section (as long as the rating period is running)
+     */
+    public function user_rating_form_ready(mod_groupdistribution_view_form $mform) {
+        $output = $this->heading(get_string('your_rating', 'groupdistribution'), 2);
 
-    public function format_notifications($groupdistribution, $timestart) {
-        $output = '';
-
-        if ($groupdistribution->begindate < time() and time() < $groupdistribution->enddate) {
-            // during the rating period.
-            $a = new stdclass();
-            $a->until = userdate($groupdistribution->enddate);
-            $output .= '<br>';
-            $output .= $this->box(get_string('rating_has_begun', 'groupdistribution', $a));
-        }
-
-        $logs = groupdistribution_get_logs($groupdistribution->course, $timestart);
-        if (count($logs) > 0) {
-            $a = new stdclass();
-
-            $changes = array();
-            foreach ($logs as $log) {
-                $changes = array_merge($log->expandedinfo, $changes);
-            }
-
-            $a->changes = '<br>' . implode('<br>', array_keys($changes));
-            $a->time = userdate($timestart);
-            $output .= '<br>';
-            $output .= $this->box(get_string('changes', 'groupdistribution', $a));
-        }
+        $output .= $mform->to_html();
 
         return $output;
     }
 
+    /**
+     * Output the rating form section (as long as the rating perios has already finished)
+     */
+    public function user_rating_form_finished() {
+        $output = $this->heading(get_string('your_rating', 'groupdistribution'), 2);
+
+        $output .= $this->notification(get_string('rating_is_over', 'groupdistribution'));
+
+        return $output;
+    }
+
+    /**
+     * Output the groupdistribution algorithm control section (as long as the rating period is not over)
+     */
+    public function groupdistribution_algorithm_control_tooearly() {
+        $output = $this->heading(get_string('distribution_algorithm', 'groupdistribution'), 2);
+
+        // Rating period is not over, tell the teacher
+        $note = get_string('too_early_to_distribute', 'groupdistribution');
+        $output .= $this->notification($note);
+
+        return $output;
+    }
+
+    /**
+     * Output the groupdistribution algorithm control section (as soon as the rating period is over)
+     */
+    public function groupdistribution_algorithm_control_ready() {
+        global $PAGE, $COURSE, $DB;
+
+        $starturl = new moodle_url($PAGE->url, array('action' => ACTION_START));
+
+        $groupdistribution = $DB->get_record('groupdistribution', array('course' => $COURSE->id));
+
+        $output = $this->heading(get_string('distribution_algorithm', 'groupdistribution'), 2);
+
+        // Rating period is over, show the button
+        $output .= $this->box_start();
+        $output .= '<p>'.get_string('start_distribution_explanation', 'groupdistribution').'</p>';
+        $output .= $this->box_end();
+        $output .= $this->single_button($starturl->out(), get_string('start_distribution', 'groupdistribution'), 'get');
+
+        return $output;
+    }
+
+    /**
+     * Shows table containing information about the result of the distribution algorithm.
+     *
+     * @return HTML code
+     */
     public function distribution_table_for_course($courseid) {
-
         // Count the number of distributions with a specific rating
         $distributiondata = array(5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0);
         $memberships = memberships_per_course($courseid);
@@ -400,12 +175,247 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $distributiontable->data = array($distributionrow);
         $distributiontable->head = $distributionhead;
 
-        $output = '';
+        $output = $this->heading(get_string('distribution_table', 'groupdistribution'), 2);
         $output .= $this->box_start();
-        $output .= get_string('distribution_table', 'groupdistribution');
-        $output .= '<br><br>';
+        $output .= '<p>'.get_string('view_distribution_table', 'groupdistribution').'</p>';
         $output .= html_writer::table($distributiontable);
         $output .= $this->box_end();
+
+        return $output;
+    }
+
+    /**
+     * Shows table containing information about the users' ratings
+     * and their distribution over the groups (group memberships).
+     *
+     * @return HTML code
+     */
+    public function ratings_table_for_course($courseid) {
+        $config_show_names = get_config('mod_groupdistribution', 'show_names');
+
+        $groups = get_rateable_groups_for_course($courseid);
+        $groupnames = array();
+        foreach ($groups as $group) {
+            $groupnames[$group->id] = $group->name;
+        }
+
+        $ratings = all_ratings_for_rateable_groups_from_raters_in_course($courseid);
+        $ratingscells = array();
+        $ratingnames = get_rating_names();
+        foreach ($ratings as $rating) {
+
+            // Create a cell in the table for each rating
+            if (!array_key_exists($rating->userid, $ratingscells)) {
+                $ratingscells[$rating->userid] = array();
+            }
+            $cell = new html_table_cell();
+            $cell->text = get_string('rating_' . $ratingnames[$rating->rating], 'groupdistribution');
+            $cell->attributes['class'] = 'groupdistribution_rating_' . $ratingnames[$rating->rating];
+
+            $ratingscells[$rating->userid][$rating->groupsid] = $cell;
+        }
+
+        // If there is no rating from a user for a group,
+        // put a 'no_rating_given' cell into the table.
+        $usersincourse = every_rater_in_course($courseid);
+        foreach ($usersincourse as $user) {
+            if (!array_key_exists($user->id, $ratingscells)) {
+                $ratingscells[$user->id] = array();
+            }
+            foreach ($groupnames as $groupsid => $name) {
+                if (!array_key_exists($groupsid, $ratingscells[$user->id])) {
+                    $cell = new html_table_cell();
+                    $cell->text = get_string('no_rating_given', 'groupdistribution');
+                    $cell->attributes['class'] = 'groupdistribution_rating_none';
+                    $ratingscells[$user->id][$groupsid] = $cell;
+                }
+            }
+            if ($config_show_names) {
+                // -1 is smaller than any id
+                $ratingscells[$user->id][-1] = self::format_user_data($user);
+            }
+            // Sort ratings by groupid to align them with the group names in the table
+            ksort($ratingscells[$user->id]);
+        }
+
+        if ($config_show_names) {
+            // -1 is smaller than any id
+            $groupnames[-1] = 'User';
+        }
+        // Sort group names by groupid
+        ksort($groupnames);
+
+        // Highlight ratings according to which users have been distributed
+        // and count the number of such distributions
+        $memberships = memberships_per_course($courseid);
+        foreach ($memberships as $userid => $groups) {
+            foreach ($groups as $groupsid => $rating) {
+                if (array_key_exists($userid, $ratingscells)
+                  and array_key_exists($groupsid, $ratingscells[$userid])) {
+
+                    // Highlight the cell
+                    $ratingscells[$userid][$groupsid]->attributes['class'] .= ' groupdistribution_member';
+                }
+            }
+        }
+
+        // The ratings table shows the users' ratings for the groups
+        $ratingstable = new html_table();
+        $ratingstable->data = $ratingscells;
+        $ratingstable->head = $groupnames;
+        $ratingstable->attributes['class'] = 'groupdistribution_ratings_table';
+
+        $output = $this->heading(get_string('ratings_table', 'groupdistribution'), 2);
+        $output .= $this->box_start();
+        $output .= '<p>'.get_string('view_ratings_table_explanation', 'groupdistribution').'</p>';
+        $output .= $this->box(html_writer::table($ratingstable), 'groupdistribution_ratings_box');
+        $output .= $this->box_end();
+
+        return $output;
+    }
+
+    /**
+     * Renders the button to show the ratings table
+     */
+    public function show_ratings_table_button() {
+        global $PAGE;
+
+        $tableurl = new moodle_url($PAGE->url, array('action' => SHOW_TABLE));
+
+        $output = $this->heading(get_string('ratings_table', 'groupdistribution'), 2);
+        $output .= $this->box_start();
+        $output .= get_string('view_ratings_table', 'groupdistribution');
+        // Button to display information about the distribution and ratings
+        $output .= $this->single_button($tableurl->out(),
+                get_string('show_table', 'groupdistribution'), 'get');
+        $output .= $this->box_end();
+
+        return $output;
+    }
+
+    /**
+     * Formats the names and pictures of $teachers and returns HTML.
+     */
+    public function format_group_teachers($teachers) {
+        global $COURSE, $PAGE, $CFG, $USER;
+
+        $output = $this->heading(get_string('group_teachers', 'groupdistribution'), 5, 'groupdistribution_heading');
+
+        $output .= $this->box_start('groupdistribution_teachers clearfix');
+        $output .= html_writer::start_tag('ul');
+
+        foreach ($teachers as $teacher) {
+            $output .= html_writer::start_tag('li');
+
+            $output .= $this->user_picture($teacher, array('size' => 60, 'link' => true, 'courseid' => $COURSE->id));
+            $output .= html_writer::start_tag('div', array('class' => 'name'));
+            $output .= fullname($teacher);
+            $output .= html_writer::end_tag('div');
+
+            $output .= html_writer::end_tag('li');
+        }
+
+        $output .= html_writer::end_tag('ul');
+        $output .= $this->box_end();
+        $output .= '<hr />';
+
+        return $output;
+    }
+
+    /**
+     * Formats the picture of $group and return HTML.
+     */
+    public function format_group_picture($group) {
+        global $COURSE;
+
+        $picture = print_group_picture($group, $COURSE->id, true, true, false);
+        $output = $this->box_start('groupdistribution_grouppicture');
+        $output .= $picture;
+        $output .= $this->box_end();
+
+        return $output;
+    }
+
+    /**
+     * Formats the $description and return HTML.
+     */
+    public function format_group_description($description) {
+        $output = $this->box_start('groupdistribution_description clearfix');
+        $output .= format_text($description);
+        $output .= $this->box_end();
+        $output .= '<hr />';
+
+        return $output;
+    }
+
+    /**
+     * Format the users in the rating table
+     */
+    public function format_user_data($data) {
+        global $CFG, $OUTPUT, $USER, $COURSE, $PAGE;
+
+        $output = '';
+        $output .= html_writer::start_tag('div', array('class' => 'groupdistribution_user'));
+        $output .= html_writer::start_tag('div', array('class' => 'name'));
+        $output .= fullname($data);
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::start_tag('div', array('class' => 'icons'));
+        if (has_capability('moodle/user:viewdetails', $PAGE->context)) {
+            $a = array();
+            $a['href'] = new moodle_url('/user/view.php', array('id' => $data->id, 'course' => $COURSE->id));
+            $a['title'] = get_string('viewprofile', 'core');
+            $output .= html_writer::start_tag('a', $a);
+
+            $src = array('src' => $OUTPUT->pix_url('i/user'), 'class' => 'icon', 'alt' => get_string('viewprofile', 'core'));
+            $output .= html_writer::empty_tag('img', $src);
+
+            $output .= html_writer::end_tag('a');
+        }
+
+        if ($CFG->messaging && has_capability('moodle/site:sendmessage', $PAGE->context) && $data->id != $USER->id) {
+            $a = array();
+            $a['href'] = new moodle_url('/message/index.php', array('id' => $data->id));
+            $a['title'] = get_string('sendmessageto', 'core_message', fullname($data));
+            $output .= html_writer::start_tag('a', $a);
+
+            $src = array('src' => $OUTPUT->pix_url('t/email'), 'class' => 'icon');
+            $src['alt'] = get_string('sendmessageto', 'core_message', fullname($data));
+            $output .= html_writer::empty_tag('img', $src);
+
+            $output .= html_writer::end_tag('a');
+        }
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::end_tag('div');
+
+        return $output;
+    }
+
+    /**
+     * Formats the notifications for the recent activity block and the course overview block
+     */
+    public function format_notifications($groupdistribution, $timestart) {
+        $output = '';
+
+        if ($groupdistribution->begindate < time() and time() < $groupdistribution->enddate) {
+            // during the rating period.
+            $a = new stdclass();
+            $a->until = userdate($groupdistribution->enddate);
+            $output .= $this->container(get_string('rating_has_begun', 'groupdistribution', $a), 'overview groupdistribution');
+        }
+
+        $logs = groupdistribution_get_logs($groupdistribution->course, $timestart);
+        if (count($logs) > 0) {
+            $a = new stdclass();
+
+            $changes = array();
+            foreach ($logs as $log) {
+                $changes = array_merge($log->expandedinfo, $changes);
+            }
+
+            $a->changes = '<br><ul><li>' . implode('</li><li>', array_keys($changes)). '</li></ul>';
+            $a->time = userdate($timestart);
+            $output .= $this->container(get_string('changes', 'groupdistribution', $a), 'overview groupdistribution');
+        }
 
         return $output;
     }

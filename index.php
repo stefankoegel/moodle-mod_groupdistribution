@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,16 +32,16 @@ require_course_login($course);
 
 add_to_log($course->id, 'groupdistribution', 'view all', 'index.php?id='.$course->id, '');
 
-$coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+$coursecontext = context_course::instance($course->id);
 
 $PAGE->set_url('/mod/groupdistribution/index.php', array('id' => $id));
-$PAGE->set_title(format_string($course->fullname));
+$PAGE->set_title(get_string('modulenameplural', 'groupdistribution'));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($coursecontext);
 
 echo $OUTPUT->header();
 
-if (! $groupdistributions = get_all_instances_in_course('groupdistribution', $course)) {
+if (!$groupdistributions = get_all_instances_in_course('groupdistribution', $course)) {
     notice(get_string('nogroupdistributions', 'groupdistribution'), new moodle_url('/course/view.php', array('id' => $course->id)));
 }
 
@@ -49,7 +50,7 @@ if ($course->format == 'weeks') {
     $table->head  = array(get_string('week'), get_string('name'));
     $table->align = array('center', 'left');
 } else if ($course->format == 'topics') {
-    $table->head  = array(get_string('topic'), get_string('name'));
+    $table->head  = array(get_string('section'), get_string('name'));
     $table->align = array('center', 'left', 'left', 'left');
 } else {
     $table->head  = array(get_string('name'));
@@ -59,17 +60,17 @@ if ($course->format == 'weeks') {
 foreach ($groupdistributions as $groupdistribution) {
     if (!$groupdistribution->visible) {
         $link = html_writer::link(
-                new moodle_url('/mod/groupdistribution.php', array('id' => $groupdistribution->coursemodule)),
+                new moodle_url('/mod/groupdistribution/view.php', array('id' => $groupdistribution->coursemodule)),
                 format_string($groupdistribution->name, true),
                 array('class' => 'dimmed'));
     } else {
         $link = html_writer::link(
-                new moodle_url('/mod/groupdistribution.php', array('id' => $groupdistribution->coursemodule)),
+                new moodle_url('/mod/groupdistribution/view.php', array('id' => $groupdistribution->coursemodule)),
                 format_string($groupdistribution->name, true));
     }
 
     if ($course->format == 'weeks' or $course->format == 'topics') {
-        $table->data[] = array($groupdistribution->section, $link);
+        $table->data[] = array(get_section_name($course, $groupdistribution->section), $link);
     } else {
         $table->data[] = array($link);
     }

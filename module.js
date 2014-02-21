@@ -17,22 +17,23 @@
 /**
  * Javascript to set all max size fields in mod_form.php to the same value.
  *
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 M.mod_groupdistribution = {
- 	init: function(Y) {
- 		var button = Y.one('#set_max_size_button');
- 		var global_size = Y.one('#global_max_size');
- 		var size_fields = Y.all('#max_size_field');
+    init: function(Y) {
+        var button = Y.one('#set_max_size_button');
+        var global_size = Y.one('#global_max_size');
+        var size_fields = Y.all('#max_size_field');
 
- 		button.on('click', function(e) {
- 			var max_size = parseInt(global_size.get('value'));
- 			if(max_size > 0) {
- 				size_fields.set('value', max_size);
- 			}
- 		});
- 	}
+        button.on('click', function(e) {
+            var max_size = parseInt(global_size.get('value'));
+            if(max_size > 0) {
+                size_fields.set('value', max_size);
+            }
+        });
+    }
 }

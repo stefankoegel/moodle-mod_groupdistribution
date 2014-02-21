@@ -1,49 +1,64 @@
+.groupdistribution_ratings_box {
+    overflow: scroll;
+}
 .groupdistribution_ratings_table .groupdistribution_rating_impossible {
-	background-color: #888;
+    background-color: #888;
 }
 .groupdistribution_ratings_table .groupdistribution_rating_worst {
-	background-color: #F60018;
+    background-color: #f60018;
 }
 .groupdistribution_ratings_table .groupdistribution_rating_bad {
-	background-color: #FF8C00;
+    background-color: #ff8c00;
 }
 .groupdistribution_ratings_table .groupdistribution_rating_ok {
-	background-color: #FFC000;
+    background-color: #ffc000;
 }
 .groupdistribution_ratings_table .groupdistribution_rating_good {
-	background-color: #188A00;
+    background-color: #188a00;
 }
 .groupdistribution_ratings_table .groupdistribution_rating_best {
-	background-color: #0969A2;
+    background-color: #0969a2;
 }
 .groupdistribution_ratings_table .groupdistribution_rating_none {
-	background-color: #bbb;
+    background-color: #bbb;
 }
-div.groupdistribution_ratings_box {
-	overflow: auto;
-	height: 600px;
-}
-table.groupdistribution_ratings_table {
-	border-collapse: separate;
-	border-spacing: 1px;
-}
-.groupdistribution_ratings_table td.groupdistribution_member {
-	color: white;
-	border: solid black 2px;
+.groupdistribution_ratings_table {
+    border-collapse: separate;
+    border-spacing: 5px;
 }
 .groupdistribution_ratings_table td {
-	border: solid white 2px;
-	text-align: center;
-	vertical-align: middle;
+    padding: 5px;
+    text-align: center;
+    vertical-align: middle;
 }
-
+.groupdistribution_ratings_table td.groupdistribution_member {
+    border: solid black 5px;
+    background-image: repeating-linear-gradient(45deg, white 0px, white 25px, transparent 25px, transparent 50px, white 50px);
+}
 .groupdistribution_highlight {
-	font-weight: bold;
+    font-weight: bold;
+}
+.groupdistribution_user .icons,
+.groupdistribution_user .userpicture,
+.groupdistribution_user .names {
+    display: block;
+    margin: 5px;
+}
+.groupdistribution_grouppicture img {
+    float: left;
+    margin-right: 20px;
+}
+.groupdistribution_teachers ul,
+.groupdistribution_teachers li {
+    list-style: none;
+    margin-left: 0;
+}
+.groupdistribution_teachers li {
+    float: left;
+    margin-right: 20px;
+    width: 80px;
+}
+.groupdistribution_teachers li img{
+    margin-bottom: 10px;
 }
 
-div.groupdistribution_user .icons,
-div.groupdistribution_user .userpicture,
-div.groupdistribution_user .names {
-	display: block;
-	margin: 5px;
-}

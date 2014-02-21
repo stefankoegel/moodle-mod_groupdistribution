@@ -15,24 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$settings->add(new admin_setting_configtext('groupdistribution_timelimit',
-    get_string('max_timelimit', 'groupdistribution'),
-    get_string('max_timelimit_description', 'groupdistribution'),
-    120, PARAM_INT));
+$settings->add(new admin_setting_configcheckbox('mod_groupdistribution/show_names',
+    get_string('show_names', 'groupdistribution'),
+    get_string('show_names_desc', 'groupdistribution'),
+    1));
 
-$settings->add(new admin_setting_configtext('groupdistribution_maxsize',
+$settings->add(new admin_setting_configtext('mod_groupdistribution/maxsize',
     get_string('maxsize_setting', 'groupdistribution'),
-    get_string('maxsize_setting_description', 'groupdistribution'),
+    get_string('maxsize_setting_desc', 'groupdistribution'),
     15, PARAM_INT));
 
-$settings->add(new admin_setting_configcheckbox('groupdistribution_show_names',
-    get_string('show_names', 'groupdistribution'),
-    get_string('show_names_description', 'groupdistribution'),
-    1));
+$settings->add(new admin_setting_configtext('mod_groupdistribution/timelimit',
+    get_string('max_timelimit', 'groupdistribution'),
+    get_string('max_timelimit_desc', 'groupdistribution'),
+    120, PARAM_INT));

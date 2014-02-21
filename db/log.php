@@ -17,11 +17,8 @@
 /**
  * Definition of log events
  *
- * NOTE: this is an example how to insert log event during installation/update.
- * It is not really essential to know about it, but these logs were created as example
- * in the previous 1.9 NEWMODULE.
- *
- * @package    mod_groupdistribution
+ * @package    mod
+ * @subpackage mod_groupdistribution
  * @copyright  2013 Stefan Koegel <your@email.adress>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
