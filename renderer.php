@@ -60,9 +60,17 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
      * Output the rating form section (as long as the rating period has not yet started)
      */
     public function user_rating_form_tooearly() {
+        global $COURSE;
+
         $output = $this->heading(get_string('your_rating', 'groupdistribution'), 2);
 
         $output .= $this->notification(get_string('too_early_to_rate', 'groupdistribution'));
+
+        $groups = get_rateable_groups_for_course($COURSE->id);
+
+        foreach ($groups as $group) {
+            $output .= $this->format_group($group);
+        }
 
         return $output;
     }
@@ -82,9 +90,19 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
      * Output the rating form section (as long as the rating perios has already finished)
      */
     public function user_rating_form_finished() {
+        global $COURSE, $USER;
+
         $output = $this->heading(get_string('your_rating', 'groupdistribution'), 2);
 
         $output .= $this->notification(get_string('rating_is_over', 'groupdistribution'));
+
+        $memberships = get_rateable_memberships_for_course_with_user($COURSE->id, $USER->id);
+        if (count($memberships) > 0) {
+            $output .= $this->heading('Deine Gruppen', 2);
+            foreach ($memberships as $mem) {
+                $output .= $this->format_group($mem);
+            }
+        }
 
         return $output;
     }
