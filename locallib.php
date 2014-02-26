@@ -178,6 +178,25 @@ function get_rateable_groups_for_course($courseid) {
 }
 
 /**
+ * Returns all memberships of a user for rateable groups in a course.
+ */
+function get_rateable_memberships_for_course_with_user($courseid, $userid)
+{
+    global $DB;
+
+    $sql = 'SELECT *
+              FROM {groups} AS g
+              JOIN {groups_members} AS gm
+                ON g.id = gm.groupid
+              JOIN {groupdistribution_data} as d
+                ON g.id = d.groupsid
+             WHERE g.courseid = :courseid
+               AND gm.userid = :userid
+               AND d.israteable = 1';
+    return $DB->get_records_sql($sql, array('courseid' => $courseid, 'userid' => $userid));
+}
+
+/**
  * Returns all ratings from the user with id $userid for groups
  * in the course with id $courseid.
  */
