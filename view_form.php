@@ -68,7 +68,7 @@ class mod_groupdistribution_view_form extends moodleform {
             $mform->setExpanded($headerelem);
 
             $group = $DB->get_record('groups', array('id' => $data->groupsid));
-            $mform->addElement('html', $renderer->format_group($group));
+            $mform->addElement('html', $renderer->format_group($group, false));
 
             // The higher the rating, the greater the desire to get into this group
             $options = array(

@@ -69,7 +69,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $groups = get_rateable_groups_for_course($COURSE->id);
 
         foreach ($groups as $group) {
-            $output .= $this->format_group($group);
+            $output .= $this->format_group($group, true);
         }
 
         return $output;
@@ -100,7 +100,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         if (count($memberships) > 0) {
             $output .= $this->heading('Deine Gruppen', 2);
             foreach ($memberships as $mem) {
-                $output .= $this->format_group($mem);
+                $output .= $this->format_group($mem, true);
             }
         }
 
@@ -366,10 +366,12 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
     /**
      * Formats a group for display to the students
      */
-    public function format_group($group) {
+    public function format_group($group, $show_heading) {
         $output = $this->box_start('generalbox');
 
-        $output .= $this->heading($group->name, 3, 'groupdistribution_heading');
+        if ($show_heading) {
+            $output .= $this->heading($group->name, 3, 'groupdistribution_heading');
+        }
 
         if ($group->picture == 1 and $group->hidepicture != 1) {
             $output .= $this->format_group_picture($group);
