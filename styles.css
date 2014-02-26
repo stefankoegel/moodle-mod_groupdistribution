@@ -1,22 +1,22 @@
 .groupdistribution_ratings_box {
     overflow: scroll;
 }
-.groupdistribution_ratings_table .groupdistribution_rating_impossible {
+.groupdistribution_ratings_table .groupdistribution_rating_0 {
     background-color: #888;
 }
-.groupdistribution_ratings_table .groupdistribution_rating_worst {
+.groupdistribution_ratings_table .groupdistribution_rating_1 {
     background-color: #f60018;
 }
-.groupdistribution_ratings_table .groupdistribution_rating_bad {
+.groupdistribution_ratings_table .groupdistribution_rating_2 {
     background-color: #ff8c00;
 }
-.groupdistribution_ratings_table .groupdistribution_rating_ok {
+.groupdistribution_ratings_table .groupdistribution_rating_3 {
     background-color: #ffc000;
 }
-.groupdistribution_ratings_table .groupdistribution_rating_good {
+.groupdistribution_ratings_table .groupdistribution_rating_4 {
     background-color: #188a00;
 }
-.groupdistribution_ratings_table .groupdistribution_rating_best {
+.groupdistribution_ratings_table .groupdistribution_rating_5 {
     background-color: #0969a2;
 }
 .groupdistribution_ratings_table .groupdistribution_rating_none {
@@ -33,7 +33,7 @@
 }
 .groupdistribution_ratings_table td.groupdistribution_member {
     border: solid black 5px;
-    background-image: repeating-linear-gradient(45deg, white 0px, white 25px, transparent 25px, transparent 50px, white 50px);
+    background-image: repeating-linear-gradient(45deg, white 0px, white 15px, transparent 15px, transparent 30px, white 30px);
 }
 .groupdistribution_highlight {
     font-weight: bold;

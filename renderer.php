@@ -166,15 +166,14 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $distributionrow = array();
         $distributionhead = array();
-        $ratingnames = get_rating_names();
         foreach ($distributiondata as $rating => $count) {
             $cell = new html_table_cell();
             $cell->text = $count;
-            $cell->attributes['class'] = 'groupdistribution_rating_' . $ratingnames[$rating];
+            $cell->attributes['class'] = 'groupdistribution_rating_' . $rating;
             $distributionrow[$rating] = $cell;
 
             $cell = new html_table_cell();
-            $cell->text = get_string('rating_' . $ratingnames[$rating], 'groupdistribution');
+            $cell->text = get_string('rating_short_' . $rating, 'groupdistribution');
             $distributionhead[$rating] = $cell;
         }
 
@@ -219,7 +218,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $ratings = all_ratings_for_rateable_groups_from_raters_in_course($courseid);
         $ratingscells = array();
-        $ratingnames = get_rating_names();
         foreach ($ratings as $rating) {
 
             // Create a cell in the table for each rating
@@ -227,8 +225,8 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
                 $ratingscells[$rating->userid] = array();
             }
             $cell = new html_table_cell();
-            $cell->text = get_string('rating_' . $ratingnames[$rating->rating], 'groupdistribution');
-            $cell->attributes['class'] = 'groupdistribution_rating_' . $ratingnames[$rating->rating];
+            $cell->text = get_string('rating_short_' . $rating->rating, 'groupdistribution');
+            $cell->attributes['class'] = 'groupdistribution_rating_' . $rating->rating;
 
             $ratingscells[$rating->userid][$rating->groupsid] = $cell;
         }
