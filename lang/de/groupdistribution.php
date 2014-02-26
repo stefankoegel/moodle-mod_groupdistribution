@@ -41,6 +41,7 @@ $string['enddate'] = 'Bewertung endet am:';
 $string['global_max_size'] = 'Setzt die maximale Anzahl an Studenten jeder Gruppe auf diesen Wert.';
 $string['group'] = 'Gruppe';
 $string['group_added_to_rating'] = 'Gruppe zur Gruppenverteilung hinzugefügt';
+$string['group_description'] = 'Beschreibung';
 $string['group_description_changed'] = 'Beschreibung einer Gruppe geändert';
 $string['group_not_in_course'] = 'Eine der Gruppen gehört nicht zum Kurs.';
 $string['group_picture'] = 'Bild der Gruppe:';

@@ -341,9 +341,35 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
      */
     public function format_group_description($description) {
         $output = $this->box_start('groupdistribution_description clearfix');
+        $output .= $this->heading(get_string('group_description', 'groupdistribution'), 5, 'groupdistribution_heading');
         $output .= format_text($description);
         $output .= $this->box_end();
         $output .= '<hr />';
+
+        return $output;
+    }
+
+    /**
+     * Formats a group for display to the students
+     */
+    public function format_group($group) {
+        $output = $this->box_start('groupdistribution_group');
+
+        $output .= $this->heading($group->name, 3, 'groupdistribution_heading');
+
+        if ($group->picture == 1 and $group->hidepicture != 1) {
+            $output .= $this->format_group_picture($group);
+        }
+
+        if ($group->description !== '') {
+            $output .= $this->format_group_description($group->description);
+        }
+
+        $teachers = every_group_teacher_in_group($group->courseid, $group->id);
+        if (count($teachers) > 0) {
+            $output .= $this->format_group_teachers($teachers);
+        } 
+        $output .= $this->box_end();
 
         return $output;
     }

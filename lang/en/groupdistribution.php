@@ -41,6 +41,7 @@ $string['enddate'] = 'Rating ends at:';
 $string['global_max_size'] = 'Sets the maximum number of students for all groups to this value.';
 $string['group'] = 'Group';
 $string['group_added_to_rating'] = 'Group added to rating';
+$string['group_description'] = 'Description';
 $string['group_description_changed'] = 'Group description changed';
 $string['group_not_in_course'] = 'One of the groups does not belong to this course.';
 $string['group_picture'] = 'Group\'s picture:';
