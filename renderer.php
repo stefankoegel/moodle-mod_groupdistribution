@@ -317,7 +317,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $output .= html_writer::end_tag('ul');
         $output .= $this->box_end();
-        $output .= '<hr />';
 
         return $output;
     }
@@ -344,7 +343,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         $output .= $this->heading(get_string('group_description', 'groupdistribution'), 5, 'groupdistribution_heading');
         $output .= format_text($description);
         $output .= $this->box_end();
-        $output .= '<hr />';
 
         return $output;
     }
@@ -353,7 +351,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
      * Formats a group for display to the students
      */
     public function format_group($group) {
-        $output = $this->box_start('groupdistribution_group');
+        $output = $this->box_start('generalbox');
 
         $output .= $this->heading($group->name, 3, 'groupdistribution_heading');
 
@@ -367,6 +365,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $teachers = every_group_teacher_in_group($group->courseid, $group->id);
         if (count($teachers) > 0) {
+            $output .= '<hr />';
             $output .= $this->format_group_teachers($teachers);
         } 
         $output .= $this->box_end();
