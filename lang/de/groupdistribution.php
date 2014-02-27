@@ -31,6 +31,7 @@ $string['at_least_two_groups'] = 'Ein Kurs muss mindestens zwei Gruppen enthalte
 $string['at_least_two_rateable_groups'] = 'Ein Kurs muss mindestens zwei bewertbare Gruppen enthalten.';
 $string['begindate'] = 'Bewertung beginnt am:';
 $string['changes'] = 'Seit {$a->time}, gab es folgende Änderungen: {$a->changes}';
+$string['changes_short'] = 'Es gab folgende Änderungen: {$a->changes}';
 $string['description_form'] = "Beschreibung";
 $string['description_overrides'] = 'Überschreibt die Beschreibung der Gruppe';
 $string['description_overrides_help'] = 'Dieses Feld zeigt die Beschreibung der Gruppe. Wenn Sie die Beschreibung hier ändern, wird auch die Beschreibung der Gruppe in den Kurseinstellungen überschrieben.';

@@ -456,8 +456,13 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
             }
 
             $a->changes = '<br><ul><li>' . implode('</li><li>', array_keys($changes)). '</li></ul>';
-            $a->time = userdate($timestart);
-            $output .= $this->container(get_string('changes', 'groupdistribution', $a), 'overview groupdistribution');
+            if ($timestart > 0) {
+                $a->time = userdate($timestart);
+                $output .= $this->container(get_string('changes', 'groupdistribution', $a), 'overview groupdistribution');
+            } else {
+                $output .= $this->container(get_string('changes_short', 'groupdistribution', $a),
+                    'overview groupdistribution');
+            }
         }
 
         return $output;
