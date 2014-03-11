@@ -60,9 +60,17 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
      * Output the rating form section (as long as the rating period has not yet started)
      */
     public function user_rating_form_tooearly() {
+        global $COURSE;
+
         $output = $this->heading(get_string('your_rating', 'groupdistribution'), 2);
 
         $output .= $this->notification(get_string('too_early_to_rate', 'groupdistribution'));
+
+        $groups = get_rateable_groups_for_course($COURSE->id);
+
+        foreach ($groups as $group) {
+            $output .= $this->format_group($group, true);
+        }
 
         return $output;
     }
@@ -82,9 +90,19 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
      * Output the rating form section (as long as the rating perios has already finished)
      */
     public function user_rating_form_finished() {
+        global $COURSE, $USER;
+
         $output = $this->heading(get_string('your_rating', 'groupdistribution'), 2);
 
         $output .= $this->notification(get_string('rating_is_over', 'groupdistribution'));
+
+        $memberships = get_rateable_memberships_for_course_with_user($COURSE->id, $USER->id);
+        if (count($memberships) > 0) {
+            $output .= $this->heading('Deine Gruppen', 2);
+            foreach ($memberships as $mem) {
+                $output .= $this->format_group($mem, true);
+            }
+        }
 
         return $output;
     }
@@ -148,15 +166,14 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $distributionrow = array();
         $distributionhead = array();
-        $ratingnames = get_rating_names();
         foreach ($distributiondata as $rating => $count) {
             $cell = new html_table_cell();
             $cell->text = $count;
-            $cell->attributes['class'] = 'groupdistribution_rating_' . $ratingnames[$rating];
+            $cell->attributes['class'] = 'groupdistribution_rating_' . $rating;
             $distributionrow[$rating] = $cell;
 
             $cell = new html_table_cell();
-            $cell->text = get_string('rating_' . $ratingnames[$rating], 'groupdistribution');
+            $cell->text = get_string('rating_short_' . $rating, 'groupdistribution');
             $distributionhead[$rating] = $cell;
         }
 
@@ -201,7 +218,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $ratings = all_ratings_for_rateable_groups_from_raters_in_course($courseid);
         $ratingscells = array();
-        $ratingnames = get_rating_names();
         foreach ($ratings as $rating) {
 
             // Create a cell in the table for each rating
@@ -209,8 +225,8 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
                 $ratingscells[$rating->userid] = array();
             }
             $cell = new html_table_cell();
-            $cell->text = get_string('rating_' . $ratingnames[$rating->rating], 'groupdistribution');
-            $cell->attributes['class'] = 'groupdistribution_rating_' . $ratingnames[$rating->rating];
+            $cell->text = get_string('rating_short_' . $rating->rating, 'groupdistribution');
+            $cell->attributes['class'] = 'groupdistribution_rating_' . $rating->rating;
 
             $ratingscells[$rating->userid][$rating->groupsid] = $cell;
         }
@@ -317,7 +333,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $output .= html_writer::end_tag('ul');
         $output .= $this->box_end();
-        $output .= '<hr />';
 
         return $output;
     }
@@ -341,9 +356,37 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
      */
     public function format_group_description($description) {
         $output = $this->box_start('groupdistribution_description clearfix');
+        $output .= $this->heading(get_string('group_description', 'groupdistribution'), 5, 'groupdistribution_heading');
         $output .= format_text($description);
         $output .= $this->box_end();
-        $output .= '<hr />';
+
+        return $output;
+    }
+
+    /**
+     * Formats a group for display to the students
+     */
+    public function format_group($group, $show_heading) {
+        $output = $this->box_start('generalbox');
+
+        if ($show_heading) {
+            $output .= $this->heading($group->name, 3, 'groupdistribution_heading');
+        }
+
+        if ($group->picture == 1 and $group->hidepicture != 1) {
+            $output .= $this->format_group_picture($group);
+        }
+
+        if ($group->description !== '') {
+            $output .= $this->format_group_description($group->description);
+        }
+
+        $teachers = every_group_teacher_in_group($group->courseid, $group->id);
+        if (count($teachers) > 0) {
+            $output .= '<hr />';
+            $output .= $this->format_group_teachers($teachers);
+        } 
+        $output .= $this->box_end();
 
         return $output;
     }
@@ -413,8 +456,13 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
             }
 
             $a->changes = '<br><ul><li>' . implode('</li><li>', array_keys($changes)). '</li></ul>';
-            $a->time = userdate($timestart);
-            $output .= $this->container(get_string('changes', 'groupdistribution', $a), 'overview groupdistribution');
+            if ($timestart > 0) {
+                $a->time = userdate($timestart);
+                $output .= $this->container(get_string('changes', 'groupdistribution', $a), 'overview groupdistribution');
+            } else {
+                $output .= $this->container(get_string('changes_short', 'groupdistribution', $a),
+                    'overview groupdistribution');
+            }
         }
 
         return $output;

@@ -131,7 +131,7 @@ class mod_groupdistribution_mod_form extends moodleform_mod {
             $groupdataidelem = $elemprefix . "[groupdataid]";
             $groupsidelem = $elemprefix . "[groupsid]";
 
-            $mform->addElement('header', $headerelem, get_string('group', 'groupdistribution') . ': ' . $group->name);
+            $mform->addElement('header', $headerelem, $group->name);
 
             // Checkbox
             $mform->addElement('selectyesno', $israteableelem, get_string('rateable_form', 'groupdistribution'));

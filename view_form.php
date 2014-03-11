@@ -68,27 +68,16 @@ class mod_groupdistribution_view_form extends moodleform {
             $mform->setExpanded($headerelem);
 
             $group = $DB->get_record('groups', array('id' => $data->groupsid));
-            if ($group->picture == 1 and $group->hidepicture != 1) {
-                $mform->addElement('html', $renderer->format_group_picture($group));
-            }
-
-            if ($data->description !== '') {
-                $mform->addElement('html', $renderer->format_group_description($data->description));
-            }
-
-            $teachers = every_group_teacher_in_group($COURSE->id, $data->groupsid);
-            if (count($teachers) > 0) {
-                $mform->addElement('html', $renderer->format_group_teachers($teachers));
-            }
+            $mform->addElement('html', $renderer->format_group($group, false));
 
             // The higher the rating, the greater the desire to get into this group
             $options = array(
-                5 => get_string('rating_best', 'groupdistribution'),
-                4 => get_string('rating_good', 'groupdistribution'),
-                3 => get_string('rating_ok', 'groupdistribution'),
-                2 => get_string('rating_bad', 'groupdistribution'),
-                1 => get_string('rating_worst', 'groupdistribution'),
-                0 => get_string('rating_impossible', 'groupdistribution'));
+                5 => get_string('rating_5', 'groupdistribution'),
+                4 => get_string('rating_4', 'groupdistribution'),
+                3 => get_string('rating_3', 'groupdistribution'),
+                2 => get_string('rating_2', 'groupdistribution'),
+                1 => get_string('rating_1', 'groupdistribution'),
+                0 => get_string('rating_0', 'groupdistribution'));
 
             // If there is a valid value in the databse, choose the according rating
             // from the dropdown.
