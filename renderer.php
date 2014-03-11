@@ -68,8 +68,12 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $groups = get_rateable_groups_for_course($COURSE->id);
 
-        foreach ($groups as $group) {
-            $output .= $this->format_group($group, true);
+        if (count($groups) > 0) {
+            $output .= $this->heading(get_string('rateable_groups', 'groupdistribution'), 2);
+            foreach ($groups as $group) {
+                $output .= $this->format_group($group, true);
+                $output .= '<hr />';
+            }
         }
 
         return $output;
@@ -98,7 +102,12 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
 
         $memberships = get_rateable_memberships_for_course_with_user($COURSE->id, $USER->id);
         if (count($memberships) > 0) {
-            $output .= $this->heading('Deine Gruppen', 2);
+            if (count($memberships) == 1) {
+                $output .= $this->heading(get_string('your_group', 'groupdistribution'), 2);
+            }
+            else {
+                $output .= $this->heading(get_string('your_groups', 'groupdistribution'), 2);
+            }
             foreach ($memberships as $mem) {
                 $output .= $this->format_group($mem, true);
             }
@@ -356,7 +365,6 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
      */
     public function format_group_description($description) {
         $output = $this->box_start('groupdistribution_description clearfix');
-        $output .= $this->heading(get_string('group_description', 'groupdistribution'), 5, 'groupdistribution_heading');
         $output .= format_text($description);
         $output .= $this->box_end();
 
@@ -385,7 +393,7 @@ class mod_groupdistribution_renderer extends plugin_renderer_base {
         if (count($teachers) > 0) {
             $output .= '<hr />';
             $output .= $this->format_group_teachers($teachers);
-        } 
+        }
         $output .= $this->box_end();
 
         return $output;
