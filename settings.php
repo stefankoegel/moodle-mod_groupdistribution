@@ -32,8 +32,3 @@ $settings->add(new admin_setting_configtext('mod_groupdistribution/maxsize',
     get_string('maxsize_setting', 'groupdistribution'),
     get_string('maxsize_setting_desc', 'groupdistribution'),
     15, PARAM_INT));
-
-$settings->add(new admin_setting_configtext('mod_groupdistribution/timelimit',
-    get_string('max_timelimit', 'groupdistribution'),
-    get_string('max_timelimit_desc', 'groupdistribution'),
-    120, PARAM_INT));

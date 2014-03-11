@@ -30,8 +30,6 @@ The groupdistribution module has three settings which can be set on the plugin's
 
 2. You can set a default maximum size for groups.
 
-3. You can set a maximum time limit for the distribution algorithm. This feature tries to increase the standard PHP time limit of 30 seconds. Depending on your PHP settings it is possible for this setting to be ignored by PHP. This can be circumvented by changing the time limit directly in the PHP.ini file.
-
 
 Usage
 =====
@@ -54,6 +52,13 @@ Students
 The groupdistribution activity informs students about changes to the rating period and rateable groups. These changes are shown on the student's course overview block and the course's recent activity block.
 
 When a student wants to rate his groups, he/she is presented with a list containing the group names, their descriptions, possibly the names of the groups' teachers, and a menu from which the student can choose a rating. The student has to give at least two ratings better than 'impossible'. A student will never be distributed into a group with the rating 'impossible'.
+
+
+Timelimit
+=========
+The distribution algorithm might run for several seconds or minutes, depending on the number of enrolled students and groups. The algorithm tries to increase the standard PHP time limit at runtime with the set_time_limit(0) call like other parts of Moodle code do.
+
+Depending on your local PHP settings it is possible that PHP will ignore this function call and the algorithm will be stopped before it has finished. If this happens, please check your local PHP configuration and refer to http://www.php.net/manual/en/info.configuration.php#ini.max-execution-time and http://www.php.net/manual/en/function.set-time-limit.php.
 
 
 Themes

@@ -54,8 +54,8 @@ require_once(dirname(dirname(dirname(__FILE__))).'/group/lib.php');
 function distribute_users_in_course($courseid) {
     global $DB;
 
-    // Set the time limit to prevent the algorithm from running forever
-    set_time_limit(get_config('mod_groupdistribution', 'timelimit'));
+    // Extend PHP time limit
+    set_time_limit(0);
 
     // Load data from database
     $grouprecords = get_rateable_groups_for_course($courseid);

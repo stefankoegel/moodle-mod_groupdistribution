@@ -27,7 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $module->component = 'mod_groupdistribution';
-$module->version = 2013013100;
+$module->version = 2013013101;
 $module->release = '2.5 (Build: 2013013100)';
 $module->requires = 2013051404;
 $module->maturity = MATURITY_STABLE;
