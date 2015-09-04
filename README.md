@@ -1,3 +1,8 @@
+
+# :warning: Status :warning:
+
+This repository is **no longer actively maintained**. You can find its successor here: https://github.com/learnweb/moodle-mod_ratingallocate
+
 moodle-mod_groupdistribution
 ============================
 A Moodle module which simplifies the distribution of students into groups that are constrained by a maximum number of members.
